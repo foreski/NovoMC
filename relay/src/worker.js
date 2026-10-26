@@ -37,22 +37,30 @@ export default {
     const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
     if (!(await allow(env, ip))) return json({ error: 'Too many reports; try again later' }, 429);
 
-    const gh = github(env);
-    if (report.signature) {
-      const existing = await findBySignature(gh, env.GITHUB_REPO, report.signature);
-      if (existing) {
-        await gh('POST', `/repos/${env.GITHUB_REPO}/issues/${existing.number}/comments`, { body: occurrence(report) });
-        return json({ ok: true, duplicate: true, issue: existing.html_url });
-      }
+    try {
+      return await file(github(env), env.GITHUB_REPO, report);
+    } catch (e) {
+      // GitHub's message (never the token) so problems can be diagnosed from the launcher.
+      return json({ error: `Couldn't file the issue: ${e.message}` }, 502);
     }
-    const issue = await gh('POST', `/repos/${env.GITHUB_REPO}/issues`, {
-      title: `[${report.kind === 'crash' ? 'Crash' : 'Bug'}] ${report.title}`,
-      body: body(report),
-      labels: ['bug', 'auto-report'],
-    });
-    return json({ ok: true, issue: issue.html_url });
   },
 };
+
+async function file(gh, repo, report) {
+  if (report.signature) {
+    const existing = await findBySignature(gh, repo, report.signature);
+    if (existing) {
+      await gh('POST', `/repos/${repo}/issues/${existing.number}/comments`, { body: occurrence(report) });
+      return json({ ok: true, duplicate: true, issue: existing.html_url });
+    }
+  }
+  const issue = await gh('POST', `/repos/${repo}/issues`, {
+    title: `[${report.kind === 'crash' ? 'Crash' : 'Bug'}] ${report.title}`,
+    body: body(report),
+    labels: ['bug', 'auto-report'],
+  });
+  return json({ ok: true, issue: issue.html_url });
+}
 
 /** Keeps known fields, as trimmed strings within their limits. */
 export function clean(input) {
@@ -95,7 +103,10 @@ function github(env) {
       },
       body: payload ? JSON.stringify(payload) : undefined,
     });
-    if (!res.ok) throw new Error(`GitHub ${method} ${path}: HTTP ${res.status}`);
+    if (!res.ok) {
+      const detail = await res.json().catch(() => ({}));
+      throw new Error(`GitHub ${method} ${path.split('?')[0]}: HTTP ${res.status}${detail.message ? ` (${detail.message})` : ''}`);
+    }
     return res.json();
   };
 }

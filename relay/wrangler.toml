@@ -1,7 +1,7 @@
 # NovoMC bug-report relay. Deploy with:
 #   npx wrangler deploy
 #   npx wrangler secret put GITHUB_TOKEN
-name = "novomc-bug-relay"
+name = "shrill-block-91e1"
 main = "src/worker.js"
 compatibility_date = "2024-09-23"
 

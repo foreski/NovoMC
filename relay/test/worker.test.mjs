@@ -44,4 +44,10 @@ assert.equal((await post({ title: 'spam' }, '9.9.9.9')).status, 429);
 assert.equal(clean({ title: 't', signature: 'NOT-HEX' }).signature, '');
 assert.ok(body(clean({ title: 't', description: 'hi @everyone' })).includes('@​everyone'), 'mentions are defused');
 
+// GitHub refusing the token comes back as a readable error, not a crash.
+globalThis.fetch = async () => new Response(JSON.stringify({ message: 'Bad credentials' }), { status: 401 });
+res = await post({ title: 'token problem' }, '2.2.2.2');
+assert.equal(res.status, 502);
+assert.match((await res.json()).error, /HTTP 401 \(Bad credentials\)/);
+
 console.log('relay tests passed');
