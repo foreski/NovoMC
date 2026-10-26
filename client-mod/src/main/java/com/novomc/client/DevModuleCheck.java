@@ -6,6 +6,7 @@ import com.novomc.client.modules.EntityCullingModule;
 import com.novomc.client.modules.FreelookModule;
 import com.novomc.client.modules.HurtCamModule;
 import com.novomc.client.modules.NickHiderModule;
+import com.novomc.client.util.NovoFont;
 import com.novomc.client.gui.GuiHudEditor;
 import com.novomc.client.module.HudModule;
 import java.awt.Robot;
@@ -394,6 +395,14 @@ public final class DevModuleCheck {
                 String name = mc.getSession().getUsername();
                 String out = NickHiderModule.replace("<" + name + "> hi");
                 check("nick_hider.replace", out.equals("<Hidden> hi"), "\"" + out + "\"");
+                // The modern font draws HUD text itself, so it must hide the name too.
+                check("nick_hider.modernFont", NovoFont.REGULAR.width(name + ": 99") == NovoFont.REGULAR.width("Hidden: 99"),
+                        "sidebar line measured with the nick");
+                // Hypixel hides zero-width characters in sidebar text; they must not show as "?".
+                NovoFont f = NovoFont.REGULAR;
+                float plain = f.width("Winstreak");
+                check("font.invisibleChars", Math.abs(f.width("Win​strea‌k") - plain) < 0.01f, "width with zero-width chars=" + f.width("Win​strea‌k") + " vs " + plain);
+                check("font.symbolFallback", f.width("⚔") > 0, "crossed swords drawn with the vanilla font, width=" + f.width("⚔"));
             }
         });
 

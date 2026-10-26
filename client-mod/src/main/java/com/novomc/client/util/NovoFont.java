@@ -6,7 +6,10 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import com.novomc.client.modules.NickHiderModule;
 import java.io.InputStream;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
@@ -110,9 +113,24 @@ public final class NovoFont {
         }
     }
 
+    /** The glyph for `c`, or null if Poppins doesn't have it. */
     private float[] glyph(char c) {
-        float[] g = c <= LAST ? glyphs[c] : null;
-        return g != null ? g : glyphs['?'];
+        return c <= LAST ? glyphs[c] : null;
+    }
+
+    /**
+     * Characters that take no space. Servers (Hypixel's sidebar especially) hide
+     * these inside text; drawing them as "?" garbles the line.
+     */
+    private static boolean invisible(char c) {
+        int type = Character.getType(c);
+        return type == Character.FORMAT || type == Character.CONTROL || type == Character.SURROGATE
+                || type == Character.UNASSIGNED || (c >= 0xFE00 && c <= 0xFE0F);
+    }
+
+    /** Minecraft's own font, for symbols Poppins lacks (it covers all of Unicode's BMP). */
+    private static FontRenderer vanilla() {
+        return Minecraft.getMinecraft().fontRendererObj;
     }
 
     /** Width in GUI pixels, skipping § codes (bold counts with the bold font). */
@@ -121,6 +139,8 @@ public final class NovoFont {
         if (failed || text == null) {
             return 0;
         }
+        // Nick Hider applies here too (it hooks the vanilla font, which this one bypasses).
+        text = NickHiderModule.replace(text);
         float w = 0;
         NovoFont font = this;
         for (int i = 0; i < text.length(); i++) {
@@ -132,7 +152,11 @@ public final class NovoFont {
                 continue;
             }
             float[] g = font.glyph(c);
-            w += g != null ? g[4] : 0;
+            if (g != null) {
+                w += g[4];
+            } else if (!invisible(c)) {
+                w += vanilla().getCharWidth(c);
+            }
         }
         return w;
     }
@@ -143,6 +167,7 @@ public final class NovoFont {
         if (failed || text == null || text.isEmpty()) {
             return;
         }
+        text = NickHiderModule.replace(text);
         if ((argb & 0xFC000000) == 0) {
             argb |= 0xFF000000;
         }
@@ -186,6 +211,17 @@ public final class NovoFont {
             }
             float[] g = font.glyph(c);
             if (g == null) {
+                if (!invisible(c)) {
+                    // A symbol Poppins lacks: draw it with Minecraft's font, then resume our batch.
+                    if (bound != -1) {
+                        t.draw();
+                        bound = -1;
+                    }
+                    vanilla().drawString(String.valueOf(c), cx, y, Math.round(alpha * 255) << 24 | color, false);
+                    cx += vanilla().getCharWidth(c);
+                    GlStateManager.enableBlend();
+                    GlStateManager.color(1, 1, 1, 1);
+                }
                 continue;
             }
             if (font.texture != bound) {
