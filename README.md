@@ -20,6 +20,14 @@ More FPS, 56 built-in mods, thousands of resource packs, one click to play.
 
 ---
 
+## 🎬 See it in action
+
+<p align="center">
+  <img src="docs/images/showcase.gif" width="760" alt="NovoMC Client in a 1.8.9 PvP duel: HUD, keystrokes, potion timers and 150+ FPS" />
+</p>
+
+<p align="center"><sub>A real duel on NovoMC 1.8.9 · <a href="docs/media/novomc-showcase.mp4">▶ Watch the full 30-second clip</a></sub></p>
+
 ## ⚡ Double your FPS
 
 NovoMC Client ships its own performance mods for 1.8.9, written from scratch: no OptiFine, no
