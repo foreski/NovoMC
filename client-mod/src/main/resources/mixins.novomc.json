@@ -1,0 +1,31 @@
+{
+  "package": "${mixinGroup}",
+  "refmap": "mixins.${modid}.refmap.json",
+  "minVersion": "0.7",
+  "compatibilityLevel": "JAVA_8",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "MixinEffectRenderer",
+    "MixinEntity",
+    "MixinEntityRenderer",
+    "MixinFontRenderer",
+    "MixinGuiIngame",
+    "MixinGuiIngameForge",
+    "MixinGuiPlayerTabOverlay",
+    "MixinGuiScreen",
+    "MixinItemRenderer",
+    "MixinLayerArmorBase",
+    "MixinRender",
+    "MixinRenderManager",
+    "MixinRenderEntityItem",
+    "MixinRenderItem",
+    "MixinRendererLivingEntity",
+    "MixinScoreboard",
+    "MixinTileEntityRendererDispatcher",
+    "accessor.EntityRendererAccessor",
+    "accessor.ShaderGroupAccessor",
+    "accessor.GuiMainMenuAccessor"
+  ]
+}

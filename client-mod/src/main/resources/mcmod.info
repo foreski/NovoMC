@@ -1,0 +1,11 @@
+[
+  {
+    "modid": "${modid}",
+    "name": "NovoMC Client",
+    "description": "NovoMC's PvP and performance mods. Toggle them in the NovoMC launcher's Mod Library or in-game with Right Shift.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "authorList": ["NovoMC"]
+  }
+]

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "batch-3",
+    "title": "UI and info mods arrive",
+    "body": "Scoreboard, Chat, Titles, Boss Bar, Tab Editor, Nick Hider and eight more join the NovoMC Client. 56 mods in total, all toggleable in the Mod Library.",
+    "date": "2026-10-26",
+    "tag": "novomc"
+  },
+  {
+    "id": "batch-2",
+    "title": "PvP visuals and the NovoMC menu",
+    "body": "1.7 animations, Hit Color, Block Outline, Motion Blur, Freelook and more, plus a brand-new in-game main menu.",
+    "date": "2026-10-26",
+    "tag": "novomc"
+  },
+  {
+    "id": "forge-189",
+    "title": "One-click Forge for 1.8.9",
+    "body": "Pick Forge when creating a 1.8.9 instance; NovoMC installs it on first Play and verifies every library.",
+    "date": "2026-10-26",
+    "tag": "novomc"
+  },
+  {
+    "id": "performance-flags",
+    "title": "Smoother frames out of the box",
+    "body": "Every launch now uses tuned garbage-collector flags for fewer lag spikes. Turn them off in Settings if you need to.",
+    "date": "2026-10-26",
+    "tag": "novomc"
+  }
+]

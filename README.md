@@ -1,0 +1,103 @@
+<div align="center">
+
+<img src="assets/branding/novomc-logo.svg" width="112" alt="NovoMC logo" />
+
+# NovoMC
+
+**The performance Minecraft launcher with a built-in 1.8.9 PvP client.**
+
+More FPS, 56 built-in mods, thousands of resource packs, one click to play.
+
+[![Download](https://img.shields.io/github/v/release/foreski/NovoMC?label=Download&style=for-the-badge&color=5B8CFF)](https://github.com/foreski/NovoMC/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/foreski/NovoMC/total?style=for-the-badge&color=B45BFF)](https://github.com/foreski/NovoMC/releases)
+![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-22D3EE?style=for-the-badge)
+
+### [⬇ Download NovoMC for Windows](https://github.com/foreski/NovoMC/releases/latest)
+
+<img src="docs/images/launcher-home.png" width="860" alt="The NovoMC launcher home screen" />
+
+</div>
+
+---
+
+## ⚡ Double your FPS
+
+NovoMC Client ships its own performance mods for 1.8.9, written from scratch: no OptiFine, no
+third-party mods.
+
+- **Smart culling** skips far-away mobs, armor stands, dropped items, chests, signs, skulls and banners.
+- **Particle limiter** caps particle spam in fights and drops particles you can't see anyway.
+- **Uncapped frame rate**, VBO rendering, no entity shadows and no clouds, switched on for you.
+- **Tuned Java flags** for short, smooth garbage-collection pauses instead of lag spikes.
+
+In our lobby stress test (400 armor stands, ~1,900 chests and skulls, constant particles) NovoMC went from
+**126 FPS to 259 FPS: +105%**. Every optimization can be switched off if you prefer vanilla.
+
+## 🎮 56 mods, built in
+
+Everything a PvP player wants, ready the moment you join a server. Toggle mods and change their
+settings in-game (Right Shift) or from the launcher, and drag any HUD element exactly where you want it.
+
+| HUD | PvP visuals | Quality of life |
+| --- | --- | --- |
+| FPS, CPS, Keystrokes | 1.7 animations | Freelook & Snaplook |
+| Armor Status, Potion Effects | Hit Color, Hurt Cam | Zoom, Toggle Sprint/Sneak |
+| Coordinates, Direction HUD | Block Outline, Hitboxes | Nick Hider |
+| Ping, Clock, Memory | Item Physics, 2D Items | Custom Scoreboard & Tab list |
+| Combo Counter, Reach Display | Motion Blur, Menu Blur | Chat tweaks, Titles, Boss Bar |
+
+<p align="center">
+  <img src="docs/images/ingame-mods.png" width="49%" alt="The in-game Mod Library" />
+  <img src="docs/images/launcher-mods.png" width="49%" alt="The Mod Library in the launcher" />
+</p>
+
+## 🎨 Thousands of resource packs, in-game
+
+Browse every Modrinth resource pack that works on 1.8.9 (about 2,700 and counting) without leaving
+Minecraft. Search, sort by popular or newest, filter by PvP, Simplistic, Vanilla-like and more, then hit
+**Install**: the pack downloads, gets checked and turns on immediately.
+
+<p align="center">
+  <img src="docs/images/ingame-packs.png" width="70%" alt="The in-game Resource Packs library" />
+</p>
+
+## 🚀 A launcher that stays out of your way
+
+- **One-click play.** Pick an instance and press Play; NovoMC downloads the game, Forge and the right Java for you.
+- **Every Minecraft version**, straight from Mojang's servers and checked file by file.
+- **Instances** with their own worlds, mods, packs, memory and Java. Duplicate one in a click.
+- **Microsoft accounts** for online servers and Realms, plus offline players for singleplayer and LAN.
+  Sign-ins are stored in Windows Credential Manager, never in plain files.
+- **Live console** with crash reports, so you can see what went wrong.
+- **Your look, your language**: accent colors, and the launcher in English, Deutsch, Español, Français and Português.
+- **Automatic updates**: NovoMC keeps itself up to date, and every update is cryptographically signed.
+
+<p align="center">
+  <img src="docs/images/ingame-menu.png" width="49%" alt="The NovoMC main menu in Minecraft" />
+  <img src="docs/images/launcher-settings.png" width="49%" alt="Launcher settings" />
+</p>
+
+## 📥 Get started
+
+1. **[Download the installer](https://github.com/foreski/NovoMC/releases/latest)** (`NovoMC_x.y.z_x64-setup.exe`).
+2. Run it. If Windows SmartScreen shows a warning, click **More info → Run anyway** (the installer isn't code-signed yet).
+3. Add your Microsoft account, create a 1.8.9 instance and press **Play**.
+
+Requires Windows 10 or 11 (64-bit). Java is downloaded automatically.
+
+## 🛡 Fair play
+
+NovoMC is a visual and quality-of-life client, like the big-name PvP clients. Nothing automates your input
+or shows information vanilla hides. Freelook can't be disabled by servers the way some clients allow, so
+check a server's rules before using it there.
+
+## 🛠 Build from source
+
+NovoMC is a Tauri 2 (Rust) + React launcher and a Forge 1.8.9 mod. See
+**[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** for setup, build commands and the project layout.
+
+---
+
+<sub>NovoMC is not an official Minecraft product and is not approved by or associated with Mojang or
+Microsoft. Minecraft is a trademark of Mojang AB. Resource packs are provided by their authors through
+Modrinth.</sub>

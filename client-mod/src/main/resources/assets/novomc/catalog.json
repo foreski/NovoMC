@@ -1,0 +1,1505 @@
+{
+  "categories": [
+    {
+      "id": "hud",
+      "name": "HUD"
+    },
+    {
+      "id": "visual",
+      "name": "PvP visuals"
+    },
+    {
+      "id": "qol",
+      "name": "Quality of life"
+    },
+    {
+      "id": "performance",
+      "name": "Performance"
+    }
+  ],
+  "modules": [
+    {
+      "id": "fps",
+      "name": "FPS",
+      "category": "hud",
+      "enabled": true,
+      "description": "Shows your frames per second.",
+      "hud": {
+        "x": 0.005,
+        "y": 0.01,
+        "stack": "left"
+      },
+      "settings": [
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        },
+        {
+          "key": "background",
+          "type": "toggle",
+          "label": "Background",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "cps",
+      "name": "CPS",
+      "category": "hud",
+      "enabled": false,
+      "description": "Shows your clicks per second.",
+      "hud": {
+        "x": 0.005,
+        "y": 0.01,
+        "stack": "left"
+      },
+      "settings": [
+        {
+          "key": "showRight",
+          "type": "toggle",
+          "label": "Show right clicks",
+          "default": true
+        },
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        },
+        {
+          "key": "background",
+          "type": "toggle",
+          "label": "Background",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "keystrokes",
+      "name": "Keystrokes",
+      "category": "hud",
+      "enabled": false,
+      "description": "Shows the movement keys and mouse buttons you press.",
+      "hud": {
+        "x": 1,
+        "y": 0.02,
+        "stack": "right"
+      },
+      "settings": [
+        {
+          "key": "showMouse",
+          "type": "toggle",
+          "label": "Mouse buttons",
+          "default": true
+        },
+        {
+          "key": "showCps",
+          "type": "toggle",
+          "label": "CPS under mouse buttons",
+          "default": true
+        },
+        {
+          "key": "showSpace",
+          "type": "toggle",
+          "label": "Space bar",
+          "default": true
+        },
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        },
+        {
+          "key": "pressedColor",
+          "type": "color",
+          "label": "Pressed color",
+          "default": "#FFFFFF"
+        }
+      ]
+    },
+    {
+      "id": "coordinates",
+      "name": "Coordinates",
+      "category": "hud",
+      "enabled": true,
+      "description": "Shows your position, facing and biome.",
+      "hud": {
+        "x": 0.005,
+        "y": 0.01,
+        "stack": "left"
+      },
+      "settings": [
+        {
+          "key": "decimals",
+          "type": "number",
+          "label": "Decimals",
+          "default": 0,
+          "min": 0,
+          "max": 2,
+          "step": 1
+        },
+        {
+          "key": "showFacing",
+          "type": "toggle",
+          "label": "Facing",
+          "default": true
+        },
+        {
+          "key": "showBiome",
+          "type": "toggle",
+          "label": "Biome",
+          "default": false
+        },
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        },
+        {
+          "key": "background",
+          "type": "toggle",
+          "label": "Background",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "direction",
+      "name": "Direction HUD",
+      "category": "hud",
+      "enabled": true,
+      "description": "A compass strip showing which way you face.",
+      "hud": {
+        "x": 0.5,
+        "y": 0.01,
+        "stack": "top",
+        "center": true
+      },
+      "settings": [
+        {
+          "key": "markerColor",
+          "type": "color",
+          "label": "Marker color",
+          "default": "#5B8CFF"
+        },
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        }
+      ]
+    },
+    {
+      "id": "armor_status",
+      "name": "Armor Status",
+      "category": "hud",
+      "enabled": true,
+      "description": "Shows your armor and held item with durability.",
+      "hud": {
+        "x": 1,
+        "y": 0.66
+      },
+      "settings": [
+        {
+          "key": "showHeld",
+          "type": "toggle",
+          "label": "Held item",
+          "default": true
+        },
+        {
+          "key": "durability",
+          "type": "choice",
+          "label": "Durability",
+          "default": "value",
+          "options": [
+            {
+              "value": "value",
+              "label": "Remaining"
+            },
+            {
+              "value": "percent",
+              "label": "Percent"
+            },
+            {
+              "value": "none",
+              "label": "Hidden"
+            }
+          ]
+        },
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        }
+      ]
+    },
+    {
+      "id": "potion_effects",
+      "name": "Potion Effects",
+      "category": "hud",
+      "enabled": true,
+      "description": "Lists active potion effects with their time left.",
+      "hud": {
+        "x": 1,
+        "y": 0.02,
+        "stack": "right"
+      },
+      "settings": [
+        {
+          "key": "showIcons",
+          "type": "toggle",
+          "label": "Icons",
+          "default": true
+        },
+        {
+          "key": "blinkWhenLow",
+          "type": "toggle",
+          "label": "Blink under 10 seconds",
+          "default": true
+        },
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        }
+      ]
+    },
+    {
+      "id": "ping",
+      "name": "Ping",
+      "category": "hud",
+      "enabled": false,
+      "description": "Shows your latency to the server.",
+      "hud": {
+        "x": 0.005,
+        "y": 0.01,
+        "stack": "left"
+      },
+      "settings": [
+        {
+          "key": "showInSingleplayer",
+          "type": "toggle",
+          "label": "Show in singleplayer",
+          "default": false
+        },
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        },
+        {
+          "key": "background",
+          "type": "toggle",
+          "label": "Background",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "memory",
+      "name": "Memory Usage",
+      "category": "hud",
+      "enabled": false,
+      "description": "Shows how much of its memory the game is using.",
+      "hud": {
+        "x": 0.005,
+        "y": 0.01,
+        "stack": "left"
+      },
+      "settings": [
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        },
+        {
+          "key": "background",
+          "type": "toggle",
+          "label": "Background",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "clock",
+      "name": "Clock",
+      "category": "hud",
+      "enabled": false,
+      "description": "Shows the real-world time.",
+      "hud": {
+        "x": 0.005,
+        "y": 0.01,
+        "stack": "left"
+      },
+      "settings": [
+        {
+          "key": "format24h",
+          "type": "toggle",
+          "label": "24-hour",
+          "default": true
+        },
+        {
+          "key": "showSeconds",
+          "type": "toggle",
+          "label": "Seconds",
+          "default": false
+        },
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        },
+        {
+          "key": "background",
+          "type": "toggle",
+          "label": "Background",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "saturation",
+      "name": "Saturation",
+      "category": "hud",
+      "enabled": false,
+      "description": "Shows your hidden hunger saturation.",
+      "hud": {
+        "x": 0.005,
+        "y": 0.01,
+        "stack": "left"
+      },
+      "settings": [
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFD54F"
+        },
+        {
+          "key": "background",
+          "type": "toggle",
+          "label": "Background",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "item_counter",
+      "name": "Item Counter",
+      "category": "hud",
+      "enabled": false,
+      "description": "Counts key PvP items in your inventory.",
+      "hud": {
+        "x": 0.75,
+        "y": 0.82
+      },
+      "settings": [
+        {
+          "key": "arrows",
+          "type": "toggle",
+          "label": "Arrows",
+          "default": true
+        },
+        {
+          "key": "goldenApples",
+          "type": "toggle",
+          "label": "Golden apples",
+          "default": true
+        },
+        {
+          "key": "enderPearls",
+          "type": "toggle",
+          "label": "Ender pearls",
+          "default": true
+        },
+        {
+          "key": "heldItem",
+          "type": "toggle",
+          "label": "Held item",
+          "default": false
+        },
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        }
+      ]
+    },
+    {
+      "id": "toggle_sprint",
+      "name": "Toggle Sprint",
+      "category": "qol",
+      "enabled": true,
+      "description": "Press your sprint key once to keep sprinting. Optionally toggles sneak too.",
+      "hud": {
+        "x": 0.005,
+        "y": 0.955
+      },
+      "settings": [
+        {
+          "key": "toggleSneak",
+          "type": "toggle",
+          "label": "Toggle sneak too",
+          "default": false
+        },
+        {
+          "key": "showStatus",
+          "type": "toggle",
+          "label": "Show status text",
+          "default": true
+        },
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        }
+      ]
+    },
+    {
+      "id": "zoom",
+      "name": "Zoom",
+      "category": "qol",
+      "enabled": true,
+      "description": "Hold C (changeable in Controls) to zoom. Scroll to adjust.",
+      "settings": [
+        {
+          "key": "factor",
+          "type": "number",
+          "label": "Zoom level",
+          "default": 4,
+          "min": 2,
+          "max": 10,
+          "step": 0.5
+        },
+        {
+          "key": "smooth",
+          "type": "toggle",
+          "label": "Smooth zoom",
+          "default": true
+        },
+        {
+          "key": "scroll",
+          "type": "toggle",
+          "label": "Scroll to adjust",
+          "default": true
+        },
+        {
+          "key": "cinematic",
+          "type": "toggle",
+          "label": "Cinematic camera while zoomed",
+          "default": false
+        }
+      ]
+    },
+    {
+      "id": "fullbright",
+      "name": "Fullbright",
+      "category": "qol",
+      "enabled": false,
+      "description": "Maxes out brightness so caves and nights are fully lit.",
+      "settings": []
+    },
+    {
+      "id": "crosshair",
+      "name": "Crosshair",
+      "category": "qol",
+      "enabled": false,
+      "description": "A custom crosshair.",
+      "settings": [
+        {
+          "key": "style",
+          "type": "choice",
+          "label": "Style",
+          "default": "cross",
+          "options": [
+            {
+              "value": "cross",
+              "label": "Cross"
+            },
+            {
+              "value": "t",
+              "label": "T"
+            },
+            {
+              "value": "dot",
+              "label": "Dot"
+            }
+          ]
+        },
+        {
+          "key": "color",
+          "type": "color",
+          "label": "Color",
+          "default": "#FFFFFF"
+        },
+        {
+          "key": "size",
+          "type": "number",
+          "label": "Size",
+          "default": 5,
+          "min": 1,
+          "max": 15,
+          "step": 1
+        },
+        {
+          "key": "gap",
+          "type": "number",
+          "label": "Gap",
+          "default": 2,
+          "min": 0,
+          "max": 10,
+          "step": 1
+        },
+        {
+          "key": "thickness",
+          "type": "number",
+          "label": "Thickness",
+          "default": 1,
+          "min": 1,
+          "max": 4,
+          "step": 1
+        },
+        {
+          "key": "centerDot",
+          "type": "toggle",
+          "label": "Center dot",
+          "default": false
+        },
+        {
+          "key": "outline",
+          "type": "toggle",
+          "label": "Outline",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "entity_culling",
+      "name": "Entity Culling",
+      "category": "performance",
+      "enabled": true,
+      "description": "Skips drawing mobs, armor stands, dropped items and block entities (chests, signs, skulls, banners) far away. Big FPS win in lobbies.",
+      "settings": [
+        {
+          "key": "distance",
+          "type": "number",
+          "label": "Entity distance",
+          "default": 48,
+          "min": 16,
+          "max": 128,
+          "step": 8
+        },
+        {
+          "key": "tileDistance",
+          "type": "number",
+          "label": "Block entity distance",
+          "default": 48,
+          "min": 16,
+          "max": 128,
+          "step": 8
+        },
+        {
+          "key": "players",
+          "type": "toggle",
+          "label": "Also cull players",
+          "default": false
+        }
+      ]
+    },
+    {
+      "id": "particle_limiter",
+      "name": "Particle Limiter",
+      "category": "performance",
+      "enabled": true,
+      "description": "Caps how many particles exist at once and skips far-away ones, avoiding frame drops in fights.",
+      "settings": [
+        {
+          "key": "max",
+          "type": "number",
+          "label": "Max particles",
+          "default": 1500,
+          "min": 100,
+          "max": 4000,
+          "step": 100
+        },
+        {
+          "key": "distance",
+          "type": "number",
+          "label": "Max particle distance",
+          "default": 32,
+          "min": 8,
+          "max": 64,
+          "step": 4
+        }
+      ]
+    },
+    {
+      "id": "unfocused_fps",
+      "name": "Unfocused FPS Limit",
+      "category": "performance",
+      "enabled": true,
+      "description": "Lowers the frame rate while the game is in the background, saving power and heat.",
+      "settings": [
+        {
+          "key": "limit",
+          "type": "number",
+          "label": "Background FPS",
+          "default": 15,
+          "min": 5,
+          "max": 120,
+          "step": 5
+        }
+      ]
+    },
+    {
+      "id": "performance_tweaks",
+      "name": "Performance Tweaks",
+      "category": "performance",
+      "enabled": true,
+      "description": "Uncapped frame rate and faster rendering options vanilla leaves off.",
+      "settings": [
+        {
+          "key": "unlimitedFps",
+          "type": "toggle",
+          "label": "Uncapped frame rate (VSync off)",
+          "default": true
+        },
+        {
+          "key": "vbo",
+          "type": "toggle",
+          "label": "VBO chunk rendering",
+          "default": true
+        },
+        {
+          "key": "noEntityShadows",
+          "type": "toggle",
+          "label": "No entity shadows",
+          "default": true
+        },
+        {
+          "key": "noClouds",
+          "type": "toggle",
+          "label": "Hide clouds",
+          "default": true
+        },
+        {
+          "key": "fastGraphics",
+          "type": "toggle",
+          "label": "Fast graphics (fast leaves)",
+          "default": false
+        }
+      ]
+    },
+    {
+      "id": "old_animations",
+      "name": "1.7 Visuals",
+      "category": "visual",
+      "enabled": true,
+      "description": "Classic 1.7 feel: swing while blocking, eating or drawing a bow, and armor that flashes red when hit.",
+      "settings": [
+        {
+          "key": "blockhit",
+          "type": "toggle",
+          "label": "Swing while using items (block-hit)",
+          "default": true
+        },
+        {
+          "key": "armorTint",
+          "type": "toggle",
+          "label": "Red armor when hurt",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "hit_color",
+      "name": "Hit Color",
+      "category": "visual",
+      "enabled": false,
+      "description": "Changes the tint entities flash when they take damage.",
+      "settings": [
+        {
+          "key": "color",
+          "type": "color",
+          "label": "Color",
+          "default": "#FF0000"
+        },
+        {
+          "key": "opacity",
+          "type": "number",
+          "label": "Opacity (%)",
+          "default": 30,
+          "min": 0,
+          "max": 100,
+          "step": 5
+        }
+      ]
+    },
+    {
+      "id": "block_outline",
+      "name": "Block Outline",
+      "category": "visual",
+      "enabled": false,
+      "description": "A custom outline (and optional fill) on the block you look at.",
+      "settings": [
+        {
+          "key": "color",
+          "type": "color",
+          "label": "Color",
+          "default": "#5B8CFF"
+        },
+        {
+          "key": "width",
+          "type": "number",
+          "label": "Line width",
+          "default": 2,
+          "min": 1,
+          "max": 6,
+          "step": 1
+        },
+        {
+          "key": "fill",
+          "type": "toggle",
+          "label": "Fill",
+          "default": false
+        },
+        {
+          "key": "fillOpacity",
+          "type": "number",
+          "label": "Fill opacity (%)",
+          "default": 15,
+          "min": 0,
+          "max": 100,
+          "step": 5
+        }
+      ]
+    },
+    {
+      "id": "hurt_cam",
+      "name": "Hurt Cam",
+      "category": "visual",
+      "enabled": false,
+      "description": "Reduces or removes the camera shake when you take damage.",
+      "settings": [
+        {
+          "key": "intensity",
+          "type": "number",
+          "label": "Shake (%)",
+          "default": 0,
+          "min": 0,
+          "max": 100,
+          "step": 5
+        }
+      ]
+    },
+    {
+      "id": "fov_changer",
+      "name": "FOV Changer",
+      "category": "visual",
+      "enabled": false,
+      "description": "Stops sprinting and speed effects from changing your field of view.",
+      "settings": [
+        {
+          "key": "static",
+          "type": "toggle",
+          "label": "No FOV change from sprint and speed",
+          "default": true
+        },
+        {
+          "key": "bowZoom",
+          "type": "toggle",
+          "label": "Keep bow zoom",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "particle_changer",
+      "name": "Particle Changer",
+      "category": "visual",
+      "enabled": false,
+      "description": "More hit particles: multiply crits and sharpness, or always show them.",
+      "settings": [
+        {
+          "key": "multiplier",
+          "type": "number",
+          "label": "Multiplier",
+          "default": 2,
+          "min": 1,
+          "max": 10,
+          "step": 1
+        },
+        {
+          "key": "alwaysCrit",
+          "type": "toggle",
+          "label": "Always show crits",
+          "default": false
+        },
+        {
+          "key": "alwaysSharpness",
+          "type": "toggle",
+          "label": "Always show sharpness",
+          "default": false
+        }
+      ]
+    },
+    {
+      "id": "time_changer",
+      "name": "Time Changer",
+      "category": "visual",
+      "enabled": false,
+      "description": "Shows the world at a fixed time of day (only for you).",
+      "settings": [
+        {
+          "key": "time",
+          "type": "number",
+          "label": "Time (ticks: 6000 noon, 18000 midnight)",
+          "default": 6000,
+          "min": 0,
+          "max": 24000,
+          "step": 500
+        }
+      ]
+    },
+    {
+      "id": "weather_changer",
+      "name": "Weather Changer",
+      "category": "visual",
+      "enabled": false,
+      "description": "Shows clear skies, rain or a storm (only for you).",
+      "settings": [
+        {
+          "key": "weather",
+          "type": "choice",
+          "label": "Weather",
+          "default": "clear",
+          "options": [
+            {
+              "value": "clear",
+              "label": "Clear"
+            },
+            {
+              "value": "rain",
+              "label": "Rain"
+            },
+            {
+              "value": "storm",
+              "label": "Storm"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fog",
+      "name": "Fog Customizer",
+      "category": "visual",
+      "enabled": false,
+      "description": "Removes render-distance fog and can recolor it.",
+      "settings": [
+        {
+          "key": "remove",
+          "type": "toggle",
+          "label": "Remove fog",
+          "default": true
+        },
+        {
+          "key": "customColor",
+          "type": "toggle",
+          "label": "Custom fog color",
+          "default": false
+        },
+        {
+          "key": "color",
+          "type": "color",
+          "label": "Fog color",
+          "default": "#9DB8E8"
+        }
+      ]
+    },
+    {
+      "id": "glint",
+      "name": "Glint Colorizer",
+      "category": "visual",
+      "enabled": false,
+      "description": "Recolors the enchantment glint on items and armor.",
+      "settings": [
+        {
+          "key": "color",
+          "type": "color",
+          "label": "Glint color",
+          "default": "#8040CC"
+        }
+      ]
+    },
+    {
+      "id": "motion_blur",
+      "name": "Motion Blur",
+      "category": "visual",
+      "enabled": false,
+      "description": "Smooth trails when you move the camera.",
+      "settings": [
+        {
+          "key": "strength",
+          "type": "number",
+          "label": "Strength",
+          "default": 5,
+          "min": 1,
+          "max": 10,
+          "step": 1
+        }
+      ]
+    },
+    {
+      "id": "menu_blur",
+      "name": "Menu Blur",
+      "category": "visual",
+      "enabled": true,
+      "description": "Blurs the world behind inventories and menus.",
+      "settings": []
+    },
+    {
+      "id": "modern_font",
+      "name": "Modern Font",
+      "category": "visual",
+      "enabled": true,
+      "description": "Uses the clean Poppins font in NovoMC menus and the HUD instead of the pixel font.",
+      "settings": [
+        {
+          "key": "hud",
+          "type": "toggle",
+          "label": "Use in HUD",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "items_2d",
+      "name": "2D Items",
+      "category": "visual",
+      "enabled": false,
+      "description": "Dropped items render as flat sprites that face you.",
+      "settings": []
+    },
+    {
+      "id": "item_physics",
+      "name": "Item Physics",
+      "category": "visual",
+      "enabled": false,
+      "description": "Dropped items lie flat on the ground and tumble as they fall.",
+      "settings": []
+    },
+    {
+      "id": "hitbox",
+      "name": "Hitbox",
+      "category": "visual",
+      "enabled": false,
+      "description": "Shows entity hitboxes (like F3+B) with your own color.",
+      "settings": [
+        {
+          "key": "color",
+          "type": "color",
+          "label": "Color",
+          "default": "#FFFFFF"
+        },
+        {
+          "key": "playersOnly",
+          "type": "toggle",
+          "label": "Players only",
+          "default": false
+        },
+        {
+          "key": "lookVector",
+          "type": "toggle",
+          "label": "Show where they look",
+          "default": false
+        }
+      ]
+    },
+    {
+      "id": "chunk_borders",
+      "name": "Chunk Borders",
+      "category": "visual",
+      "enabled": false,
+      "description": "Draws the borders of the chunks around you.",
+      "settings": [
+        {
+          "key": "color",
+          "type": "color",
+          "label": "Color",
+          "default": "#FFD54F"
+        }
+      ]
+    },
+    {
+      "id": "nametags",
+      "name": "Nametags",
+      "category": "visual",
+      "enabled": true,
+      "description": "Nametag tweaks: your own nametag in F5 and background opacity.",
+      "settings": [
+        {
+          "key": "showOwn",
+          "type": "toggle",
+          "label": "Show your own nametag in F5",
+          "default": false
+        },
+        {
+          "key": "background",
+          "type": "number",
+          "label": "Background opacity (%)",
+          "default": 25,
+          "min": 0,
+          "max": 100,
+          "step": 5
+        }
+      ]
+    },
+    {
+      "id": "freelook",
+      "name": "Freelook",
+      "category": "qol",
+      "enabled": true,
+      "description": "Hold Left Alt (changeable in Controls) to look around without turning.",
+      "settings": [
+        {
+          "key": "thirdPerson",
+          "type": "toggle",
+          "label": "Switch to third person while held",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "snaplook",
+      "name": "Snaplook",
+      "category": "qol",
+      "enabled": false,
+      "description": "Hold a key to look behind you. Bind it in Controls > NovoMC.",
+      "settings": []
+    },
+    {
+      "id": "main_menu",
+      "name": "NovoMC Menu",
+      "category": "qol",
+      "enabled": true,
+      "description": "The NovoMC main menu instead of the vanilla one.",
+      "settings": []
+    },
+    {
+      "id": "combo_counter",
+      "name": "Combo Counter",
+      "category": "hud",
+      "enabled": false,
+      "description": "Counts hits in a row without getting hit back.",
+      "hud": {
+        "x": 0.5,
+        "y": 0.6,
+        "stack": "middle",
+        "center": true
+      },
+      "settings": [
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        },
+        {
+          "key": "background",
+          "type": "toggle",
+          "label": "Background",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "reach_display",
+      "name": "Reach Display",
+      "category": "hud",
+      "enabled": false,
+      "description": "Shows how far away your last hit landed.",
+      "hud": {
+        "x": 0.5,
+        "y": 0.6,
+        "stack": "middle",
+        "center": true
+      },
+      "settings": [
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        },
+        {
+          "key": "background",
+          "type": "toggle",
+          "label": "Background",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "scoreboard",
+      "name": "Scoreboard",
+      "category": "hud",
+      "enabled": false,
+      "description": "Movable sidebar scoreboard; hide the red numbers and set the background.",
+      "hud": {
+        "x": 1,
+        "y": 0.02,
+        "stack": "right"
+      },
+      "settings": [
+        {
+          "key": "numbers",
+          "type": "toggle",
+          "label": "Show red numbers",
+          "default": false
+        },
+        {
+          "key": "background",
+          "type": "number",
+          "label": "Background opacity (%)",
+          "default": 30,
+          "min": 0,
+          "max": 100,
+          "step": 5
+        },
+        {
+          "key": "shadow",
+          "type": "toggle",
+          "label": "Text shadow",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "boss_bar",
+      "name": "Boss Bar",
+      "category": "hud",
+      "enabled": false,
+      "description": "Movable, resizable boss health bar.",
+      "hud": {
+        "x": 0.5,
+        "y": 0.01,
+        "stack": "top",
+        "center": true
+      },
+      "settings": [
+        {
+          "key": "showName",
+          "type": "toggle",
+          "label": "Boss name",
+          "default": true
+        },
+        {
+          "key": "showBar",
+          "type": "toggle",
+          "label": "Health bar",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "titles",
+      "name": "Titles",
+      "category": "visual",
+      "enabled": false,
+      "description": "Shrinks or hides the big title and subtitle text servers show.",
+      "settings": [
+        {
+          "key": "scale",
+          "type": "number",
+          "label": "Size (%)",
+          "default": 60,
+          "min": 20,
+          "max": 150,
+          "step": 5
+        },
+        {
+          "key": "hide",
+          "type": "toggle",
+          "label": "Hide titles",
+          "default": false
+        }
+      ]
+    },
+    {
+      "id": "chat",
+      "name": "Chat",
+      "category": "qol",
+      "enabled": false,
+      "description": "Timestamps and stacking of repeated messages (\"(x3)\").",
+      "settings": [
+        {
+          "key": "timestamps",
+          "type": "toggle",
+          "label": "Timestamps",
+          "default": true
+        },
+        {
+          "key": "seconds",
+          "type": "toggle",
+          "label": "Seconds in timestamps",
+          "default": false
+        },
+        {
+          "key": "stack",
+          "type": "toggle",
+          "label": "Stack repeated messages",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "tab_editor",
+      "name": "Tab Editor",
+      "category": "qol",
+      "enabled": false,
+      "description": "Player list tweaks: ping as numbers, background, header and footer.",
+      "settings": [
+        {
+          "key": "pingNumbers",
+          "type": "toggle",
+          "label": "Ping as numbers",
+          "default": true
+        },
+        {
+          "key": "background",
+          "type": "number",
+          "label": "Background opacity (%)",
+          "default": 50,
+          "min": 0,
+          "max": 100,
+          "step": 5
+        },
+        {
+          "key": "hideHeader",
+          "type": "toggle",
+          "label": "Hide header and footer",
+          "default": false
+        }
+      ]
+    },
+    {
+      "id": "nick_hider",
+      "name": "Nick Hider",
+      "category": "qol",
+      "enabled": false,
+      "description": "Shows a different name wherever your own name appears on your screen (chat, tab, nametags). Only you see it.",
+      "settings": [
+        {
+          "key": "nick",
+          "type": "text",
+          "label": "Shown name",
+          "default": "You",
+          "maxLength": 16
+        }
+      ]
+    },
+    {
+      "id": "scrollable_tooltips",
+      "name": "Scrollable Tooltips",
+      "category": "qol",
+      "enabled": false,
+      "description": "Scroll long item tooltips with the mouse wheel in inventories.",
+      "settings": []
+    },
+    {
+      "id": "tnt_countdown",
+      "name": "TNT Countdown",
+      "category": "visual",
+      "enabled": false,
+      "description": "Shows the seconds left above lit TNT.",
+      "settings": []
+    },
+    {
+      "id": "cooldowns",
+      "name": "Cooldowns",
+      "category": "hud",
+      "enabled": false,
+      "description": "Countdowns after throwing an ender pearl or eating a golden apple (set to the server's cooldown).",
+      "hud": {
+        "x": 1,
+        "y": 0.02,
+        "stack": "right"
+      },
+      "settings": [
+        {
+          "key": "pearl",
+          "type": "number",
+          "label": "Ender pearl (seconds, 0 = off)",
+          "default": 15,
+          "min": 0,
+          "max": 60,
+          "step": 1
+        },
+        {
+          "key": "gapple",
+          "type": "number",
+          "label": "Golden apple (seconds, 0 = off)",
+          "default": 0,
+          "min": 0,
+          "max": 60,
+          "step": 1
+        },
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        }
+      ]
+    },
+    {
+      "id": "stopwatch",
+      "name": "Stopwatch",
+      "category": "hud",
+      "enabled": false,
+      "description": "Press the stopwatch key (set it in Controls) to start or stop; Shift + key resets.",
+      "hud": {
+        "x": 1,
+        "y": 0.02,
+        "stack": "right"
+      },
+      "settings": [
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        },
+        {
+          "key": "background",
+          "type": "toggle",
+          "label": "Background",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "server_address",
+      "name": "Server Address",
+      "category": "hud",
+      "enabled": false,
+      "description": "Shows the address of the server you are on.",
+      "hud": {
+        "x": 0.005,
+        "y": 0.01,
+        "stack": "left"
+      },
+      "settings": [
+        {
+          "key": "showInSingleplayer",
+          "type": "toggle",
+          "label": "Show in singleplayer",
+          "default": false
+        },
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        },
+        {
+          "key": "background",
+          "type": "toggle",
+          "label": "Background",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "pack_display",
+      "name": "Pack Display",
+      "category": "hud",
+      "enabled": false,
+      "description": "Lists your active resource packs.",
+      "hud": {
+        "x": 0.005,
+        "y": 0.01,
+        "stack": "left"
+      },
+      "settings": [
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        },
+        {
+          "key": "background",
+          "type": "toggle",
+          "label": "Background",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "playtime",
+      "name": "Playtime",
+      "category": "hud",
+      "enabled": false,
+      "description": "How long you have been in the current world or server.",
+      "hud": {
+        "x": 0.005,
+        "y": 0.01,
+        "stack": "left"
+      },
+      "settings": [
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        },
+        {
+          "key": "background",
+          "type": "toggle",
+          "label": "Background",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "day_counter",
+      "name": "Day Counter",
+      "category": "hud",
+      "enabled": false,
+      "description": "Which in-game day it is.",
+      "hud": {
+        "x": 0.005,
+        "y": 0.01,
+        "stack": "left"
+      },
+      "settings": [
+        {
+          "key": "textColor",
+          "type": "color",
+          "label": "Text color",
+          "default": "#FFFFFF"
+        },
+        {
+          "key": "background",
+          "type": "toggle",
+          "label": "Background",
+          "default": true
+        }
+      ]
+    }
+  ]
+}
