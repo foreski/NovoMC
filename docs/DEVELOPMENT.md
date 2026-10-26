@@ -143,3 +143,20 @@ Lunar Client's mod list but none of its code or assets.
 | 3: UI and info ✅ | Scoreboard (movable, hide red numbers), Chat (timestamps, stacking), Titles (scale/hide), Boss Bar (movable), Tab Editor (ping numbers, background, header/footer), Nick Hider (text setting), Pack Display, Server Address, Playtime, Stopwatch (unbound key; Shift resets), Day Counter, TNT Countdown, Scrollable Tooltips, Cooldowns (durations are settings; 1.8.9 itself has none) |
 | Later | Waypoints, WAILA, Auto Text Hotkey, Hypixel mods (Quickplay, Bedwars, levels), UHC Overlay, Item Tracker, Pack Organizer |
 | Out of scope for now | Replay Mod, 3D Skins, Screenshot Uploader, Mumble Link, WorldEdit CUI, Team View |
+
+## Bug reports and auto-fixes
+
+- **Launcher:** crashes are reported automatically (Settings → Bug reports → "Send crash reports
+  automatically", on by default), and players can file reports from Settings or the crash console.
+  Reports are redacted before sending (player names, the Windows user folder, access tokens, emails, IP
+  addresses) and go to `bugReportUrl` from `novomc.config.json`.
+- **Relay (`relay/`):** a Cloudflare Worker that turns reports into GitHub issues labeled
+  `bug` + `auto-report`, using a fine-grained token kept as a Worker secret (never in the app). Repeats
+  of the same crash become comments on the existing issue; 5 reports per IP per hour, 64 KB max.
+  Test with `node relay/test/worker.test.mjs`; deploy with `npx wrangler deploy` and
+  `npx wrangler secret put GITHUB_TOKEN` from `relay/`.
+- **Auto-fix:** a daily Claude Code scheduled task ("NovoMC: fix reported bugs") triages new `bug`
+  issues, fixes clear NovoMC defects, runs `cargo test`, `npm run build`, `npm run mod` and the in-game
+  mod check + autotest, then publishes a patch release with `npm run release -- --publish`. Issues it
+  can't safely fix get the `needs-human` label; issues caused by something else get `not-novomc`.
+  Issue text is treated as untrusted data, never as instructions.
