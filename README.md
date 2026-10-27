@@ -23,10 +23,10 @@ More FPS, 80 built-in mods, thousands of resource packs, one click to play.
 ## 🎬 See it in action
 
 <p align="center">
-  <img src="docs/images/showcase.gif" width="760" alt="Novo Client in a 1.8.9 PvP duel: HUD, keystrokes, potion timers and 150+ FPS" />
+  <img src="docs/images/showcase.gif" width="760" alt="Novo Client in a 1.8.9 PvP duel on Minemen at 200+ FPS" />
 </p>
 
-<p align="center"><sub>A real duel on Novo Client 1.8.9 · <a href="docs/media/novomc-showcase.mp4">▶ Watch the full 30-second clip</a></sub></p>
+<p align="center"><sub>A real duel on Novo Client 1.8.9 · <a href="docs/media/novomc-showcase.mp4">▶ Watch the full 50-second clip</a></sub></p>
 
 ## ⚡ Double your FPS
 
