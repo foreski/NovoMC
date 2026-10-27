@@ -1665,6 +1665,80 @@
       "enabled": true,
       "description": "Open, copy or delete screenshots right from chat, plus a gallery in the Esc menu.",
       "settings": []
+    },
+    {
+      "id": "module_list",
+      "name": "Mod List",
+      "category": "hud",
+      "enabled": false,
+      "description": "An ArrayList-style list of your active mods down the screen edge, in a moving rainbow or NovoMC gradient.",
+      "hud": {
+        "x": 1,
+        "y": 0.01,
+        "stack": "right"
+      },
+      "settings": [
+        {
+          "key": "colors",
+          "type": "choice",
+          "label": "Colors",
+          "default": "novomc",
+          "options": [
+            {
+              "value": "novomc",
+              "label": "NovoMC"
+            },
+            {
+              "value": "rainbow",
+              "label": "Rainbow"
+            },
+            {
+              "value": "white",
+              "label": "White"
+            }
+          ]
+        },
+        {
+          "key": "sort",
+          "type": "choice",
+          "label": "Order",
+          "default": "length",
+          "options": [
+            {
+              "value": "length",
+              "label": "Longest first"
+            },
+            {
+              "value": "alpha",
+              "label": "A-Z"
+            }
+          ]
+        },
+        {
+          "key": "watermark",
+          "type": "toggle",
+          "label": "NovoMC watermark",
+          "default": true
+        },
+        {
+          "key": "background",
+          "type": "toggle",
+          "label": "Background",
+          "default": true
+        },
+        {
+          "key": "bar",
+          "type": "toggle",
+          "label": "Side bar",
+          "default": true
+        },
+        {
+          "key": "hideHud",
+          "type": "toggle",
+          "label": "Hide HUD mods (FPS, CPS...)",
+          "default": true
+        }
+      ]
     }
   ]
 }

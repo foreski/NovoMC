@@ -503,6 +503,28 @@ public final class DevModuleCheck {
             }
         });
 
+        // ---- Mod List HUD (ArrayList style), in both color modes.
+        then(3, new Runnable() {
+            public void run() {
+                only("module_list", "freelook", "toggle_sprint", "zoom", "hit_color", "waypoints", "auto_gg");
+                set("module_list", "colors", "rainbow");
+                com.novomc.client.modules.ModListModule ml = find(com.novomc.client.modules.ModListModule.class);
+                // Toggle Sprint is itself a HUD element, so "Hide HUD mods" leaves it out: watermark + 5 lines.
+                check("module_list.lists", ml.visible() && ml.height(false) == 6 * 10, "height=" + ml.height(false) + " (watermark + 5 mods)");
+            }
+        });
+        then(5, new Runnable() {
+            public void run() {
+                shot("mod-list-rainbow");
+                set("module_list", "colors", "novomc");
+            }
+        });
+        then(5, new Runnable() {
+            public void run() {
+                shot("mod-list-novomc");
+            }
+        });
+
         // ---- Visual mods: one screenshot each.
         for (final String id : new String[] {"chunk_borders", "hitbox", "block_outline", "crosshair", "fog", "old_animations", "hit_color"}) {
             then(3, new Runnable() {
