@@ -4,9 +4,10 @@
 
 # Novo Client
 
-**The performance Minecraft launcher with a built-in 1.8.9 PvP client.**
+**Sodium, re-forged for 1.8.9 — combined with OptiFine's features, custom-made.**
 
-More FPS, 80 built-in mods, thousands of resource packs, one click to play.
+A 1.8.9 Forge PvP client and launcher: Sodium's renderer ported to Forge, OptiFine-style features rebuilt
+from scratch, 80 built-in mods, thousands of resource packs, one click to play.
 
 [![Download](https://img.shields.io/github/v/release/foreski/NovoMC?label=Download&style=for-the-badge&color=5B8CFF)](https://github.com/foreski/NovoMC/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/foreski/NovoMC/total?style=for-the-badge&color=B45BFF)](https://github.com/foreski/NovoMC/releases)
@@ -19,6 +20,20 @@ More FPS, 80 built-in mods, thousands of resource packs, one click to play.
 </div>
 
 ---
+
+## 💡 What is Novo Client?
+
+| | |
+| --- | --- |
+| 🟦 **Sodium, re-forged** | [Sodium](https://github.com/CaffeineMC/sodium)'s chunk renderer, ported to Minecraft 1.8.9 Forge. Terrain draws region by region in a handful of GPU calls instead of one per chunk. |
+| 🟪 **OptiFine features, custom-made** | Connected Textures, Custom Sky, Smart Animations, Fast Math, Lazy Chunk Loading, Better Grass and Better Snow, written by us from scratch (no OptiFine code), so they work right alongside Sodium. |
+| ⚔️ **A full PvP client** | 80 built-in mods (HUD, keystrokes, 1.7 animations, freelook, zoom and more), all toggleable in-game. |
+| 🚀 **Its own launcher** | One-click play: Novo Client installs Minecraft, Forge and Java for you, and keeps itself updated. |
+
+Sodium's speed and OptiFine's features on 1.8.9, in one package built for PvP.
+
+<sub>Novo Client isn't affiliated with CaffeineMC (Sodium) or OptiFine. The Sodium port stays under Sodium's GNU LGPL v3;
+the OptiFine-style features are our own code.</sub>
 
 ## 🎬 See it in action
 
