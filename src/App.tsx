@@ -5,7 +5,7 @@ import { Console } from './components/Console';
 import { DownloadDock } from './components/DownloadDock';
 import { UpdateBanner } from './components/UpdateBanner';
 import { BugToast } from './components/BugToast';
-import { Sidebar, type PageId } from './components/Sidebar';
+import type { PageId } from './components/Sidebar';
 import { TitleBar } from './components/TitleBar';
 import { I18nProvider } from './lib/i18n';
 import { UpdatesProvider } from './lib/updates';
@@ -77,9 +77,8 @@ export default function App() {
             <InstancesProvider>
               <div className="relative isolate flex h-full flex-col">
                 <Backdrop />
-                <TitleBar />
+                <TitleBar page={page} onNavigate={navigate} />
                 <div className="flex min-h-0 flex-1">
-                  <Sidebar page={page} onChange={navigate} />
                   <div className="relative min-w-0 flex-1 overflow-hidden">
                     <UpdateBanner />
                     <main className="absolute inset-0 overflow-x-hidden overflow-y-auto">

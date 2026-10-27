@@ -1,10 +1,16 @@
-//! Home page news: NovoMC's own announcements (bundled `news.json`) plus the
-//! latest Minecraft release and snapshot from the version manifest. Text only;
-//! the UI draws its own artwork (no Mojang assets).
+//! Home page news: Novo Client's announcements plus the latest Minecraft
+//! release and snapshot from the version manifest. Announcements come from the
+//! relay (`GET /news`, posted there by the Discord bot); when it can't be
+//! reached, the bundled `news.json` is shown instead. The UI draws its own
+//! artwork unless an announcement brings an image.
+
+use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
+use tauri::AppHandle;
 
-use crate::download::manifest::{self, VersionType};
+use crate::config;
+use crate::download::{http, manifest::{self, VersionType}};
 use crate::error::{AppError, AppResult};
 
 const BUILTIN: &str = include_str!("news.json");
@@ -24,6 +30,39 @@ pub struct NewsItem {
     pub tag: String,
     #[serde(default)]
     pub url: Option<String>,
+    /// Optional https picture for the card (announcements only).
+    #[serde(default)]
+    pub image: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct RelayNews {
+    items: Vec<NewsItem>,
+}
+
+/// Announcements from the relay, or None when it isn't set up or reachable.
+async fn relay_news(app: &AppHandle) -> Option<Vec<NewsItem>> {
+    let base = config::relay_base(app)?;
+    let resp = http::client()
+        .get(format!("{base}/news"))
+        // Home shouldn't wait long on a slow relay; the bundled news is fine.
+        .timeout(Duration::from_secs(5))
+        .send()
+        .await
+        .ok()?
+        .error_for_status()
+        .ok()?;
+    let news: RelayNews = resp.json().await.ok()?;
+    Some(news.items.into_iter().map(sanitize).collect())
+}
+
+/// Relay items are announcements; links and pictures must be https.
+fn sanitize(mut item: NewsItem) -> NewsItem {
+    item.tag = "novomc".into();
+    let https = |v: Option<String>| v.filter(|u| u.starts_with("https://") && !u.chars().any(char::is_whitespace));
+    item.url = https(item.url);
+    item.image = https(item.image);
+    item
 }
 
 fn builtin() -> Vec<NewsItem> {
@@ -43,6 +82,7 @@ fn version_item(id: &str, release_time: &str, snapshot: bool) -> NewsItem {
         date: release_time.into(),
         tag: if snapshot { "snapshot" } else { "release" }.into(),
         url: Some(format!("https://minecraft.wiki/w/Java_Edition_{id}")),
+        image: None,
     }
 }
 
@@ -55,8 +95,11 @@ fn sorted(mut items: Vec<NewsItem>) -> Vec<NewsItem> {
 }
 
 #[tauri::command]
-pub async fn get_news() -> AppResult<Vec<NewsItem>> {
-    let mut items = builtin();
+pub async fn get_news(app: AppHandle) -> AppResult<Vec<NewsItem>> {
+    let mut items = match relay_news(&app).await {
+        Some(posted) if !posted.is_empty() => posted,
+        _ => builtin(),
+    };
     // Offline is fine: the version cards just don't appear.
     if let Ok(m) = manifest::load(false).await {
         for (latest, snapshot) in [(&m.latest.release, false), (&m.latest.snapshot, true)] {
@@ -102,6 +145,18 @@ mod tests {
         assert_eq!(s[0].id, "mc-1.21.10");
         assert!(s.len() <= MAX_ITEMS);
         assert_eq!(s[0].url.as_deref(), Some("https://minecraft.wiki/w/Java_Edition_1.21.10"));
+    }
+
+    #[test]
+    fn relay_items_are_sanitized() {
+        let item: NewsItem = serde_json::from_str(
+            r#"{"id":"1","title":"t","body":"b","date":"2026-10-27","tag":"release","url":"http://x","image":"https://cdn.discordapp.com/a.png"}"#,
+        )
+        .unwrap();
+        let item = sanitize(item);
+        assert_eq!(item.tag, "novomc");
+        assert_eq!(item.url, None);
+        assert_eq!(item.image.as_deref(), Some("https://cdn.discordapp.com/a.png"));
     }
 
     #[test]

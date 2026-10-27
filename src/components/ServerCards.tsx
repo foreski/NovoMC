@@ -6,8 +6,11 @@ import { useT } from '../lib/i18n';
 
 type Status = ServerStatus | 'loading' | 'offline';
 
-/** Favorite servers with live player counts; Join launches the selected instance straight into one. */
-export function ServerCards({ onJoin, disabled }: { onJoin: (address: string) => void; disabled: boolean }) {
+/**
+ * Favorite servers with live player counts; Join launches the selected instance straight into one.
+ * `compact` stacks them in one column, for a side panel.
+ */
+export function ServerCards({ onJoin, disabled, compact }: { onJoin: (address: string) => void; disabled: boolean; compact?: boolean }) {
   const t = useT();
   const [servers, setServers] = useState<Server[]>([]);
   const [status, setStatus] = useState<Record<string, Status>>({});
@@ -63,7 +66,7 @@ export function ServerCards({ onJoin, disabled }: { onJoin: (address: string) =>
           <RefreshCw size={12} />
         </button>
       </h2>
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div className={compact ? "flex flex-col gap-2" : "grid gap-3 sm:grid-cols-2 xl:grid-cols-3"}>
         {servers.map((s, i) => {
           const st = status[s.address];
           const up = st && typeof st === 'object';
@@ -73,7 +76,7 @@ export function ServerCards({ onJoin, disabled }: { onJoin: (address: string) =>
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.04 }}
-              className="glass group relative flex items-center gap-3 rounded-2xl p-3"
+              className={`glass group relative flex items-center gap-3 ${compact ? "rounded-xl p-2.5" : "rounded-2xl p-3"}`}
             >
               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brand-a/30 to-brand-b/30 ring-1 ring-white/10">
                 <ServerIcon size={18} className="text-accent" />

@@ -17,7 +17,7 @@ function hue(id: string): number {
   return h % 360;
 }
 
-/** News card with generated artwork (no external images). */
+/** News card: the post's own picture if it has one, else generated artwork. */
 export function NewsCard({ item, index }: { item: NewsItem; index: number }) {
   const t = useT();
   const tag = TAGS[item.tag] ?? TAGS.novomc;
@@ -39,11 +39,17 @@ export function NewsCard({ item, index }: { item: NewsItem; index: number }) {
         className="relative h-24 overflow-hidden"
         style={{ background: `linear-gradient(135deg, hsl(${h} 70% 45% / 0.55), hsl(${(h + 50) % 360} 70% 30% / 0.35))` }}
       >
-        <div className="grid-bg absolute inset-0 opacity-70" />
+        {item.image ? (
+          <img src={item.image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+        ) : (
+          <div className="grid-bg absolute inset-0 opacity-70" />
+        )}
         <Icon
           size={88}
           strokeWidth={1.2}
-          className="absolute -right-3 -bottom-4 text-white/20 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6"
+          className={`absolute -right-3 -bottom-4 text-white/20 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 ${
+            item.image ? 'hidden' : ''
+          }`}
         />
         <span className={`absolute top-3 left-3 rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase ${tag.chip}`}>
           {tag.label ? t(tag.label) : 'Novo Client'}

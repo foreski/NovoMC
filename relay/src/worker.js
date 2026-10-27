@@ -5,16 +5,19 @@
 //
 //   POST /report  {kind, title, description, version, os, java, minecraft, loader, log, crash, signature}
 //   POST /presence/...  who's on NovoMC, for the in-game badge (see presence.js)
+//   GET|POST|DELETE /news  launcher news, published by the Discord bot (see news.js)
 //
 // Environment:
 //   GITHUB_TOKEN  (secret) fine-grained token with Issues: read & write on the repo
 //   GITHUB_REPO   e.g. "foreski/NovoMC"
 //   RATE          (optional KV namespace) for rate limits shared across instances
 //   PRESENCE      Durable Object namespace (class Presence)
+//   NEWS          KV namespace for news; NEWS_TOKEN (secret) lets the bot publish
 //
 // Abuse limits: 64 KB per report, 5 reports per IP per hour, and repeats of
 // the same crash (same `signature`) become a comment on the existing issue.
 
+import { handleNews } from './news.js';
 import { handlePresence } from './presence.js';
 
 export { Presence } from './presence.js';
@@ -28,6 +31,7 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname.startsWith('/presence/')) return handlePresence(request, env, url.pathname);
+    if (url.pathname === '/news' || url.pathname.startsWith('/news/')) return handleNews(request, env, url.pathname);
     if (url.pathname !== '/report') return json({ error: 'Not found' }, 404);
     if (request.method !== 'POST') return json({ error: 'Use POST' }, 405);
     if (!env.GITHUB_TOKEN || !env.GITHUB_REPO) return json({ error: 'Relay not configured' }, 500);

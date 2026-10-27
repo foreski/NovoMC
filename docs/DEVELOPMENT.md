@@ -164,6 +164,8 @@ Lunar Client's mod list but none of its code or assets.
   of the same crash become comments on the existing issue; 5 reports per IP per hour, 64 KB max.
   Test with `node relay/test/worker.test.mjs`; deploy with `npx wrangler deploy` and
   `npx wrangler secret put GITHUB_TOKEN` from `relay/`.
+  It also serves the launcher's **News** (`GET /news`, published by a Discord bot with `NEWS_TOKEN`,
+  stored in the `NEWS` KV namespace); see [NEWS_BOT.md](NEWS_BOT.md). Test with `node relay/test/news.test.mjs`.
 - **Auto-fix:** a daily Claude Code scheduled task ("NovoMC: fix reported bugs") triages new `bug`
   issues, fixes clear NovoMC defects, runs `cargo test`, `npm run build`, `npm run mod` and the in-game
   mod check + autotest, then publishes a patch release with `npm run release -- --publish`. Issues it

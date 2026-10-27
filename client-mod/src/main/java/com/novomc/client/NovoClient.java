@@ -145,6 +145,9 @@ public final class NovoClient {
         if (DevBenchmark.active()) {
             MinecraftForge.EVENT_BUS.register(new DevBenchmark());
         }
+        if (DevHeroShot.active()) {
+            MinecraftForge.EVENT_BUS.register(new DevHeroShot());
+        }
         if (DevFeatureTest.active()) {
             MinecraftForge.EVENT_BUS.register(new DevFeatureTest());
         }

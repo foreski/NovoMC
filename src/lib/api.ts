@@ -129,6 +129,8 @@ export interface NewsItem {
   date: string;
   tag: 'novomc' | 'release' | 'snapshot';
   url: string | null;
+  /** Picture for the card (announcements posted from Discord). */
+  image?: string | null;
 }
 
 /** `config/novomc/modules.json` of an instance (see the mod's ModConfig). */

@@ -1,6 +1,7 @@
 # NovoMC bug-report relay. Deploy with:
 #   npx wrangler deploy
 #   npx wrangler secret put GITHUB_TOKEN
+#   npx wrangler secret put NEWS_TOKEN   (lets the Discord bot post launcher news)
 name = "shrill-block-91e1"
 main = "src/worker.js"
 compatibility_date = "2024-09-23"
@@ -23,3 +24,10 @@ class_name = "Presence"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["Presence"]
+
+# Launcher news (news.js):
+#   npx wrangler kv namespace create NEWS
+# then put the id it prints here.
+# [[kv_namespaces]]
+# binding = "NEWS"
+# id = "..."
