@@ -33,6 +33,8 @@ pub struct LaunchContext<'a> {
     /// Game window size, if not Minecraft's default.
     pub resolution: Option<Resolution>,
     pub fullscreen: bool,
+    /// Join this server (`host[:port]`) as soon as the game starts.
+    pub server: Option<&'a str>,
 }
 
 /// GC tuning for a smooth client: short, predictable G1 pauses instead of
@@ -178,6 +180,9 @@ pub fn build(ctx: &LaunchContext) -> Vec<String> {
     if ctx.fullscreen {
         game.push("--fullscreen".into());
     }
+    if let Some((host, port)) = ctx.server.and_then(crate::servers::split) {
+        game.extend(["--server".into(), host, "--port".into(), port.to_string()]);
+    }
 
     // A fixed-size heap avoids resize pauses; the OS only backs pages as they're used.
     let min_heap = if ctx.optimized_flags { ctx.memory_mb } else { ctx.memory_mb.min(512) };
@@ -222,7 +227,29 @@ mod tests {
             extra_jvm_args: &["-XX:MaxGCPauseMillis=20".into()],
             resolution: Some(Resolution { width: 1280, height: 720 }),
             fullscreen: false,
+            server: None,
         })
+    }
+
+    #[test]
+    fn joins_server_on_start() {
+        let v: VersionJson = serde_json::from_str(r#"{"id":"1.8.9","mainClass":"Main","minecraftArguments":"--username x"}"#).unwrap();
+        let args = build(&LaunchContext {
+            version: &v,
+            account: &account(),
+            access_token: Some("tok"),
+            root: Path::new("/data"),
+            game_dir: Path::new("/game"),
+            natives_dir: Path::new("/natives"),
+            game_assets: Path::new("/data/assets"),
+            memory_mb: 2048,
+            optimized_flags: false,
+            extra_jvm_args: &[],
+            resolution: None,
+            fullscreen: false,
+            server: Some("mc.hypixel.net"),
+        });
+        assert!(args.ends_with(&["--server".into(), "mc.hypixel.net".into(), "--port".into(), "25565".into()]));
     }
 
     #[test]

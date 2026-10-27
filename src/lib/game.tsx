@@ -13,7 +13,8 @@ interface GameContext {
   logs: LogLine[];
   /** True from clicking Play until the game exits. */
   busy: boolean;
-  play: (instanceId: string) => void;
+  /** Launches an instance, optionally straight into a server. */
+  play: (instanceId: string, server?: string) => void;
   stop: () => void;
   consoleTab: ConsoleTab | null;
   openConsole: (tab?: ConsoleTab) => void;
@@ -42,10 +43,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const play = useCallback((instanceId: string) => {
+  const play = useCallback((instanceId: string, server?: string) => {
     setLogs([]);
     setLaunch({ instanceId, versionId: '', stage: 'preparing', progress: null, message: null, exitCode: null, crashReport: null });
-    api.launchGame(instanceId).catch((e) => {
+    api.launchGame(instanceId, server).catch((e) => {
       // The backend also emits a `failed` state; this covers errors before it can.
       setLaunch((s) => (s && ACTIVE.has(s.stage) && s.stage !== 'running' ? { ...s, stage: 'failed', message: String(e) } : s));
     });

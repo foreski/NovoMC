@@ -73,7 +73,7 @@ NovoMC/
 
 ## Roadmap
 
-1. **Scaffold** ✅: frameless window, title bar, sidebar, IPC smoke test, data folder
+1. **Project setup** ✅: frameless window, title bar, sidebar, IPC smoke test, data folder
 2. **Auth** ✅: offline accounts; Microsoft sign-in in its own window, then Xbox Live, XSTS, Minecraft token and profile (ownership check). Refresh tokens live in Windows Credential Manager; Minecraft tokens refresh automatically at launch
 3. **Version download** ✅: piston-meta manifest, client/libraries/natives/assets, SHA1 checks, parallel downloads with retries, progress events
 4. **Launch vanilla** ✅: Java detection and auto-download (8/17/21), argument builder (both formats), log streaming, crash reports, close/minimize on launch, tuned performance JVM flags

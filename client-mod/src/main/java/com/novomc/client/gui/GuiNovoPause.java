@@ -24,6 +24,9 @@ public class GuiNovoPause extends GuiIngameMenu {
     private static final int MOD_OPTIONS = 12;
     private static final int MODS = 100;
     private static final int PACKS = 101;
+    private static final int SCREENSHOTS = 102;
+    private static final int WAYPOINTS = 103;
+    private static final int ROWS = 7;
     private static final int W = 184;
     private static final int H = 18;
     private static final int GAP = 4;
@@ -38,8 +41,7 @@ public class GuiNovoPause extends GuiIngameMenu {
             vanilla.put(b.id, b);
         }
         buttonList.clear();
-        int rows = 6;
-        top = height / 2 - (rows * (H + GAP) - GAP) / 2 + 6;
+        top = height / 2 - (ROWS * (H + GAP) - GAP) / 2 + 6;
         int left = width / 2 - W / 2;
         int half = (W - GAP) / 2;
         int y = top;
@@ -53,6 +55,9 @@ public class GuiNovoPause extends GuiIngameMenu {
         y += H + GAP;
         add(vanilla, ACHIEVEMENTS, left, y, half, "Achievements");
         add(vanilla, STATS, left + half + GAP, y, half, "Statistics");
+        y += H + GAP;
+        buttonList.add(new NovoButton(SCREENSHOTS, left, y, half, H, "Screenshots"));
+        buttonList.add(new NovoButton(WAYPOINTS, left + half + GAP, y, half, H, "Waypoints"));
         y += H + GAP;
         add(vanilla, LAN, left, y, W, "Open to LAN");
         y += H + GAP + 6;
@@ -77,6 +82,10 @@ public class GuiNovoPause extends GuiIngameMenu {
             mc.displayGuiScreen(new GuiModules(this));
         } else if (button.id == PACKS) {
             mc.displayGuiScreen(new GuiResourcePacks(this));
+        } else if (button.id == SCREENSHOTS) {
+            mc.displayGuiScreen(new GuiScreenshots(this));
+        } else if (button.id == WAYPOINTS) {
+            mc.displayGuiScreen(new GuiWaypoints(this));
         } else {
             super.actionPerformed(button);
         }
@@ -87,7 +96,7 @@ public class GuiNovoPause extends GuiIngameMenu {
         drawDefaultBackground();
         int left = width / 2 - W / 2 - 12;
         int right = width / 2 + W / 2 + 12;
-        int bottom = top + 6 * (H + GAP) + 6 + 10;
+        int bottom = top + ROWS * (H + GAP) + 6 + 10;
         Draw.round(left, top - 30, right, bottom, 8, 0xCC0C1019);
         Draw.roundOutline(left, top - 30, right, bottom, 8, 0x22FFFFFF);
         String title = "Game Menu";

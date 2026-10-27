@@ -133,7 +133,7 @@ fn fraction(p: &Progress) -> Option<f64> {
 /// Starts an instance with the active account. Returns once the game process
 /// is running; its logs and exit arrive as events.
 #[tauri::command]
-pub async fn launch_game(app: AppHandle, games: State<'_, Games>, instance_id: String) -> AppResult<()> {
+pub async fn launch_game(app: AppHandle, games: State<'_, Games>, instance_id: String, server: Option<String>) -> AppResult<()> {
     let stop = {
         let mut current = games.lock();
         if current.is_some() {
@@ -144,7 +144,7 @@ pub async fn launch_game(app: AppHandle, games: State<'_, Games>, instance_id: S
         token
     };
 
-    let result = start(&app, &instance_id, stop).await;
+    let result = start(&app, &instance_id, stop, server.as_deref()).await;
     if let Err(e) = &result {
         *games.lock() = None;
         let stage = if matches!(e, AppError::Cancelled) { LaunchStage::Exited } else { LaunchStage::Failed };
@@ -163,7 +163,7 @@ pub fn stop_game(games: State<'_, Games>) {
     }
 }
 
-async fn start(app: &AppHandle, instance_id: &str, stop: CancellationToken) -> AppResult<()> {
+async fn start(app: &AppHandle, instance_id: &str, stop: CancellationToken, server: Option<&str>) -> AppResult<()> {
     emit(app, LaunchState::new(instance_id, "", LaunchStage::Preparing));
     let root = paths::data_dir()?;
     let mut settings = settings::load()?;
@@ -258,6 +258,7 @@ async fn start(app: &AppHandle, instance_id: &str, stop: CancellationToken) -> A
         extra_jvm_args: &instance.jvm_args.split_whitespace().map(String::from).collect::<Vec<_>>(),
         resolution: settings.resolution,
         fullscreen: settings.fullscreen,
+        server,
     });
 
     // With "close", nobody reads the output, so don't pipe it.
@@ -291,6 +292,11 @@ async fn start(app: &AppHandle, instance_id: &str, stop: CancellationToken) -> A
         }
     }
 
+    crate::discord::set(crate::discord::Presence::Playing {
+        version: format!("Minecraft {id}"),
+        server: server.map(crate::discord::server_name),
+        since: crate::discord::now(),
+    });
     tauri::async_runtime::spawn(monitor(app.clone(), child, state(LaunchStage::Exited), game_dir, SystemTime::now(), stop));
     Ok(())
 }
@@ -372,6 +378,15 @@ async fn monitor(app: AppHandle, mut child: Child, exited: LaunchState, game_dir
                 recent.pop_front();
             }
             recent.push_back(format!("[{}] {}", l.level, l.message));
+            // "Connecting to mc.hypixel.net, 25565": show the server in Discord.
+            if let Some(rest) = l.message.strip_prefix("Connecting to ") {
+                let host = rest.split(',').next().unwrap_or(rest).trim();
+                crate::discord::set(crate::discord::Presence::Playing {
+                    version: format!("Minecraft {}", exited.version_id),
+                    server: Some(crate::discord::server_name(host)),
+                    since: crate::discord::now(),
+                });
+            }
             batch.push(l);
         }
     };
@@ -405,6 +420,7 @@ async fn monitor(app: AppHandle, mut child: Child, exited: LaunchState, game_dir
     let crashed = !killed && (crash_report.is_some() || exit_code.is_some_and(|c| c != 0));
 
     *app.state::<Games>().lock() = None;
+    crate::discord::set(crate::discord::Presence::Launcher);
     if crashed && settings::load().map(|s| s.auto_report_crashes).unwrap_or(false) {
         let content = crash_report.as_ref().map(|c| c.content.clone()).unwrap_or_else(|| format!("Exit code {}", exit_code.unwrap_or(-1)));
         crate::report::report_crash(app.clone(), exited.instance_id.clone(), content, recent.iter().cloned().collect());
@@ -505,6 +521,7 @@ mod tests {
             extra_jvm_args: &extra,
             resolution: None,
             fullscreen: false,
+            server: None,
         });
 
         let mut child = tokio::process::Command::new(&java)

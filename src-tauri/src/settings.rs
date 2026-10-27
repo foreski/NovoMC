@@ -40,6 +40,8 @@ pub struct Settings {
     pub accent: Option<String>,
     /// Send crash reports to NovoMC automatically (redacted; see `report`).
     pub auto_report_crashes: bool,
+    /// Show what you're playing in Discord.
+    pub discord_presence: bool,
     /// Launcher UI language; `None` follows the system language.
     pub ui_language: Option<String>,
     /// Minecraft's language (`de_DE`, ...) written to each instance's
@@ -63,6 +65,7 @@ impl Default for Settings {
             fullscreen: false,
             accent: None,
             auto_report_crashes: true,
+            discord_presence: true,
             ui_language: None,
             game_language: None,
             last_version: None,

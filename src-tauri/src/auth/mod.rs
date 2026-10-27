@@ -1,6 +1,7 @@
 //! Accounts and login.
 //!
-//! - `offline`: username-only accounts (no password), available now.
+//! - `offline`: username-only accounts, used only by the developer test launches
+//!   (players sign in with Microsoft; saved offline accounts are dropped on load).
 //! - `microsoft`: Microsoft sign-in (sign-in window -> Xbox Live -> XSTS ->
 //!   Minecraft token -> profile). The client ID comes from `novomc.config.json`;
 //!   refresh tokens go to the OS credential store (`secrets`, via `keyring`).
@@ -8,8 +9,10 @@
 
 pub mod account;
 pub mod microsoft;
+#[cfg(test)]
 pub mod offline;
 pub mod secrets;
+pub mod skins;
 pub mod store;
 
 use crate::error::{AppError, AppResult};
@@ -18,20 +21,6 @@ use store::AccountStore;
 #[tauri::command]
 pub fn list_accounts() -> AppResult<AccountStore> {
     store::read()
-}
-
-/// Adds an offline account and makes it the active one.
-#[tauri::command]
-pub fn add_offline_account(username: String) -> AppResult<AccountStore> {
-    let account = offline::new_account(&username)?;
-    store::update(|s| {
-        if s.accounts.iter().any(|a| a.username.eq_ignore_ascii_case(&account.username)) {
-            return Err(AppError::Other(format!("{} is already added", account.username)));
-        }
-        s.active_uuid = Some(account.uuid.clone());
-        s.accounts.push(account);
-        Ok(())
-    })
 }
 
 /// Removes an account. If it was active, the first remaining one becomes active.

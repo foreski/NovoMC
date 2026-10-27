@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import { api } from '../lib/api';
 // Pixel-art identicon generated from the player name: a mirrored 8x8 face-like
 // pattern in a per-player hue. Original art, no Mojang skins in the UI.
 
@@ -35,7 +37,39 @@ function cells(name: string) {
   return { hue, out };
 }
 
-export function Avatar({ name, size = 40 }: { name: string; size?: number }) {
+/** Skin heads by player UUID, fetched once per launcher session. */
+const heads = new Map<string, Promise<string | null>>();
+
+function useSkinHead(uuid?: string): string | null {
+  const [head, setHead] = useState<string | null>(null);
+  useEffect(() => {
+    setHead(null);
+    if (!uuid) return;
+    if (!heads.has(uuid)) heads.set(uuid, api.getSkinHead(uuid).catch(() => null));
+    let live = true;
+    heads.get(uuid)!.then((h) => live && setHead(h));
+    return () => {
+      live = false;
+    };
+  }, [uuid]);
+  return head;
+}
+
+/** The player's real skin face when `uuid` is given (Microsoft accounts), else a generated pixel avatar. */
+export function Avatar({ name, size = 40, uuid }: { name: string; size?: number; uuid?: string }) {
+  const head = useSkinHead(uuid);
+  if (head) {
+    return (
+      <img
+        src={head}
+        alt=""
+        width={size}
+        height={size}
+        className="shrink-0 rounded-xl"
+        style={{ imageRendering: 'pixelated' }}
+      />
+    );
+  }
   if (!name) {
     return (
       <div
@@ -64,11 +98,11 @@ export function Avatar({ name, size = 40 }: { name: string; size?: number }) {
 }
 
 /** Avatar wrapped in a spinning brand-gradient ring (for the active player). */
-export function RingAvatar({ name, size = 40, active = true }: { name: string; size?: number; active?: boolean }) {
+export function RingAvatar({ name, size = 40, active = true, uuid }: { name: string; size?: number; active?: boolean; uuid?: string }) {
   return (
     <div className={`shrink-0 rounded-[14px] p-[2px] ${active ? 'gradient-border' : 'bg-novo-border'}`}>
       <div className="rounded-xl bg-novo-bg">
-        <Avatar name={name} size={size} />
+        <Avatar name={name} size={size} uuid={uuid} />
       </div>
     </div>
   );

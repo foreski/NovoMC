@@ -7,8 +7,6 @@ interface AccountsContext {
   active: Account | null;
   error: string | null;
   refresh: () => Promise<void>;
-  /** Rejects with the backend's message (e.g. invalid name) so forms can show it. */
-  addOffline: (username: string) => Promise<void>;
   /** Microsoft sign-in; rejects with the reason (cancelled, no Minecraft, ...). */
   signInMicrosoft: () => Promise<void>;
   remove: (uuid: string) => Promise<void>;
@@ -41,7 +39,6 @@ export function AccountsProvider({ children }: { children: ReactNode }) {
     active: store.accounts.find((a) => a.uuid === store.activeUuid) ?? null,
     error,
     refresh,
-    addOffline: (username) => run(api.addOfflineAccount(username)),
     signInMicrosoft: () => run(api.microsoftLogin()),
     remove: (uuid) => run(api.removeAccount(uuid)).catch((e) => setError(String(e))),
     select: (uuid) => run(api.setActiveAccount(uuid)).catch((e) => setError(String(e))),

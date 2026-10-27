@@ -57,6 +57,8 @@ export interface Settings {
   accent: string | null;
   /** Send redacted crash reports to NovoMC automatically. */
   autoReportCrashes: boolean;
+  /** Show what you're playing in Discord. */
+  discordPresence: boolean;
   /** Launcher UI language (`en`, `de`, `es`, `fr`, `pt-BR`); null = system language. */
   uiLanguage: string | null;
   /** Minecraft language code (`de_DE`); null = leave the game's choice. */
@@ -180,6 +182,19 @@ export function onBugReported(cb: (e: { Ok?: ReportResult; Err?: string }) => vo
   return listen<{ Ok?: ReportResult; Err?: string }>('bug-reported', (e) => cb(e.payload));
 }
 
+export interface Server {
+  name: string;
+  /** host or host:port */
+  address: string;
+}
+
+export interface ServerStatus {
+  online: number;
+  max: number;
+  latencyMs: number;
+  motd: string;
+}
+
 export function onGameLog(cb: (lines: LogLine[]) => void): Promise<UnlistenFn> {
   return listen<LogLine[]>('game-log', (e) => cb(e.payload));
 }
@@ -196,10 +211,11 @@ export const api = {
   /** Files a bug report as a GitHub issue (through NovoMC's relay). */
   reportBug: (report: BugReport) => invoke<ReportResult>('report_bug', { report }),
   listAccounts: () => invoke<AccountStore>('list_accounts'),
-  addOfflineAccount: (username: string) => invoke<AccountStore>('add_offline_account', { username }),
   removeAccount: (uuid: string) => invoke<AccountStore>('remove_account', { uuid }),
   /** Opens the Microsoft sign-in window; resolves once signed in (rejects if cancelled). */
   microsoftLogin: () => invoke<AccountStore>('microsoft_login'),
+  /** The player's skin head as a data URL (null for default skins). */
+  getSkinHead: (uuid: string) => invoke<string | null>('get_skin_head', { uuid }),
   setActiveAccount: (uuid: string) => invoke<AccountStore>('set_active_account', { uuid }),
   listVersions: (refresh = false) => invoke<VersionSummary[]>('list_versions', { refresh }),
   installVersion: (id: string) => invoke<void>('install_version', { id }),
@@ -215,7 +231,11 @@ export const api = {
   openInstanceFolder: (id: string) => invoke<void>('open_instance_folder', { id }),
   getClientConfig: (id: string) => invoke<ClientConfig>('get_client_config', { id }),
   saveClientConfig: (id: string, config: ClientConfig) => invoke<void>('save_client_config', { id, config }),
-  launchGame: (instanceId: string) => invoke<void>('launch_game', { instanceId }),
+  /** Starts an instance; with `server`, the game joins it right away. */
+  launchGame: (instanceId: string, server?: string) => invoke<void>('launch_game', { instanceId, server: server ?? null }),
+  listServers: () => invoke<Server[]>('list_servers'),
+  saveServers: (servers: Server[]) => invoke<Server[]>('save_servers', { servers }),
+  pingServer: (address: string) => invoke<ServerStatus>('ping_server', { address }),
   stopGame: () => invoke<void>('stop_game'),
   getSettings: () => invoke<Settings>('get_settings'),
   updateSettings: (settings: Settings) => invoke<Settings>('update_settings', { settings }),

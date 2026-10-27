@@ -1500,6 +1500,171 @@
           "default": true
         }
       ]
+    },
+    {
+      "id": "auto_gg",
+      "name": "Auto GG",
+      "category": "qol",
+      "enabled": false,
+      "description": "Says gg in chat when a match ends (Hypixel, PvP Land and more).",
+      "settings": [
+        {
+          "key": "message",
+          "type": "text",
+          "label": "Message",
+          "default": "gg",
+          "maxLength": 100
+        },
+        {
+          "key": "delay",
+          "type": "number",
+          "label": "Delay (seconds)",
+          "default": 1,
+          "min": 0,
+          "max": 5,
+          "step": 0.5
+        }
+      ]
+    },
+    {
+      "id": "auto_text",
+      "name": "Auto Text",
+      "category": "qol",
+      "enabled": true,
+      "description": "Send chat messages or commands with a key. Bind Auto Text 1-3 in Controls.",
+      "settings": [
+        {
+          "key": "message1",
+          "type": "text",
+          "label": "Auto Text 1",
+          "default": "/l",
+          "maxLength": 100
+        },
+        {
+          "key": "message2",
+          "type": "text",
+          "label": "Auto Text 2",
+          "default": "/play duels_classic_duel",
+          "maxLength": 100
+        },
+        {
+          "key": "message3",
+          "type": "text",
+          "label": "Auto Text 3",
+          "default": "gl hf",
+          "maxLength": 100
+        }
+      ]
+    },
+    {
+      "id": "hit_sounds",
+      "name": "Hit Sounds",
+      "category": "visual",
+      "enabled": false,
+      "description": "Plays a sound when you hit a player or mob, and another on a kill.",
+      "settings": [
+        {
+          "key": "sound",
+          "type": "choice",
+          "label": "Hit sound",
+          "default": "random.successful_hit",
+          "options": [
+            {
+              "value": "random.successful_hit",
+              "label": "Ding"
+            },
+            {
+              "value": "note.pling",
+              "label": "Pling"
+            },
+            {
+              "value": "random.orb",
+              "label": "Orb"
+            },
+            {
+              "value": "random.click",
+              "label": "Click"
+            }
+          ]
+        },
+        {
+          "key": "volume",
+          "type": "number",
+          "label": "Volume",
+          "default": 70,
+          "min": 10,
+          "max": 100,
+          "step": 10
+        },
+        {
+          "key": "killSound",
+          "type": "toggle",
+          "label": "Kill sound",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "low_health",
+      "name": "Low Health Warning",
+      "category": "visual",
+      "enabled": false,
+      "description": "Pulses a red glow around the screen when your health is low.",
+      "settings": [
+        {
+          "key": "hearts",
+          "type": "number",
+          "label": "Warn at (hearts)",
+          "default": 4,
+          "min": 1,
+          "max": 10,
+          "step": 0.5
+        },
+        {
+          "key": "intensity",
+          "type": "number",
+          "label": "Intensity",
+          "default": 70,
+          "min": 20,
+          "max": 100,
+          "step": 10
+        },
+        {
+          "key": "color",
+          "type": "color",
+          "label": "Color",
+          "default": "#FF2020"
+        }
+      ]
+    },
+    {
+      "id": "waypoints",
+      "name": "Waypoints",
+      "category": "qol",
+      "enabled": true,
+      "description": "Press B to mark a spot and M to list them. Beams and distances show through walls.",
+      "settings": [
+        {
+          "key": "beams",
+          "type": "toggle",
+          "label": "Beams",
+          "default": true
+        },
+        {
+          "key": "distance",
+          "type": "toggle",
+          "label": "Show distance",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "screenshots",
+      "name": "Screenshot Manager",
+      "category": "qol",
+      "enabled": true,
+      "description": "Open, copy or delete screenshots right from chat, plus a gallery in the Esc menu.",
+      "settings": []
     }
   ]
 }

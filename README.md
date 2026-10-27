@@ -6,7 +6,7 @@
 
 **The performance Minecraft launcher with a built-in 1.8.9 PvP client.**
 
-More FPS, 56 built-in mods, thousands of resource packs, one click to play.
+More FPS, 63 built-in mods, thousands of resource packs, one click to play.
 
 [![Download](https://img.shields.io/github/v/release/foreski/NovoMC?label=Download&style=for-the-badge&color=5B8CFF)](https://github.com/foreski/NovoMC/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/foreski/NovoMC/total?style=for-the-badge&color=B45BFF)](https://github.com/foreski/NovoMC/releases)
@@ -41,7 +41,7 @@ third-party mods.
 In our lobby stress test (400 armor stands, ~1,900 chests and skulls, constant particles) NovoMC went from
 **126 FPS to 259 FPS: +105%**. Every optimization can be switched off if you prefer vanilla.
 
-## 🎮 56 mods, built in
+## 🎮 63 mods, built in
 
 Everything a PvP player wants, ready the moment you join a server. Toggle mods and change their
 settings in-game (Right Shift) or from the launcher, and drag any HUD element exactly where you want it.
@@ -53,6 +53,7 @@ settings in-game (Right Shift) or from the launcher, and drag any HUD element ex
 | Coordinates, Direction HUD | Block Outline, Hitboxes | Nick Hider |
 | Ping, Clock, Memory | Item Physics, 2D Items | Custom Scoreboard & Tab list |
 | Combo Counter, Reach Display | Motion Blur, Menu Blur | Chat tweaks, Titles, Boss Bar |
+| Waypoints with beams | Hit Sounds, Low Health Warning | Auto GG, Auto Text hotkeys, Screenshot manager |
 
 <p align="center">
   <img src="docs/images/ingame-mods.png" width="49%" alt="The in-game Mod Library" />
@@ -74,8 +75,11 @@ Minecraft. Search, sort by popular or newest, filter by PvP, Simplistic, Vanilla
 - **One-click play.** Pick an instance and press Play; NovoMC downloads the game, Forge and the right Java for you.
 - **Every Minecraft version**, straight from Mojang's servers and checked file by file.
 - **Instances** with their own worlds, mods, packs, memory and Java. Duplicate one in a click.
-- **Microsoft accounts** for online servers and Realms, plus offline players for singleplayer and LAN.
-  Sign-ins are stored in Windows Credential Manager, never in plain files.
+- **Microsoft accounts** for online servers and Realms, with your real skin. Sign-ins are stored in
+  Windows Credential Manager, never in plain files.
+- **Quick-join servers**: your favorite servers on Home with live player counts and ping; one click
+  launches straight into the server.
+- **Discord Rich Presence** shows what you're playing and on which server.
 - **Live console** with crash reports, so you can see what went wrong.
 - **Your look, your language**: accent colors, and the launcher in English, Deutsch, Español, Français and Português.
 - **Automatic updates**: NovoMC keeps itself up to date, and every update is cryptographically signed.

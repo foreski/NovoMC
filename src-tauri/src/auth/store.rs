@@ -6,7 +6,7 @@ use std::sync::Mutex;
 
 use serde::{Deserialize, Serialize};
 
-use super::account::Account;
+use super::account::{Account, AccountKind};
 use crate::error::AppResult;
 use crate::paths;
 
@@ -26,9 +26,21 @@ fn file() -> AppResult<PathBuf> {
 }
 
 impl AccountStore {
+    /// NovoMC is Microsoft-only now: forget offline players saved by older versions.
+    fn drop_offline(&mut self) {
+        self.accounts.retain(|a| a.kind != AccountKind::Offline);
+        if !self.accounts.iter().any(|a| Some(&a.uuid) == self.active_uuid.as_ref()) {
+            self.active_uuid = self.accounts.first().map(|a| a.uuid.clone());
+        }
+    }
+
     fn load() -> AppResult<Self> {
         match std::fs::read(file()?) {
-            Ok(bytes) => Ok(serde_json::from_slice(&bytes)?),
+            Ok(bytes) => {
+                let mut store: Self = serde_json::from_slice(&bytes)?;
+                store.drop_offline();
+                Ok(store)
+            }
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(Self::default()),
             Err(e) => Err(e.into()),
         }

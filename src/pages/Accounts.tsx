@@ -1,126 +1,12 @@
-import { useEffect, useState, type FormEvent, type MouseEvent } from 'react';
+import { useEffect, useState, type MouseEvent } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Check, Copy, Loader2, LogIn, MousePointerClick, Trash2, UserPlus } from 'lucide-react';
+import { Check, Copy, Loader2, LogIn, MousePointerClick, Trash2 } from 'lucide-react';
 import { Avatar } from '../components/Avatar';
 import type { Account } from '../lib/api';
 import { useAccounts } from '../lib/accounts';
 import { useT } from '../lib/i18n';
 
-const NAME_RE = /^[A-Za-z0-9_]{3,16}$/;
 const SPRING = { type: 'spring', stiffness: 420, damping: 32 } as const;
-const BURST_COLORS = ['var(--color-brand-a)', 'var(--color-brand-b)', 'var(--color-brand-c)', 'var(--color-play)'];
-
-/** Little particle pop played when a player is created. */
-function Burst() {
-  return (
-    <span className="pointer-events-none absolute top-1/2 left-1/2">
-      {Array.from({ length: 16 }, (_, i) => {
-        const angle = (i / 16) * Math.PI * 2;
-        const dist = 46 + (i % 3) * 16;
-        return (
-          <motion.span
-            key={i}
-            className="absolute h-1.5 w-1.5 rounded-full"
-            style={{ background: BURST_COLORS[i % BURST_COLORS.length] }}
-            initial={{ x: 0, y: 0, opacity: 1, scale: 1.2 }}
-            animate={{ x: Math.cos(angle) * dist, y: Math.sin(angle) * dist, opacity: 0, scale: 0.3 }}
-            transition={{ duration: 0.75, ease: 'easeOut' }}
-          />
-        );
-      })}
-    </span>
-  );
-}
-
-function CreatePlayerCard() {
-  const { addOffline } = useAccounts();
-  const [name, setName] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [bursts, setBursts] = useState(0);
-  const t = useT();
-
-  const trimmed = name.trim();
-  const valid = NAME_RE.test(trimmed);
-  const hint = error ?? (trimmed && !valid ? t('acc.nameRule') : null);
-
-  async function submit(e: FormEvent) {
-    e.preventDefault();
-    if (!valid || busy) return;
-    setBusy(true);
-    try {
-      await addOffline(trimmed);
-      setName('');
-      setError(null);
-      setBursts((n) => n + 1);
-    } catch (err) {
-      setError(String(err));
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return (
-    <form onSubmit={submit} className="glass relative overflow-hidden rounded-3xl p-6">
-      <div className="absolute -top-24 -left-24 h-56 w-56 rounded-full bg-brand-a/20 blur-3xl" />
-      <div className="relative flex items-center gap-5">
-        <div className="relative">
-          <motion.div key={trimmed} initial={{ scale: 0.85, rotate: -6 }} animate={{ scale: 1, rotate: 0 }} transition={SPRING}>
-            <Avatar name={trimmed} size={76} />
-          </motion.div>
-          {bursts > 0 && <Burst key={bursts} />}
-        </div>
-        <div className="min-w-0">
-          <h2 className="text-xl font-bold">{t('acc.createOffline')}</h2>
-          <p className="mt-1 text-novo-muted">
-            {t('acc.offlineHint')} <code className="font-mono text-xs">online-mode=false</code>
-          </p>
-        </div>
-      </div>
-
-      <div className="relative mt-6 flex gap-3">
-        <div className="flex-1 rounded-2xl bg-novo-border p-[1.5px] transition-colors focus-within:gradient-border">
-          <div className="flex items-center rounded-[calc(1rem-1.5px)] bg-novo-bg">
-            <input
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                setError(null);
-              }}
-              placeholder={t('acc.pickName')}
-              maxLength={16}
-              spellCheck={false}
-              className="min-w-0 flex-1 bg-transparent px-4 py-3 text-base font-semibold outline-none placeholder:font-normal placeholder:text-novo-muted"
-            />
-            <span className={`pr-4 font-mono text-xs ${valid ? 'text-play' : 'text-novo-muted'}`}>{trimmed.length}/16</span>
-          </div>
-        </div>
-        <button
-          type="submit"
-          disabled={!valid || busy}
-          className="group relative flex items-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-brand-a to-brand-b px-6 font-bold text-white shadow-[0_10px_30px_-10px] shadow-brand-b/70 transition-all hover:brightness-110 active:scale-[0.97] disabled:opacity-35 disabled:shadow-none"
-        >
-          {valid && <span className="shine" />}
-          <UserPlus size={18} className="relative" />
-          <span className="relative">{t('acc.create')}</span>
-        </button>
-      </div>
-
-      <AnimatePresence>
-        {hint && (
-          <motion.p
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className={`relative mt-2 text-xs ${error ? 'text-danger' : 'text-novo-muted'}`}
-          >
-            {hint}
-          </motion.p>
-        )}
-      </AnimatePresence>
-    </form>
-  );
-}
 
 function MicrosoftCard() {
   const t = useT();
@@ -223,7 +109,7 @@ function PlayerCard({ account, active }: { account: Account; active: boolean }) 
 
         <div className="relative flex items-center gap-4">
           <div className="relative">
-            <Avatar name={account.username} size={60} />
+            <Avatar name={account.username} uuid={account.uuid} size={60} />
             {active && (
               <span className="absolute -right-1 -bottom-1 grid h-5 w-5 place-items-center rounded-full bg-play text-[#052e12] ring-4 ring-novo-panel">
                 <Check size={12} strokeWidth={3} />
@@ -294,10 +180,7 @@ export function AccountsPage() {
         </p>
       </header>
 
-      <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
-        <CreatePlayerCard />
-        <MicrosoftCard />
-      </div>
+      <MicrosoftCard />
 
       <section className="flex flex-col gap-3">
         <h2 className="text-xs font-bold tracking-[0.2em] text-novo-muted uppercase">{t('acc.saved')}</h2>

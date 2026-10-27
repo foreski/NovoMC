@@ -24,6 +24,8 @@ pub struct AppConfig {
     pub azure_client_id: Option<String>,
     /// The bug-report relay (relay/ in the repo), e.g. https://novomc-bug-relay.example.workers.dev/report.
     pub bug_report_url: Option<String>,
+    /// Discord application ID for Rich Presence (an app with a "novomc" art asset).
+    pub discord_app_id: Option<String>,
 }
 
 static CONFIG: OnceLock<AppConfig> = OnceLock::new();

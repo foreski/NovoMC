@@ -23,6 +23,7 @@
     "MixinRenderItem",
     "MixinRendererLivingEntity",
     "MixinScoreboard",
+    "MixinScreenShotHelper",
     "MixinTileEntityRendererDispatcher",
     "accessor.EntityRendererAccessor",
     "accessor.ShaderGroupAccessor",

@@ -56,7 +56,7 @@ export function Sidebar({ page, onChange }: { page: PageId; onChange: (p: PageId
       >
         {active ? (
           <>
-            <RingAvatar name={active.username} size={34} />
+            <RingAvatar name={active.username} uuid={active.uuid} size={34} />
             <div className="min-w-0 flex-1">
               <div className="truncate font-semibold">{active.username}</div>
               <div className="flex items-center gap-1.5 text-xs text-novo-muted">

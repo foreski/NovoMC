@@ -1,4 +1,4 @@
-//! Account types shared by offline and Microsoft login.
+//! Account types (Microsoft accounts; offline is kept only to read older saves).
 
 use serde::{Deserialize, Serialize};
 

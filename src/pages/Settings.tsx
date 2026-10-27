@@ -15,6 +15,7 @@ import {
   RefreshCw,
   ArrowDownCircle,
   Bug,
+  MessageCircle,
   Sparkles,
   X,
 } from 'lucide-react';
@@ -324,6 +325,13 @@ export function SettingsPage() {
         </Card>
 
         <UpdatesCard version={version} />
+
+        <Card icon={MessageCircle} title={t('dsc.title')} text={t('dsc.text')}>
+          <div className="flex items-center gap-3 text-sm">
+            <Switch on={settings.discordPresence} onChange={(discordPresence) => change({ discordPresence })} label={t('dsc.toggle')} size="sm" />
+            <span className="text-novo-muted">{t('dsc.toggle')}</span>
+          </div>
+        </Card>
 
         <Card icon={Bug} title={t('bug.cardTitle')} text={t('bug.cardText')}>
           <div className="flex flex-wrap items-center gap-3">

@@ -4,6 +4,7 @@
 
 pub mod auth;
 pub mod config;
+pub mod discord;
 pub mod download;
 pub mod error;
 pub mod instances;
@@ -12,6 +13,7 @@ pub mod launch;
 pub mod news;
 pub mod paths;
 pub mod report;
+pub mod servers;
 pub mod settings;
 pub mod updater;
 
@@ -53,7 +55,8 @@ pub fn run() {
         .manage(launch::Games::default())
         .manage(updater::PendingUpdate::default())
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .setup(|_app| {
+        .setup(|app| {
+            discord::start(app.handle());
             paths::ensure_layout()?;
             let last_version = settings::load().ok().and_then(|s| s.last_version);
             instances::store::migrate_shared_default(&paths::data_dir()?, last_version.as_deref())?;
@@ -65,11 +68,14 @@ pub fn run() {
             news::get_news,
             news::open_url,
             auth::list_accounts,
-            auth::add_offline_account,
             auth::remove_account,
             auth::set_active_account,
             auth::microsoft_login,
+            auth::skins::get_skin_head,
             report::report_bug,
+            servers::list_servers,
+            servers::save_servers,
+            servers::ping_server,
             updater::check_update,
             updater::install_update,
             download::list_versions,

@@ -27,6 +27,12 @@ import com.novomc.client.modules.PotionEffectsModule;
 import com.novomc.client.modules.SaturationModule;
 import com.novomc.client.modules.ToggleSprintModule;
 import com.novomc.client.modules.UnfocusedFpsModule;
+import com.novomc.client.modules.AutoGgModule;
+import com.novomc.client.modules.AutoTextModule;
+import com.novomc.client.modules.HitSoundsModule;
+import com.novomc.client.modules.LowHealthModule;
+import com.novomc.client.modules.WaypointsModule;
+import com.novomc.client.modules.ScreenshotsModule;
 import com.novomc.client.modules.ZoomModule;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,6 +57,14 @@ public final class NovoClient {
     public static final KeyBinding SNAPLOOK_KEY = new KeyBinding("key.novomc.snaplook", Keyboard.KEY_NONE, "key.categories.novomc");
     /** Unbound by default; set it in Controls. */
     public static final KeyBinding STOPWATCH_KEY = new KeyBinding("key.novomc.stopwatch", Keyboard.KEY_NONE, "key.categories.novomc");
+    public static final KeyBinding WAYPOINT_ADD_KEY = new KeyBinding("key.novomc.waypointAdd", Keyboard.KEY_B, "key.categories.novomc");
+    public static final KeyBinding WAYPOINTS_KEY = new KeyBinding("key.novomc.waypoints", Keyboard.KEY_M, "key.categories.novomc");
+    /** Auto Text 1-3: unbound by default; set them in Controls. */
+    public static final KeyBinding[] AUTO_TEXT_KEYS = {
+        new KeyBinding("key.novomc.autoText1", Keyboard.KEY_NONE, "key.categories.novomc"),
+        new KeyBinding("key.novomc.autoText2", Keyboard.KEY_NONE, "key.categories.novomc"),
+        new KeyBinding("key.novomc.autoText3", Keyboard.KEY_NONE, "key.categories.novomc"),
+    };
 
     private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager.getLogger("NovoMC");
     private static final List<Module> MODULES = new ArrayList<Module>();
@@ -84,11 +98,18 @@ public final class NovoClient {
                 new ScoreboardModule(), new BossBarModule(), new TitlesModule(), new ChatModule(),
                 new TabEditorModule(), new NickHiderModule(), new ScrollableTooltipsModule(), new TntCountdownModule(),
                 new CooldownsModule(), new StopwatchModule(), new ServerAddressModule(), new PackDisplayModule(),
-                new PlaytimeModule(), new DayCounterModule());
+                new PlaytimeModule(), new DayCounterModule(),
+                // Batch 4
+                new AutoGgModule(), new AutoTextModule(), new HitSoundsModule(), new LowHealthModule(),
+                new WaypointsModule(), new ScreenshotsModule());
 
-        for (KeyBinding key : new KeyBinding[] {MENU_KEY, ZOOM_KEY, FREELOOK_KEY, SNAPLOOK_KEY, STOPWATCH_KEY}) {
+        for (KeyBinding key : new KeyBinding[] {MENU_KEY, ZOOM_KEY, FREELOOK_KEY, SNAPLOOK_KEY, STOPWATCH_KEY, WAYPOINT_ADD_KEY, WAYPOINTS_KEY}) {
             ClientRegistry.registerKeyBinding(key);
         }
+        for (KeyBinding key : AUTO_TEXT_KEYS) {
+            ClientRegistry.registerKeyBinding(key);
+        }
+        net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new ScreenshotsModule.Command());
         MinecraftForge.EVENT_BUS.register(new NovoClient());
         MinecraftForge.EVENT_BUS.register(CpsTracker.INSTANCE);
         MinecraftForge.EVENT_BUS.register(new ShaderController());

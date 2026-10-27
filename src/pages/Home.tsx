@@ -10,6 +10,7 @@ import { useAccounts } from '../lib/accounts';
 import { NewsCard } from '../components/NewsCard';
 import { api, type AppInfo, type Instance, type LaunchState, type NewsItem } from '../lib/api';
 import { useGame } from '../lib/game';
+import { ServerCards } from '../components/ServerCards';
 import { useT, type T } from '../lib/i18n';
 import { useInstances } from '../lib/instances';
 import { loaderLabel } from '../lib/loaders';
@@ -199,7 +200,7 @@ function LaunchStatus() {
 
 export function HomePage({ onNavigate }: { onNavigate: (p: PageId) => void }) {
   const { active, accounts } = useAccounts();
-  const { play, openConsole } = useGame();
+  const { play, openConsole, busy } = useGame();
   const { instances } = useInstances();
   const t = useT();
   const [info, setInfo] = useState<AppInfo | null>(null);
@@ -215,10 +216,10 @@ export function HomePage({ onNavigate }: { onNavigate: (p: PageId) => void }) {
   // The chosen instance, else the last played, else the most recent.
   const selected = instances?.find((i) => i.id === selectedId) ?? instances?.[0] ?? null;
 
-  function onPlay() {
+  function onPlay(server?: string) {
     if (!selected) return onNavigate('instances');
     if (!active) return onNavigate('accounts');
-    play(selected.id);
+    play(selected.id, server);
   }
 
   return (
@@ -255,7 +256,7 @@ export function HomePage({ onNavigate }: { onNavigate: (p: PageId) => void }) {
             <motion.div {...rise(0.28)} className="mt-8 flex flex-wrap items-center gap-4">
               {selected || instances === null ? (
                 <PlayButton
-                  onClick={onPlay}
+                  onClick={() => onPlay()}
                   disabled={instances === null}
                   subtitle={
                     selected
@@ -279,7 +280,7 @@ export function HomePage({ onNavigate }: { onNavigate: (p: PageId) => void }) {
               >
                 {active ? (
                   <>
-                    <RingAvatar name={active.username} size={36} />
+                    <RingAvatar name={active.username} uuid={active.uuid} size={36} />
                     <div className="text-left">
                       <div className="text-[11px] tracking-wider text-novo-muted uppercase">{t('home.playingAs')}</div>
                       <div className="font-bold">{active.username}</div>
@@ -322,6 +323,8 @@ export function HomePage({ onNavigate }: { onNavigate: (p: PageId) => void }) {
         <StatTile icon={UserCircle} label={t('home.players')} value={String(accounts.length)} onClick={() => onNavigate('accounts')} />
         <StatTile icon={Zap} label={t('home.launcher')} value={info ? `v${info.version}` : '…'} />
       </motion.div>
+
+      <ServerCards onJoin={(address) => onPlay(address)} disabled={busy} />
 
       {news && news.length > 0 && (
         <section>

@@ -2,7 +2,11 @@ package com.novomc.client;
 
 import com.google.gson.JsonPrimitive;
 import com.novomc.client.module.Module;
+import com.novomc.client.modules.AutoGgModule;
 import com.novomc.client.modules.EntityCullingModule;
+import com.novomc.client.modules.HitSoundsModule;
+import com.novomc.client.modules.LowHealthModule;
+import com.novomc.client.modules.WaypointsModule;
 import com.novomc.client.modules.FreelookModule;
 import com.novomc.client.modules.HurtCamModule;
 import com.novomc.client.modules.NickHiderModule;
@@ -25,6 +29,9 @@ import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.util.ScreenShotHelper;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.WorldType;
+import net.minecraft.util.ChatComponentText;
+import net.minecraftforge.client.event.ClientChatReceivedEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Keyboard;
@@ -79,6 +86,15 @@ public final class DevModuleCheck {
             failed++;
         }
         System.out.println("[NovoMC] CHECK " + (ok ? "PASS" : "FAIL") + " " + name + " - " + detail);
+    }
+
+    private static <T extends Module> T find(Class<T> type) {
+        for (Module m : NovoClient.modules()) {
+            if (type.isInstance(m)) {
+                return type.cast(m);
+            }
+        }
+        throw new IllegalStateException(type.getSimpleName() + " not registered");
     }
 
     private void only(String... ids) {
@@ -403,6 +419,87 @@ public final class DevModuleCheck {
                 float plain = f.width("Winstreak");
                 check("font.invisibleChars", Math.abs(f.width("Win​strea‌k") - plain) < 0.01f, "width with zero-width chars=" + f.width("Win​strea‌k") + " vs " + plain);
                 check("font.symbolFallback", f.width("⚔") > 0, "crossed swords drawn with the vanilla font, width=" + f.width("⚔"));
+            }
+        });
+
+        // ---- Batch 4: Auto GG, Auto Text, Hit Sounds, Low Health, Waypoints, Screenshots.
+        then(3, new Runnable() {
+            public void run() {
+                only("auto_gg");
+                check("auto_gg.triggers", AutoGgModule.endOfGame("                 Winner: Steve") && !AutoGgModule.endOfGame("hello there"),
+                        "end-of-game lines detected, normal chat ignored");
+                MinecraftForge.EVENT_BUS.post(new ClientChatReceivedEvent((byte) 0, new ChatComponentText("               Winner: Steve")));
+                check("auto_gg.queues", find(AutoGgModule.class).pending(), "gg queued after the win message");
+            }
+        });
+        then(30, new Runnable() {
+            public void run() {
+                check("auto_gg.sends", !find(AutoGgModule.class).pending(), "gg sent after the delay");
+                set("auto_text", "message1", "/time set 1000");
+                only("auto_text");
+                NovoClient.AUTO_TEXT_KEYS[0].setKeyCode(Keyboard.KEY_N);
+                KeyBinding.resetKeyBindingArrayAndHash();
+                key(NovoClient.AUTO_TEXT_KEYS[0], true);
+                KeyBinding.setKeyBindState(Keyboard.KEY_N, false);
+            }
+        });
+        then(20, new Runnable() {
+            public void run() {
+                long t = mc.theWorld.getWorldTime() % 24000;
+                check("auto_text.sends", Math.abs(t - 1000) < 40, "Auto Text 1 ran /time set 1000, time=" + t + ", sent=" + find(com.novomc.client.modules.AutoTextModule.class).sent
+                        + ", enabled=" + find(com.novomc.client.modules.AutoTextModule.class).isEnabled() + ", key=" + NovoClient.AUTO_TEXT_KEYS[0].getKeyCode());
+                NovoClient.AUTO_TEXT_KEYS[0].setKeyCode(Keyboard.KEY_NONE);
+                KeyBinding.resetKeyBindingArrayAndHash();
+                cmd("/time set 6000");
+                only("hit_sounds");
+                cmd("/summon Pig ~ ~ ~2 {NoAI:1}");
+            }
+        });
+        then(10, new Runnable() {
+            public void run() {
+                HitSoundsModule hs = find(HitSoundsModule.class);
+                int before = hs.played;
+                for (Entity e : mc.theWorld.loadedEntityList) {
+                    if (e instanceof net.minecraft.entity.passive.EntityPig) {
+                        mc.playerController.attackEntity(mc.thePlayer, e);
+                        break;
+                    }
+                }
+                check("hit_sounds.plays", hs.played > before, "sound played on hit");
+                only("low_health");
+                mc.thePlayer.setHealth(3f);
+            }
+        });
+        then(3, new Runnable() {
+            public void run() {
+                check("low_health.shows", find(LowHealthModule.class).showing, "warning at 1.5 hearts");
+                shot("low-health");
+                cmd("/effect @p 6 1 10");
+                only("waypoints");
+            }
+        });
+        then(5, new Runnable() {
+            public void run() {
+                WaypointsModule wm = find(WaypointsModule.class);
+                int before = wm.here().size();
+                WaypointsModule.Waypoint w = wm.addHere();
+                w.z += 12;
+                wm.save();
+                java.io.File file = new java.io.File(mc.mcDataDir, "config/novomc/waypoints.json");
+                check("waypoints.add", wm.here().size() == before + 1 && file.isFile(), "added and saved to " + file.getName());
+                look(0, 0);
+            }
+        });
+        then(5, new Runnable() {
+            public void run() {
+                shot("waypoint");
+                WaypointsModule wm = find(WaypointsModule.class);
+                wm.here().remove(wm.here().size() - 1);
+                wm.save();
+                only("screenshots");
+                net.minecraft.util.IChatComponent msg = ScreenShotHelper.saveScreenshot(mc.mcDataDir, mc.displayWidth, mc.displayHeight, mc.getFramebuffer());
+                String text = msg.getUnformattedText();
+                check("screenshots.actions", text.contains("[Open]") && text.contains("[Copy]") && text.contains("[Delete]"), text);
             }
         });
 
