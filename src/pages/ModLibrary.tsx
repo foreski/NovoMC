@@ -235,7 +235,7 @@ export function ModLibraryPage({ onNavigate }: { onNavigate: (p: PageId) => void
       <header className="flex items-end justify-between gap-4">
         <div>
           <p className="flex items-center gap-2 text-xs font-bold tracking-[0.3em] text-brand-c uppercase">
-            <Swords size={13} /> NovoMC Client
+            <Swords size={13} /> Novo Client
           </p>
           <h1 className="gradient-text mt-2 text-5xl font-black tracking-tight">{t('nav.mods')}</h1>
           <p className="mt-2 text-novo-muted">{t('mods.subtitle')}</p>
@@ -287,7 +287,7 @@ export function ModLibraryPage({ onNavigate }: { onNavigate: (p: PageId) => void
               </div>
               <div className="flex items-center gap-3 rounded-2xl bg-novo-bg/60 py-2 pr-2 pl-4">
                 <div className="text-right">
-                  <div className="text-sm font-semibold">NovoMC Client</div>
+                  <div className="text-sm font-semibold">Novo Client</div>
                   <div className="text-xs text-novo-muted">{selected.clientMod ? t('mods.onCount', { on: onCount, total: MODULES.length }) : t('mods.notInstalled')}</div>
                 </div>
                 <Switch

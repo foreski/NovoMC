@@ -81,7 +81,7 @@ fn check_loader(version: &str, loader: Loader, loader_version: Option<&str>) -> 
         return Ok(());
     }
     if !forge::SUPPORTED.contains(&version) {
-        return Err(AppError::Other(format!("Forge isn't available for Minecraft {version} in NovoMC yet")));
+        return Err(AppError::Other(format!("Forge isn't available for Minecraft {version} in Novo Client yet")));
     }
     match loader_version {
         Some(v) if v.starts_with(&format!("{version}-")) => Ok(()),

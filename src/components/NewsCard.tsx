@@ -46,7 +46,7 @@ export function NewsCard({ item, index }: { item: NewsItem; index: number }) {
           className="absolute -right-3 -bottom-4 text-white/20 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6"
         />
         <span className={`absolute top-3 left-3 rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase ${tag.chip}`}>
-          {tag.label ? t(tag.label) : 'NovoMC'}
+          {tag.label ? t(tag.label) : 'Novo Client'}
         </span>
       </div>
       <div className="flex flex-1 flex-col p-4">

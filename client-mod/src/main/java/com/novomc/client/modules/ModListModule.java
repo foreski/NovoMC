@@ -21,7 +21,7 @@ import java.util.Set;
 public class ModListModule extends HudModule {
     private static final int LINE = 10;
     private static final int PAD = 3;
-    private static final String WATERMARK = "NovoMC";
+    private static final String WATERMARK = "Novo Client";
     /** Always-on plumbing that would only clutter the list. */
     private static final Set<String> HIDDEN = new HashSet<String>(Arrays.asList(
             "module_list", "main_menu", "modern_font", "menu_blur", "screenshots", "unfocused_fps", "performance_tweaks"));

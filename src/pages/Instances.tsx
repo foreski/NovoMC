@@ -359,7 +359,7 @@ function EditDialog({ instance, onClose }: { instance: Instance | null; onClose:
               <option value="">{t('inst.javaAuto')}</option>
               {javas.map((j) => (
                 <option key={j.path} value={j.path}>
-                  Java {j.major} ({j.version}) {j.managed ? '· NovoMC' : ''}
+                  Java {j.major} ({j.version}) {j.managed ? '· Novo Client' : ''}
                 </option>
               ))}
               {draft.javaPath && !javas.some((j) => j.path === draft.javaPath) && <option value={draft.javaPath}>{draft.javaPath}</option>}
@@ -542,7 +542,7 @@ export function InstancesPage({ onNavigate, createFor }: { onNavigate: (p: PageI
           className="group grid place-items-center rounded-3xl border border-dashed border-novo-border-strong py-16 text-center transition-colors hover:border-accent/50 hover:bg-accent/5"
         >
           <div style={{ animation: 'float 5s ease-in-out infinite' }}>
-            <InstanceIcon name="NovoMC" size={64} />
+            <InstanceIcon name="Novo Client" size={64} />
           </div>
           <p className="mt-4 font-semibold">{t('inst.empty')}</p>
           <p className="text-novo-muted">{t('inst.emptyHint')}</p>

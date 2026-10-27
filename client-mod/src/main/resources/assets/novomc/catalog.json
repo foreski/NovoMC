@@ -713,7 +713,7 @@
       "name": "Sodium Renderer",
       "category": "performance",
       "enabled": true,
-      "description": "NovoMC's port of Sodium's chunk renderer: compact vertices in shared region buffers, one draw per region instead of one per chunk. Needs OpenGL 3.3 and VBOs.",
+      "description": "Novo Client's port of Sodium's chunk renderer: compact vertices in shared region buffers, one draw per region instead of one per chunk. Needs OpenGL 3.3 and VBOs.",
       "settings": []
     },
     {
@@ -721,7 +721,7 @@
       "name": "Fast Math",
       "category": "performance",
       "enabled": true,
-      "description": "Smaller, cache-friendly sine and cosine tables. Inspired by OptiFine; NovoMC's own code.",
+      "description": "Smaller, cache-friendly sine and cosine tables. Inspired by OptiFine; Novo Client's own code.",
       "settings": []
     },
     {
@@ -729,7 +729,7 @@
       "name": "Smart Animations",
       "category": "performance",
       "enabled": true,
-      "description": "Only animates water, lava and other block textures that are on screen. Inspired by OptiFine; NovoMC's own code.",
+      "description": "Only animates water, lava and other block textures that are on screen. Inspired by OptiFine; Novo Client's own code.",
       "settings": []
     },
     {
@@ -737,7 +737,7 @@
       "name": "Lazy Chunk Loading",
       "category": "performance",
       "enabled": true,
-      "description": "Singleplayer loads chunks over more ticks, for fewer stutters. Inspired by OptiFine; NovoMC's own code.",
+      "description": "Singleplayer loads chunks over more ticks, for fewer stutters. Inspired by OptiFine; Novo Client's own code.",
       "settings": []
     },
     {
@@ -745,7 +745,7 @@
       "name": "Connected Textures",
       "category": "visual",
       "enabled": true,
-      "description": "Seamless glass out of the box, plus connected textures (CTM) from resource packs. Inspired by OptiFine; NovoMC's own code.",
+      "description": "Seamless glass out of the box, plus connected textures (CTM) from resource packs. Inspired by OptiFine; Novo Client's own code.",
       "settings": []
     },
     {
@@ -753,7 +753,7 @@
       "name": "Custom Sky",
       "category": "visual",
       "enabled": true,
-      "description": "Shows skyboxes from resource packs (OptiFine / MCPatcher sky format). Inspired by OptiFine; NovoMC's own code.",
+      "description": "Shows skyboxes from resource packs (OptiFine / MCPatcher sky format). Inspired by OptiFine; Novo Client's own code.",
       "settings": []
     },
     {
@@ -761,7 +761,7 @@
       "name": "Better Grass",
       "category": "visual",
       "enabled": false,
-      "description": "Grass and mycelium cover the sides of blocks. Inspired by OptiFine; NovoMC's own code.",
+      "description": "Grass and mycelium cover the sides of blocks. Inspired by OptiFine; Novo Client's own code.",
       "settings": [
         {
           "key": "mode",
@@ -786,7 +786,7 @@
       "name": "Better Snow",
       "category": "visual",
       "enabled": false,
-      "description": "Snow fills in around plants, fences and walls. Inspired by OptiFine; NovoMC's own code.",
+      "description": "Snow fills in around plants, fences and walls. Inspired by OptiFine; Novo Client's own code.",
       "settings": []
     },
     {
@@ -794,7 +794,7 @@
       "name": "Custom Menus",
       "category": "qol",
       "enabled": true,
-      "description": "NovoMC's own Options screen, and every other menu (servers, worlds, controls, dialogs) restyled to match NovoMC.",
+      "description": "Novo Client's own Options screen, and every other menu (servers, worlds, controls, dialogs) restyled to match Novo Client.",
       "settings": []
     },
     {
@@ -802,7 +802,7 @@
       "name": "Video Settings",
       "category": "qol",
       "enabled": true,
-      "description": "NovoMC's Video Settings screen: vanilla options plus Sodium and the rendering features in one place.",
+      "description": "Novo Client's Video Settings screen: vanilla options plus Sodium and the rendering features in one place.",
       "settings": []
     },
     {
@@ -1111,7 +1111,7 @@
       "name": "Modern Font",
       "category": "visual",
       "enabled": true,
-      "description": "Uses the clean Poppins font in NovoMC menus and the HUD instead of the pixel font.",
+      "description": "Uses the clean Poppins font in Novo Client menus and the HUD instead of the pixel font.",
       "settings": [
         {
           "key": "hud",
@@ -1126,7 +1126,7 @@
       "name": "Loading Screen",
       "category": "visual",
       "enabled": true,
-      "description": "NovoMC fades in with a spinning loading ring while you connect to servers and load worlds.",
+      "description": "Novo Client fades in with a spinning loading ring while you connect to servers and load worlds.",
       "settings": []
     },
     {
@@ -1234,10 +1234,10 @@
     },
     {
       "id": "novo_badge",
-      "name": "NovoMC Badge",
+      "name": "Novo Client Badge",
       "category": "visual",
       "enabled": true,
-      "description": "The NovoMC logo next to the names of other NovoMC players, on nametags and in the tab list.",
+      "description": "The Novo Client logo next to the names of other Novo Client players, on nametags and in the tab list.",
       "settings": [
         {
           "key": "showOthers",
@@ -1248,7 +1248,7 @@
         {
           "key": "shareMine",
           "type": "toggle",
-          "label": "Let other NovoMC players see your badge",
+          "label": "Let other Novo Client players see your badge",
           "default": true
         }
       ]
@@ -1273,15 +1273,15 @@
       "name": "Snaplook",
       "category": "qol",
       "enabled": false,
-      "description": "Hold a key to look behind you. Bind it in Controls > NovoMC.",
+      "description": "Hold a key to look behind you. Bind it in Controls > Novo Client.",
       "settings": []
     },
     {
       "id": "main_menu",
-      "name": "NovoMC Menu",
+      "name": "Novo Client Menu",
       "category": "qol",
       "enabled": true,
-      "description": "The NovoMC main menu instead of the vanilla one.",
+      "description": "The Novo Client main menu instead of the vanilla one.",
       "settings": []
     },
     {
@@ -1907,7 +1907,7 @@
       "name": "Mod List",
       "category": "hud",
       "enabled": false,
-      "description": "An ArrayList-style list of your active mods down the screen edge, in a moving rainbow or NovoMC gradient.",
+      "description": "An ArrayList-style list of your active mods down the screen edge, in a moving rainbow or Novo Client gradient.",
       "hud": {
         "x": 1,
         "y": 0.01,
@@ -1922,7 +1922,7 @@
           "options": [
             {
               "value": "novomc",
-              "label": "NovoMC"
+              "label": "Novo Client"
             },
             {
               "value": "rainbow",
@@ -1953,7 +1953,7 @@
         {
           "key": "watermark",
           "type": "toggle",
-          "label": "NovoMC watermark",
+          "label": "Novo Client watermark",
           "default": true
         },
         {

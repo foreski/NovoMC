@@ -74,7 +74,7 @@ pub fn start(app: &AppHandle) {
 }
 
 fn build(p: &Presence) -> activity::Activity<'_> {
-    let assets = activity::Assets::new().large_image("novomc").large_text("NovoMC");
+    let assets = activity::Assets::new().large_image("novomc").large_text("Novo Client");
     match p {
         Presence::Playing { version, server, since } => {
             let a = activity::Activity::new()

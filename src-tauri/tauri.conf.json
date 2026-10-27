@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "NovoMC",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "identifier": "com.novomc.app",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "NovoMC",
+        "title": "Novo Client",
         "width": 1200,
         "height": 760,
         "minWidth": 960,
@@ -37,7 +37,7 @@
       "resources/novomc-client.jar": "resources/novomc-client.jar",
       "../novomc.config.json": "novomc.config.json"
     },
-    "shortDescription": "NovoMC Minecraft launcher",
+    "shortDescription": "Novo Client Minecraft launcher",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

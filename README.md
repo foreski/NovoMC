@@ -1,20 +1,20 @@
 <div align="center">
 
-<img src="assets/branding/novomc-logo.svg" width="112" alt="NovoMC logo" />
+<img src="assets/branding/novomc-logo.svg" width="112" alt="Novo Client logo" />
 
-# NovoMC
+# Novo Client
 
 **The performance Minecraft launcher with a built-in 1.8.9 PvP client.**
 
-More FPS, 69 built-in mods, thousands of resource packs, one click to play.
+More FPS, 79 built-in mods, thousands of resource packs, one click to play.
 
 [![Download](https://img.shields.io/github/v/release/foreski/NovoMC?label=Download&style=for-the-badge&color=5B8CFF)](https://github.com/foreski/NovoMC/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/foreski/NovoMC/total?style=for-the-badge&color=B45BFF)](https://github.com/foreski/NovoMC/releases)
 ![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-22D3EE?style=for-the-badge)
 
-### [⬇ Download NovoMC for Windows](https://github.com/foreski/NovoMC/releases/latest)
+### [⬇ Download Novo Client for Windows](https://github.com/foreski/NovoMC/releases/latest)
 
-<img src="docs/images/launcher-home.png" width="860" alt="The NovoMC launcher home screen" />
+<img src="docs/images/launcher-home.png" width="860" alt="The Novo Client launcher home screen" />
 
 </div>
 
@@ -23,30 +23,30 @@ More FPS, 69 built-in mods, thousands of resource packs, one click to play.
 ## 🎬 See it in action
 
 <p align="center">
-  <img src="docs/images/showcase.gif" width="760" alt="NovoMC Client in a 1.8.9 PvP duel: HUD, keystrokes, potion timers and 150+ FPS" />
+  <img src="docs/images/showcase.gif" width="760" alt="Novo Client in a 1.8.9 PvP duel: HUD, keystrokes, potion timers and 150+ FPS" />
 </p>
 
-<p align="center"><sub>A real duel on NovoMC 1.8.9 · <a href="docs/media/novomc-showcase.mp4">▶ Watch the full 30-second clip</a></sub></p>
+<p align="center"><sub>A real duel on Novo Client 1.8.9 · <a href="docs/media/novomc-showcase.mp4">▶ Watch the full 30-second clip</a></sub></p>
 
 ## ⚡ Double your FPS
 
-NovoMC Client ships its own performance mods for 1.8.9: no OptiFine, no third-party mod jars.
+Novo Client ships its own performance mods for 1.8.9: no OptiFine, no third-party mod jars.
 
 - **Sodium Renderer**, our port of [Sodium](https://github.com/CaffeineMC/sodium)'s chunk renderer to 1.8.9:
   compact vertices packed into shared region buffers, drawn with one call per region instead of one per chunk
   (needs OpenGL 3.3, otherwise vanilla rendering is used).
-- **OptiFine-style options, rebuilt by NovoMC**: Fast Math, Smart Animations, Lazy Chunk Loading, Connected
+- **OptiFine-style options, rebuilt by Novo Client**: Fast Math, Smart Animations, Lazy Chunk Loading, Connected
   Textures (seamless glass out of the box, plus CTM from resource packs), Custom Sky (pack skyboxes),
   Better Grass and Better Snow. Inspired by [OptiFine](https://optifine.net); none of its code is used.
-- **No vanilla menus**: NovoMC's own Options and Video Settings screens, and every other menu (servers, worlds,
-  controls, language, dialogs) drawn with NovoMC's buttons, sliders, fields, lists and backdrop.
+- **No vanilla menus**: Novo Client's own Options and Video Settings screens, and every other menu (servers, worlds,
+  controls, language, dialogs) drawn with Novo Client's buttons, sliders, fields, lists and backdrop.
 - **Smart culling** skips far-away mobs, armor stands, dropped items, chests, signs, skulls and banners.
 - **Particle limiter** caps particle spam in fights and drops particles you can't see anyway.
 - **Uncapped frame rate**, VBO rendering, no entity shadows and no clouds, switched on for you.
 - **Patcher-style fixes**: borderless fullscreen, camera parallax fix, inventory that stays put with potions, frozen texture animations.
 - **Tuned Java flags** for short, smooth garbage-collection pauses instead of lag spikes.
 
-In our lobby stress test (400 armor stands, ~1,900 chests and skulls, constant particles) NovoMC went from
+In our lobby stress test (400 armor stands, ~1,900 chests and skulls, constant particles) Novo Client went from
 **126 FPS to 259 FPS: +105%**. Every optimization can be switched off if you prefer vanilla.
 
 ## 🎮 79 mods, built in
@@ -81,7 +81,7 @@ Minecraft. Search, sort by popular or newest, filter by PvP, Simplistic, Vanilla
 
 ## 🚀 A launcher that stays out of your way
 
-- **One-click play.** Pick an instance and press Play; NovoMC downloads the game, Forge and the right Java for you.
+- **One-click play.** Pick an instance and press Play; Novo Client downloads the game, Forge and the right Java for you.
 - **Every Minecraft version**, straight from Mojang's servers and checked file by file.
 - **Instances** with their own worlds, mods, packs, memory and Java. Duplicate one in a click.
 - **Microsoft accounts** for online servers and Realms, with your real skin. Sign-ins are stored in
@@ -91,10 +91,10 @@ Minecraft. Search, sort by popular or newest, filter by PvP, Simplistic, Vanilla
 - **Discord Rich Presence** shows what you're playing and on which server.
 - **Live console** with crash reports, so you can see what went wrong.
 - **Your look, your language**: accent colors, and the launcher in English, Deutsch, Español, Français and Português.
-- **Automatic updates**: NovoMC keeps itself up to date, and every update is cryptographically signed.
+- **Automatic updates**: Novo Client keeps itself up to date, and every update is cryptographically signed.
 
 <p align="center">
-  <img src="docs/images/ingame-menu.png" width="49%" alt="The NovoMC main menu in Minecraft" />
+  <img src="docs/images/ingame-menu.png" width="49%" alt="The Novo Client main menu in Minecraft" />
   <img src="docs/images/launcher-settings.png" width="49%" alt="Launcher settings" />
 </p>
 
@@ -108,13 +108,13 @@ Requires Windows 10 or 11 (64-bit). Java is downloaded automatically.
 
 ## 🛡 Fair play
 
-NovoMC is a visual and quality-of-life client, like the big-name PvP clients. Nothing automates your input
+Novo Client is a visual and quality-of-life client, like the big-name PvP clients. Nothing automates your input
 or shows information vanilla hides. Freelook can't be disabled by servers the way some clients allow, so
 check a server's rules before using it there.
 
 ## 🛠 Build from source
 
-NovoMC is a Tauri 2 (Rust) + React launcher and a Forge 1.8.9 mod. See
+Novo Client is a Tauri 2 (Rust) + React launcher and a Forge 1.8.9 mod. See
 **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** for setup, build commands and the project layout.
 
 The Sodium Renderer (`client-mod/src/main/java/com/novomc/client/sodium`) is ported from Sodium 0.5 by
@@ -123,6 +123,6 @@ JellySquid and the CaffeineMC contributors and stays under the
 
 ---
 
-<sub>NovoMC is not an official Minecraft product and is not approved by or associated with Mojang or
+<sub>Novo Client is not an official Minecraft product and is not approved by or associated with Mojang or
 Microsoft. Minecraft is a trademark of Mojang AB. Resource packs are provided by their authors through
 Modrinth.</sub>

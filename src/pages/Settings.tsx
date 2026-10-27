@@ -475,7 +475,7 @@ export function SettingsPage() {
                       {j.version}
                       <span className="font-mono text-[10px] text-novo-muted">{j.arch}</span>
                       {j.managed && (
-                        <span className="rounded bg-brand-b/20 px-1.5 py-0.5 text-[10px] font-bold text-[#d8b4fe] uppercase">NovoMC</span>
+                        <span className="rounded bg-brand-b/20 px-1.5 py-0.5 text-[10px] font-bold text-[#d8b4fe] uppercase">Novo</span>
                       )}
                     </div>
                     <div className="truncate font-mono text-[11px] text-novo-muted">{j.path}</div>
@@ -510,7 +510,7 @@ function UpdatesCard({ version }: { version: string }) {
     <Card icon={ArrowDownCircle} title={t('upd.title')} text={t('upd.text')}>
       <div className="flex flex-wrap items-center gap-3">
         <div className="min-w-0 flex-1">
-          <div className="font-mono text-sm font-bold">NovoMC {version ? `v${version}` : '…'}</div>
+          <div className="font-mono text-sm font-bold">Novo Client {version ? `v${version}` : '…'}</div>
           {statusText && <div className={`text-xs ${status === 'available' ? 'text-accent' : 'text-novo-muted'}`}>{statusText}</div>}
           {status === 'error' && error && <div className="text-xs text-danger">{error}</div>}
         </div>

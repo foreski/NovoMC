@@ -131,7 +131,7 @@ fn unpack_installer(root: &Path, installer: &Path) -> AppResult<Value> {
     let profile: Value = serde_json::from_str(&profile)?;
 
     let info = profile.get("versionInfo").cloned().ok_or_else(|| {
-        AppError::Other("This Forge version uses the newer installer format, which NovoMC doesn't support yet".into())
+        AppError::Other("This Forge version uses the newer installer format, which Novo Client doesn't support yet".into())
     })?;
     let file = profile["install"]["filePath"].as_str().unwrap_or_default();
     let coord = profile["install"]["path"].as_str().unwrap_or_default();

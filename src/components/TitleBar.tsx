@@ -32,7 +32,7 @@ export function TitleBar() {
       <div data-tauri-drag-region className="flex items-center gap-2.5 pl-3.5">
         <img src={logo} alt="" className="pointer-events-none h-5 w-5 drop-shadow-[0_0_8px_rgb(180_91_255/0.6)]" />
         <span data-tauri-drag-region className="text-[13px] font-bold tracking-[0.12em]">
-          NOVO<span className="text-accent">MC</span>
+          NOVO <span className="text-accent">CLIENT</span>
         </span>
       </div>
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-brand-b/50 to-transparent" />

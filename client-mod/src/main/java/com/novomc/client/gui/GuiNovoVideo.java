@@ -30,7 +30,7 @@ public class GuiNovoVideo extends GuiNovoSettings {
 
     @Override
     protected String subtitle() {
-        return "Vanilla options plus NovoMC's Sodium renderer and rendering features";
+        return "Vanilla options plus Novo Client's Sodium renderer and rendering features";
     }
 
     @Override

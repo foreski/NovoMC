@@ -199,7 +199,7 @@ public abstract class GuiNovoSettings extends NovoPanelScreen {
         int[] p = beginFrame(mouseX, mouseY);
         int l = p[0], top = p[1], r = p[2], bottom = p[3];
 
-        Draw.spaced("NOVOMC CLIENT", l, top + 10, CYAN, 1.2f);
+        Draw.spaced("NOVO CLIENT", l, top + 10, CYAN, 1.2f);
         GlStateManager.pushMatrix();
         GlStateManager.translate(l, top + 22, 0);
         GlStateManager.scale(2, 2, 1);

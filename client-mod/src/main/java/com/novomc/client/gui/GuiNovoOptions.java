@@ -58,7 +58,7 @@ public class GuiNovoOptions extends GuiNovoSettings {
             out.add(link("Controls", "Key bindings and mouse", () -> mc.displayGuiScreen(new GuiControls(self, gs))));
             out.add(link("Language", null, () -> mc.displayGuiScreen(new GuiLanguage(self, gs, mc.getLanguageManager()))));
             out.add(link("Resource packs", "Browse and install packs", () -> mc.displayGuiScreen(new GuiResourcePacks(self))));
-            out.add(link("NovoMC mods", "Turn mods on and off", () -> mc.displayGuiScreen(new GuiModules(self))));
+            out.add(link("Novo Client mods", "Turn mods on and off", () -> mc.displayGuiScreen(new GuiModules(self))));
         } else if (id.equals("sound")) {
             for (final SoundCategory cat : SoundCategory.values()) {
                 out.add(new Row(I18n.format("soundCategory." + cat.getCategoryName()), null) {

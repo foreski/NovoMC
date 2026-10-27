@@ -60,7 +60,7 @@ public class ScoreboardModule extends HudModule {
         ScoreObjective objective = objective();
         if (objective == null) {
             if (preview) {
-                out.add(EnumChatFormatting.BOLD + "NOVOMC");
+                out.add(EnumChatFormatting.BOLD + "NOVO CLIENT");
                 out.add("Kills: " + EnumChatFormatting.GREEN + "12\u00003");
                 out.add("Wins: " + EnumChatFormatting.GOLD + "4\u00002");
                 out.add(EnumChatFormatting.YELLOW + "play.example.net\u00001");

@@ -42,7 +42,7 @@ pub fn write(game_dir: &Path) -> AppResult<()> {
     std::fs::create_dir_all(&textures)?;
     std::fs::write(
         game_dir.join(PACK).join("pack.mcmeta"),
-        r#"{"pack":{"pack_format":1,"description":"NovoMC loading screen"}}"#,
+        r#"{"pack":{"pack_format":1,"description":"Novo Client loading screen"}}"#,
     )?;
     write_if_changed(&textures.join("logo.png"), LOGO)?;
     write_if_changed(&textures.join("spinner.png"), SPINNER)?;

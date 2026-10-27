@@ -63,7 +63,7 @@ public class GuiNovoMenu extends GuiMainMenu {
 
         int[] ids = {OPTIONS, LANGUAGE, FORGE_MODS, NOVO_MODS, PACKS};
         ResourceLocation[] icons = {SETTINGS, GLOBE, PUZZLE, GRID, LAYERS};
-        String[] tips = {"Options", "Language", "Forge mods", "NovoMC mods", "Resource packs"};
+        String[] tips = {"Options", "Language", "Forge mods", "Novo Client mods", "Resource packs"};
         int left = cx - (ids.length * 24 - 6) / 2;
         for (int i = 0; i < ids.length; i++) {
             buttonList.add(new NovoButton(ids[i], left + i * 24, height - 32, 18, 18, "").icon(icons[i]).tooltip(tips[i]));
@@ -86,7 +86,7 @@ public class GuiNovoMenu extends GuiMainMenu {
         int cy = height / 2;
 
         Draw.icon(LOGO, cx - 26, cy - 98 + (1 - fade) * 6, 52, Draw.withAlpha(0xFFFFFF, alpha));
-        String title = "NOVOMC CLIENT";
+        String title = "NOVO CLIENT";
         GlStateManager.pushMatrix();
         GlStateManager.translate(cx, cy - 38, 0);
         GlStateManager.scale(1.6f, 1.6f, 1);
@@ -96,7 +96,7 @@ public class GuiNovoMenu extends GuiMainMenu {
         Draw.spaced(tagline, cx - Draw.spacedWidth(tagline, 1f) / 2f, cy - 18, Draw.withAlpha(0x8A94A6, alpha), 1f);
 
         Draw.text(mc.getSession().getUsername(), 32, 13, 0xFFD0D6E2);
-        Draw.text("NovoMC Client " + NovoMC.VERSION + " (Minecraft 1.8.9)", 4, height - 10, 0xFF8A94A6);
+        Draw.text("Novo Client " + NovoMC.VERSION + " (Minecraft 1.8.9)", 4, height - 10, 0xFF8A94A6);
         String legal = "Copyright Mojang AB. Do not distribute!";
         Draw.text(legal, width - Draw.width(legal) - 4, height - 10, 0xFF8A94A6);
 
@@ -170,7 +170,7 @@ public class GuiNovoMenu extends GuiMainMenu {
             drawGradientRect(xPosition, yPosition, right, bottom, Draw.blend(0xC03A2A78, 0xE04B3AA0, hover), Draw.blend(0xC01A1430, 0xE0281C50, hover));
             Draw.outline(xPosition, yPosition, right, bottom, Draw.blend(0x60B45BFF, 0xFFB45BFF, hover));
             Draw.icon(SWORDS, xPosition + 10, yPosition + (height - 20) / 2f, 20, 0xFFFFFFFF);
-            Draw.spaced("NOVOMC", xPosition + 38, yPosition + 12, 0xFFFFFFFF, 1.5f);
+            Draw.spaced("NOVO", xPosition + 38, yPosition + 12, 0xFFFFFFFF, 1.5f);
             Draw.text("Mods & HUD", xPosition + 38, yPosition + 24, 0xFFC9B8FF);
         }
     }

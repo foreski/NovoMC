@@ -43,7 +43,7 @@ pub fn sync(app: &AppHandle, root: &Path, inst: &Instance) -> AppResult<()> {
         .resolve(BUNDLED, BaseDirectory::Resource)
         .map_err(|e| AppError::Other(e.to_string()))?;
     if !src.is_file() {
-        return Err(AppError::Other("This NovoMC build is missing the NovoMC Client mod (run `npm run mod`)".into()));
+        return Err(AppError::Other("This Novo Client build is missing the Novo Client mod (run `npm run mod`)".into()));
     }
     if dest.is_file() && hash_file(&src)? == hash_file(&dest)? {
         return Ok(());

@@ -117,7 +117,7 @@ pub fn update_settings(mut settings: Settings) -> AppResult<Settings> {
     }
     if let Some(l) = &settings.ui_language {
         if !["en", "de", "es", "fr", "pt-BR"].contains(&l.as_str()) {
-            return Err(AppError::Other(format!("NovoMC isn't translated to {l} yet")));
+            return Err(AppError::Other(format!("Novo Client isn't translated to {l} yet")));
         }
     }
     if let Some(l) = &settings.game_language {

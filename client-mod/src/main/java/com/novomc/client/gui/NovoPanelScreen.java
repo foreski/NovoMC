@@ -129,7 +129,7 @@ public abstract class NovoPanelScreen extends GuiScreen {
      */
     protected float drawHeader(int l, int r, int top, String title, String subtitle) {
         Draw.icon(SWORDS, l, top + 10, 8, CYAN);
-        Draw.spaced("NOVOMC CLIENT", l + 11, top + 10, CYAN, 1.2f);
+        Draw.spaced("NOVO CLIENT", l + 11, top + 10, CYAN, 1.2f);
 
         GlStateManager.pushMatrix();
         GlStateManager.translate(l, top + 22, 0);
