@@ -525,6 +525,16 @@ public final class DevModuleCheck {
         then(5, new Runnable() {
             public void run() {
                 shot("mod-list-novomc");
+                // Switch it off exactly like the Mods screen's switch does.
+                NovoClient.config().setEnabled("module_list", false);
+                NovoClient.apply();
+            }
+        });
+        then(5, new Runnable() {
+            public void run() {
+                com.novomc.client.modules.ModListModule ml = find(com.novomc.client.modules.ModListModule.class);
+                check("module_list.disables", !ml.isEnabled() && !NovoClient.config().enabled(ml.def), "Mod List off and saved as off");
+                shot("mod-list-off");
             }
         });
 
