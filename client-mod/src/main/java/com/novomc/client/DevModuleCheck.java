@@ -506,10 +506,13 @@ public final class DevModuleCheck {
         // ---- Mod List HUD (ArrayList style), in both color modes.
         then(3, new Runnable() {
             public void run() {
-                only("module_list", "freelook", "toggle_sprint", "zoom", "hit_color", "waypoints", "auto_gg");
+                only("module_list", "freelook", "toggle_sprint", "zoom", "hit_color", "waypoints", "auto_gg", "modern_font");
+                // Hide the new-world "Press E" tip so the screenshots show the list itself.
+                mc.guiAchievement.clearAchievements();
                 set("module_list", "colors", "rainbow");
                 com.novomc.client.modules.ModListModule ml = find(com.novomc.client.modules.ModListModule.class);
                 // Toggle Sprint is itself a HUD element, so "Hide HUD mods" leaves it out: watermark + 5 lines.
+                // Toggle Sprint and Modern Font stay out ("Hide HUD mods" + always-on plumbing): watermark + 5 lines.
                 check("module_list.lists", ml.visible() && ml.height(false) == 6 * 10, "height=" + ml.height(false) + " (watermark + 5 mods)");
             }
         });
