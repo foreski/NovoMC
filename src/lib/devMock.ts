@@ -15,7 +15,7 @@ const instances: Instance[] = [
 
 const accounts: AccountStore = {
   activeUuid: '069a79f4-44e9-4726-a5be-fca90e38aaf5',
-  accounts: [{ uuid: '069a79f4-44e9-4726-a5be-fca90e38aaf5', username: 'Notch', kind: 'microsoft' }],
+  accounts: [{ uuid: '069a79f4-44e9-4726-a5be-fca90e38aaf5', username: 'NovoPlayer', kind: 'microsoft' }],
 };
 
 const news: NewsItem[] = [

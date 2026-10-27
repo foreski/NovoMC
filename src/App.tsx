@@ -50,7 +50,10 @@ function Page({
 }
 
 export default function App() {
-  const [page, setPage] = useState<PageId>('home');
+  // In development, ?page=mods (etc.) opens a page directly, for screenshots.
+  const [page, setPage] = useState<PageId>(
+    () => ((import.meta.env.DEV && new URLSearchParams(location.search).get('page')) as PageId) || 'home',
+  );
 
   // The saved accent applies from the first frame of every page.
   useEffect(() => {

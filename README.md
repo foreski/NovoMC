@@ -6,7 +6,7 @@
 
 **The performance Minecraft launcher with a built-in 1.8.9 PvP client.**
 
-More FPS, 79 built-in mods, thousands of resource packs, one click to play.
+More FPS, 80 built-in mods, thousands of resource packs, one click to play.
 
 [![Download](https://img.shields.io/github/v/release/foreski/NovoMC?label=Download&style=for-the-badge&color=5B8CFF)](https://github.com/foreski/NovoMC/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/foreski/NovoMC/total?style=for-the-badge&color=B45BFF)](https://github.com/foreski/NovoMC/releases)
@@ -49,7 +49,12 @@ Novo Client ships its own performance mods for 1.8.9: no OptiFine, no third-part
 In our lobby stress test (400 armor stands, ~1,900 chests and skulls, constant particles) Novo Client went from
 **126 FPS to 259 FPS: +105%**. Every optimization can be switched off if you prefer vanilla.
 
-## 🎮 79 mods, built in
+<p align="center">
+  <img src="docs/images/ingame-video.png" width="49%" alt="Video Settings with the Sodium renderer and performance options" />
+  <img src="docs/images/ingame-options.png" width="49%" alt="Novo Client's own Options screen" />
+</p>
+
+## 🎮 80 mods, built in
 
 Everything a PvP player wants, ready the moment you join a server. Toggle mods and change their
 settings in-game (Right Shift) or from the launcher, and drag any HUD element exactly where you want it.
@@ -81,7 +86,8 @@ Minecraft. Search, sort by popular or newest, filter by PvP, Simplistic, Vanilla
 
 ## 🚀 A launcher that stays out of your way
 
-- **One-click play.** Pick an instance and press Play; Novo Client downloads the game, Forge and the right Java for you.
+- **One-click play.** A big Play button with your instances one click away; Novo Client downloads the game, Forge and the right Java for you.
+- **Live news** from the Novo Client team right on Home, with pictures.
 - **Every Minecraft version**, straight from Mojang's servers and checked file by file.
 - **Instances** with their own worlds, mods, packs, memory and Java. Duplicate one in a click.
 - **Microsoft accounts** for online servers and Realms, with your real skin. Sign-ins are stored in

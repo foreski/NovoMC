@@ -15,7 +15,8 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
  * only active with {@code -Dnovomc.features=true}: builds glass walls, a grass
  * slope and snow around plants, turns every feature on, screenshots the scene
  * and each Video Settings section, and quits. First it screenshots the themed
- * vanilla menus (servers, worlds, Options, Controls, Language).
+ * menus (main menu, servers, worlds, Options, Controls, Language, Mods,
+ * Resource Packs) at 1600x900, as used in the README.
  */
 public final class DevFeatureTest {
     private static final String[] FEATURES = {"sodium", "fast_math", "smart_animations", "lazy_chunks",
@@ -39,15 +40,27 @@ public final class DevFeatureTest {
         if (!started) {
             menuTicks++;
             switch (menuTicks) {
+                case 1:
+                    // README-sized screenshots.
+                    try {
+                        org.lwjgl.opengl.Display.setDisplayMode(new org.lwjgl.opengl.DisplayMode(1600, 900));
+                    } catch (org.lwjgl.LWJGLException e) {
+                        throw new IllegalStateException(e);
+                    }
+                    break;
+                case 30: shot("menu-main"); break;
                 case 40: mc.displayGuiScreen(new net.minecraft.client.gui.GuiMultiplayer(new GuiMainMenu())); break;
                 case 50: shot("menu-multiplayer"); mc.displayGuiScreen(new net.minecraft.client.gui.GuiSelectWorld(new GuiMainMenu())); break;
                 case 60: shot("menu-worlds"); mc.displayGuiScreen(new net.minecraft.client.gui.GuiOptions(new GuiMainMenu(), mc.gameSettings)); break;
                 case 70: shot("menu-options"); mc.displayGuiScreen(new net.minecraft.client.gui.GuiControls(new GuiMainMenu(), mc.gameSettings)); break;
                 case 80: shot("menu-controls"); mc.displayGuiScreen(new net.minecraft.client.gui.GuiLanguage(new GuiMainMenu(), mc.gameSettings, mc.getLanguageManager())); break;
-                case 90: shot("menu-language"); mc.displayGuiScreen(new GuiMainMenu()); break;
+                case 90: shot("menu-language"); mc.displayGuiScreen(new com.novomc.client.gui.GuiModules(new GuiMainMenu())); break;
+                case 100: shot("menu-mods"); mc.displayGuiScreen(new com.novomc.client.gui.GuiResourcePacks(new GuiMainMenu())); break;
+                // Pack icons come from Modrinth; give them a few seconds.
+                case 160: shot("menu-packs"); mc.displayGuiScreen(new GuiMainMenu()); break;
                 default: break;
             }
-            if (menuTicks > 100) {
+            if (menuTicks > 170) {
                 started = true;
                 mc.gameSettings.pauseOnLostFocus = false;
                 WorldSettings ws = new WorldSettings(42L, WorldSettings.GameType.CREATIVE, false, false, WorldType.FLAT);
@@ -60,6 +73,8 @@ public final class DevFeatureTest {
             return;
         }
         ticks++;
+        // Keep the "Press E" tutorial toast out of the screenshots.
+        mc.guiAchievement.clearAchievements();
         switch (ticks) {
             case 20:
                 for (String id : FEATURES) {
