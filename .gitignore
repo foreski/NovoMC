@@ -23,3 +23,6 @@ client-mod/.vscode/
 .vscode/
 # Third-party reference jars (never publish)
 modid-*-sources.jar
+
+# The Discord bot's news token (NEWS_TOKEN secret on the relay)
+relay/.news-token

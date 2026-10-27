@@ -25,9 +25,7 @@ class_name = "Presence"
 tag = "v1"
 new_sqlite_classes = ["Presence"]
 
-# Launcher news (news.js):
-#   npx wrangler kv namespace create NEWS
-# then put the id it prints here.
-# [[kv_namespaces]]
-# binding = "NEWS"
-# id = "..."
+# Launcher news (news.js), posted by the Discord bot.
+[[kv_namespaces]]
+binding = "NEWS"
+id = "aa4d09f390fa4f338294021dee086bb8"
