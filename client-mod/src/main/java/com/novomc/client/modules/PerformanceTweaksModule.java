@@ -20,6 +20,12 @@ public class PerformanceTweaksModule extends Module {
     private Integer savedLimit;
     private Integer savedClouds;
     private Boolean savedFancy;
+    private static volatile boolean noAnimations;
+
+    /** Whether texture animations (water, lava, fire, portals) are switched off. */
+    public static boolean noAnimations() {
+        return noAnimations;
+    }
 
     public PerformanceTweaksModule() {
         super("performance_tweaks");
@@ -33,6 +39,7 @@ public class PerformanceTweaksModule extends Module {
     @Override
     public void onSettingsChanged() {
         GameSettings gs = mc.gameSettings;
+        noAnimations = bool("noAnimations");
         if (bool("unlimitedFps")) {
             if (savedVsync == null) {
                 savedVsync = gs.enableVsync;
@@ -79,6 +86,7 @@ public class PerformanceTweaksModule extends Module {
 
     @Override
     protected void onDisable() {
+        noAnimations = false;
         restoreFrameRate();
         restoreVbo();
         restoreShadows();

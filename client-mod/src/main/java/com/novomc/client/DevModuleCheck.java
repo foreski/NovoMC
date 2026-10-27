@@ -5,6 +5,9 @@ import com.novomc.client.module.Module;
 import com.novomc.client.modules.AutoGgModule;
 import com.novomc.client.modules.EntityCullingModule;
 import com.novomc.client.modules.HitSoundsModule;
+import com.novomc.client.modules.HypixelToolsModule;
+import com.novomc.client.modules.PatcherFixesModule;
+import com.novomc.client.gui.GuiQuickplay;
 import com.novomc.client.modules.LowHealthModule;
 import com.novomc.client.modules.WaypointsModule;
 import com.novomc.client.modules.FreelookModule;
@@ -55,6 +58,7 @@ public final class DevModuleCheck {
     private int passed;
     private int failed;
     private Robot robot;
+    private int windowW;
 
     /** Dev (named) or production (SRG) method name. */
     private static String name(String named, String srg) {
@@ -535,6 +539,133 @@ public final class DevModuleCheck {
                 com.novomc.client.modules.ModListModule ml = find(com.novomc.client.modules.ModListModule.class);
                 check("module_list.disables", !ml.isEnabled() && !NovoClient.config().enabled(ml.def), "Mod List off and saved as off");
                 shot("mod-list-off");
+            }
+        });
+
+        // ---- Hypixel Tools: requeue command from "play again", lobby and Watchdog spam hidden.
+        then(3, new Runnable() {
+            public void run() {
+                only("hypixel_tools");
+                set("hypixel_tools", "hideWatchdog", true);
+                net.minecraft.util.IChatComponent again = new ChatComponentText("Click here to play again!");
+                again.getChatStyle().setChatClickEvent(new net.minecraft.event.ClickEvent(
+                        net.minecraft.event.ClickEvent.Action.RUN_COMMAND, "/play bedwars_eight_one"));
+                MinecraftForge.EVENT_BUS.post(new ClientChatReceivedEvent((byte) 0, new ChatComponentText("Want to play again? ").appendSibling(again)));
+                HypixelToolsModule ht = find(HypixelToolsModule.class);
+                check("hypixel_tools.requeue", "/play bedwars_eight_one".equals(ht.lastGame()), "last game=" + ht.lastGame());
+                boolean hidden = MinecraftForge.EVENT_BUS.post(new ClientChatReceivedEvent((byte) 0,
+                        new ChatComponentText("§b[MVP§c+§b] Steve§6 joined the lobby!")));
+                boolean kept = !MinecraftForge.EVENT_BUS.post(new ClientChatReceivedEvent((byte) 0,
+                        new ChatComponentText("Steve: who joined the lobby!")));
+                check("hypixel_tools.lobbyJoins", hidden && kept, "join hidden=" + hidden + ", player chat kept=" + kept);
+                boolean wd = MinecraftForge.EVENT_BUS.post(new ClientChatReceivedEvent((byte) 0,
+                        new ChatComponentText("[WATCHDOG ANNOUNCEMENT]")));
+                check("hypixel_tools.watchdog", wd, "Watchdog announcement hidden");
+            }
+        });
+
+        // ---- Quickplay: J opens the menu.
+        then(3, new Runnable() {
+            public void run() {
+                only("quickplay");
+                key(NovoClient.QUICKPLAY_KEY, true);
+            }
+        });
+        then(3, new Runnable() {
+            public void run() {
+                key(NovoClient.QUICKPLAY_KEY, false);
+                check("quickplay.opens", mc.currentScreen instanceof GuiQuickplay, "screen=" + mc.currentScreen);
+                try {
+                    java.lang.reflect.Field open = GuiQuickplay.class.getDeclaredField("open");
+                    open.setAccessible(true);
+                    open.setInt(mc.currentScreen, 2);
+                } catch (Exception e) {
+                    check("quickplay.expand", false, e.toString());
+                }
+            }
+        });
+        then(5, new Runnable() {
+            public void run() {
+                shot("quickplay");
+                mc.displayGuiScreen(null);
+            }
+        });
+
+        // ---- Patcher Fixes: inventory stays centred with potions; F11 goes borderless and back.
+        then(3, new Runnable() {
+            public void run() {
+                only("patcher_fixes");
+                cmd("/effect @p speed 60");
+            }
+        });
+        then(10, new Runnable() {
+            public void run() {
+                mc.displayGuiScreen(new GuiInventory(mc.thePlayer));
+            }
+        });
+        then(3, new Runnable() {
+            public void run() {
+                try {
+                    java.lang.reflect.Field f;
+                    try {
+                        f = net.minecraft.client.gui.inventory.GuiContainer.class.getDeclaredField("guiLeft");
+                    } catch (NoSuchFieldException e) {
+                        f = net.minecraft.client.gui.inventory.GuiContainer.class.getDeclaredField("field_147003_i");
+                    }
+                    f.setAccessible(true);
+                    int left = f.getInt(mc.currentScreen);
+                    int centred = (mc.currentScreen.width - 176) / 2;
+                    check("patcher_fixes.inventory", left == centred && !mc.thePlayer.getActivePotionEffects().isEmpty(),
+                            "guiLeft=" + left + ", centred=" + centred);
+                } catch (Exception e) {
+                    check("patcher_fixes.inventory", false, e.toString());
+                }
+                shot("inventory-potions");
+                mc.displayGuiScreen(null);
+                cmd("/effect @p clear");
+                windowW = Display.getWidth();
+                mc.toggleFullscreen();
+            }
+        });
+        then(10, new Runnable() {
+            public void run() {
+                int desk = Display.getDesktopDisplayMode().getWidth();
+                check("patcher_fixes.borderless", PatcherFixesModule.isBorderless() && !Display.isFullscreen() && Display.getWidth() == desk
+                        && mc.displayWidth == desk, "window " + Display.getWidth() + " wide, game " + mc.displayWidth + ", desktop " + desk);
+                mc.toggleFullscreen();
+            }
+        });
+        then(10, new Runnable() {
+            public void run() {
+                check("patcher_fixes.windowed", !PatcherFixesModule.isBorderless() && Display.getWidth() == windowW,
+                        "window back to " + Display.getWidth() + " (was " + windowW + ")");
+            }
+        });
+
+        // ---- Dynamic Lights: a held torch lights up the ground at night.
+        then(3, new Runnable() {
+            public void run() {
+                only("dynamic_lights");
+                cmd("/time set 18000");
+                cmd("/replaceitem entity @p slot.hotbar.0 minecraft:torch");
+                mc.thePlayer.inventory.currentItem = 0;
+                look(0, 20);
+            }
+        });
+        then(30, new Runnable() {
+            public void run() {
+                net.minecraft.util.BlockPos at = new net.minecraft.util.BlockPos(mc.thePlayer).down();
+                int block = mc.theWorld.getCombinedLight(at, 0) >> 4 & 15;
+                check("dynamic_lights.lights", block >= 12, "block light under the player=" + block + " holding a torch");
+                shot("dynamic-lights");
+                cmd("/replaceitem entity @p slot.hotbar.0 minecraft:air");
+            }
+        });
+        then(10, new Runnable() {
+            public void run() {
+                int block = mc.theWorld.getCombinedLight(new net.minecraft.util.BlockPos(mc.thePlayer).down(), 0) >> 4 & 15;
+                check("dynamic_lights.goesOut", block == 0, "block light after putting the torch away=" + block);
+                cmd("/time set 1000");
             }
         });
 

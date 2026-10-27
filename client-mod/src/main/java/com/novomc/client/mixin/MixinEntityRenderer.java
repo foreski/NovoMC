@@ -2,6 +2,7 @@ package com.novomc.client.mixin;
 
 import com.novomc.client.modules.FreelookModule;
 import com.novomc.client.modules.HurtCamModule;
+import com.novomc.client.modules.PatcherFixesModule;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,6 +17,12 @@ public abstract class MixinEntityRenderer {
     @ModifyConstant(method = "hurtCameraEffect", constant = @Constant(floatValue = 14.0F))
     private float novomc$hurtCam(float degrees) {
         return HurtCamModule.scale(degrees);
+    }
+
+    /** Patcher Fixes (parallax): vanilla puts the first-person camera 0.1 behind the eyes. */
+    @ModifyConstant(method = "orientCamera", constant = @Constant(floatValue = -0.1F))
+    private float novomc$parallax(float offset) {
+        return PatcherFixesModule.parallax() ? 0.05F : offset;
     }
 
     // Freelook: the camera reads these angles; the player keeps its own.

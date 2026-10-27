@@ -61,6 +61,10 @@ public final class NovoClient {
     public static final KeyBinding STOPWATCH_KEY = new KeyBinding("key.novomc.stopwatch", Keyboard.KEY_NONE, "key.categories.novomc");
     public static final KeyBinding WAYPOINT_ADD_KEY = new KeyBinding("key.novomc.waypointAdd", Keyboard.KEY_B, "key.categories.novomc");
     public static final KeyBinding WAYPOINTS_KEY = new KeyBinding("key.novomc.waypoints", Keyboard.KEY_M, "key.categories.novomc");
+    public static final KeyBinding QUICKPLAY_KEY = new KeyBinding("key.novomc.quickplay", Keyboard.KEY_J, "key.categories.novomc");
+    /** Hypixel Tools: unbound by default; set them in Controls. */
+    public static final KeyBinding REQUEUE_KEY = new KeyBinding("key.novomc.requeue", Keyboard.KEY_NONE, "key.categories.novomc");
+    public static final KeyBinding REPORT_KEY = new KeyBinding("key.novomc.report", Keyboard.KEY_NONE, "key.categories.novomc");
     /** Auto Text 1-3: unbound by default; set them in Controls. */
     public static final KeyBinding[] AUTO_TEXT_KEYS = {
         new KeyBinding("key.novomc.autoText1", Keyboard.KEY_NONE, "key.categories.novomc"),
@@ -103,15 +107,19 @@ public final class NovoClient {
                 new PlaytimeModule(), new DayCounterModule(),
                 // Batch 4
                 new AutoGgModule(), new AutoTextModule(), new HitSoundsModule(), new LowHealthModule(),
-                new WaypointsModule(), new ScreenshotsModule(), new ModListModule(), new LoadingScreenModule());
+                new WaypointsModule(), new ScreenshotsModule(), new ModListModule(), new LoadingScreenModule(),
+                // Batch 5
+                new HypixelToolsModule(), new QuickplayModule(), new PatcherFixesModule(), new DynamicLightsModule());
 
-        for (KeyBinding key : new KeyBinding[] {MENU_KEY, ZOOM_KEY, FREELOOK_KEY, SNAPLOOK_KEY, STOPWATCH_KEY, WAYPOINT_ADD_KEY, WAYPOINTS_KEY}) {
+        for (KeyBinding key : new KeyBinding[] {MENU_KEY, ZOOM_KEY, FREELOOK_KEY, SNAPLOOK_KEY, STOPWATCH_KEY, WAYPOINT_ADD_KEY, WAYPOINTS_KEY,
+                QUICKPLAY_KEY, REQUEUE_KEY, REPORT_KEY}) {
             ClientRegistry.registerKeyBinding(key);
         }
         for (KeyBinding key : AUTO_TEXT_KEYS) {
             ClientRegistry.registerKeyBinding(key);
         }
         net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new ScreenshotsModule.Command());
+        net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new HypixelToolsModule.ReportCommand());
         MinecraftForge.EVENT_BUS.register(new NovoClient());
         MinecraftForge.EVENT_BUS.register(CpsTracker.INSTANCE);
         MinecraftForge.EVENT_BUS.register(new ShaderController());

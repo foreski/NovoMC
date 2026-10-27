@@ -6,7 +6,7 @@
 
 **The performance Minecraft launcher with a built-in 1.8.9 PvP client.**
 
-More FPS, 63 built-in mods, thousands of resource packs, one click to play.
+More FPS, 69 built-in mods, thousands of resource packs, one click to play.
 
 [![Download](https://img.shields.io/github/v/release/foreski/NovoMC?label=Download&style=for-the-badge&color=5B8CFF)](https://github.com/foreski/NovoMC/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/foreski/NovoMC/total?style=for-the-badge&color=B45BFF)](https://github.com/foreski/NovoMC/releases)
@@ -36,12 +36,13 @@ third-party mods.
 - **Smart culling** skips far-away mobs, armor stands, dropped items, chests, signs, skulls and banners.
 - **Particle limiter** caps particle spam in fights and drops particles you can't see anyway.
 - **Uncapped frame rate**, VBO rendering, no entity shadows and no clouds, switched on for you.
+- **Patcher-style fixes**: borderless fullscreen, camera parallax fix, inventory that stays put with potions, frozen texture animations.
 - **Tuned Java flags** for short, smooth garbage-collection pauses instead of lag spikes.
 
 In our lobby stress test (400 armor stands, ~1,900 chests and skulls, constant particles) NovoMC went from
 **126 FPS to 259 FPS: +105%**. Every optimization can be switched off if you prefer vanilla.
 
-## 🎮 63 mods, built in
+## 🎮 69 mods, built in
 
 Everything a PvP player wants, ready the moment you join a server. Toggle mods and change their
 settings in-game (Right Shift) or from the launcher, and drag any HUD element exactly where you want it.
@@ -54,6 +55,7 @@ settings in-game (Right Shift) or from the launcher, and drag any HUD element ex
 | Ping, Clock, Memory | Item Physics, 2D Items | Custom Scoreboard & Tab list |
 | Combo Counter, Reach Display | Motion Blur, Menu Blur | Chat tweaks, Titles, Boss Bar |
 | Waypoints with beams | Hit Sounds, Low Health Warning | Auto GG, Auto Text hotkeys, Screenshot manager |
+| Mod List, Loading Screens | Dynamic Lights | Hypixel Quickplay, Requeue & Quick Report |
 
 <p align="center">
   <img src="docs/images/ingame-mods.png" width="49%" alt="The in-game Mod Library" />

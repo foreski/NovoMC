@@ -699,6 +699,45 @@
           "type": "toggle",
           "label": "Fast graphics (fast leaves)",
           "default": false
+        },
+        {
+          "key": "noAnimations",
+          "type": "toggle",
+          "label": "Freeze texture animations (water, lava, fire)",
+          "default": false
+        }
+      ]
+    },
+    {
+      "id": "patcher_fixes",
+      "name": "Patcher Fixes",
+      "category": "performance",
+      "enabled": true,
+      "description": "Fixes for 1.8.9: borderless fullscreen on F11, camera parallax, inventory shifting with potions.",
+      "settings": [
+        {
+          "key": "borderless",
+          "type": "toggle",
+          "label": "Borderless fullscreen (F11)",
+          "default": true
+        },
+        {
+          "key": "parallax",
+          "type": "toggle",
+          "label": "Fix camera parallax",
+          "default": true
+        },
+        {
+          "key": "inventoryPosition",
+          "type": "toggle",
+          "label": "Don't shift the inventory for potion effects",
+          "default": true
+        },
+        {
+          "key": "hideAchievements",
+          "type": "toggle",
+          "label": "Hide achievement pop-ups",
+          "default": false
         }
       ]
     },
@@ -992,6 +1031,27 @@
       "enabled": true,
       "description": "NovoMC fades in with a spinning loading ring while you connect to servers and load worlds.",
       "settings": []
+    },
+    {
+      "id": "dynamic_lights",
+      "name": "Dynamic Lights",
+      "category": "visual",
+      "enabled": false,
+      "description": "Held torches and other glowing items light up the world around you, like OptiFine.",
+      "settings": [
+        {
+          "key": "items",
+          "type": "toggle",
+          "label": "Dropped items glow",
+          "default": true
+        },
+        {
+          "key": "burning",
+          "type": "toggle",
+          "label": "Burning mobs, blazes and fireballs glow",
+          "default": true
+        }
+      ]
     },
     {
       "id": "items_2d",
@@ -1563,6 +1623,56 @@
           "maxLength": 100
         }
       ]
+    },
+    {
+      "id": "hypixel_tools",
+      "name": "Hypixel Tools",
+      "category": "qol",
+      "enabled": true,
+      "description": "Requeue, hide lobby and Watchdog spam, game alerts and quick reports. Bind Requeue and Report Player in Controls; /qr <player>.",
+      "settings": [
+        {
+          "key": "autoRequeue",
+          "type": "toggle",
+          "label": "Auto requeue after a game",
+          "default": false
+        },
+        {
+          "key": "requeueDelay",
+          "type": "number",
+          "label": "Requeue delay (seconds)",
+          "default": 3,
+          "min": 0,
+          "max": 10,
+          "step": 0.5
+        },
+        {
+          "key": "hideLobbyJoins",
+          "type": "toggle",
+          "label": "Hide \"joined the lobby\" messages",
+          "default": true
+        },
+        {
+          "key": "hideWatchdog",
+          "type": "toggle",
+          "label": "Hide Watchdog announcements",
+          "default": false
+        },
+        {
+          "key": "gameAlerts",
+          "type": "toggle",
+          "label": "Sound when a game starts or ends (window in background)",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "quickplay",
+      "name": "Quickplay",
+      "category": "qol",
+      "enabled": true,
+      "description": "Press J to join any Hypixel game or lobby in one click.",
+      "settings": []
     },
     {
       "id": "hit_sounds",
