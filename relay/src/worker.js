@@ -4,14 +4,20 @@
 // a token it keeps as a secret, so no token ever ships inside NovoMC.
 //
 //   POST /report  {kind, title, description, version, os, java, minecraft, loader, log, crash, signature}
+//   POST /presence/...  who's on NovoMC, for the in-game badge (see presence.js)
 //
 // Environment:
 //   GITHUB_TOKEN  (secret) fine-grained token with Issues: read & write on the repo
 //   GITHUB_REPO   e.g. "foreski/NovoMC"
 //   RATE          (optional KV namespace) for rate limits shared across instances
+//   PRESENCE      Durable Object namespace (class Presence)
 //
 // Abuse limits: 64 KB per report, 5 reports per IP per hour, and repeats of
 // the same crash (same `signature`) become a comment on the existing issue.
+
+import { handlePresence } from './presence.js';
+
+export { Presence } from './presence.js';
 
 const MAX_BODY = 64 * 1024;
 const LIMITS = { title: 120, description: 4000, version: 32, os: 80, java: 80, minecraft: 40, loader: 80, log: 24000, crash: 24000, signature: 64 };
@@ -21,6 +27,7 @@ const memoryHits = new Map();
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname.startsWith('/presence/')) return handlePresence(request, env, url.pathname);
     if (url.pathname !== '/report') return json({ error: 'Not found' }, 404);
     if (request.method !== 'POST') return json({ error: 'Use POST' }, 405);
     if (!env.GITHUB_TOKEN || !env.GITHUB_REPO) return json({ error: 'Relay not configured' }, 500);

@@ -1136,6 +1136,27 @@
       ]
     },
     {
+      "id": "novo_badge",
+      "name": "NovoMC Badge",
+      "category": "visual",
+      "enabled": true,
+      "description": "The NovoMC logo next to the names of other NovoMC players, on nametags and in the tab list.",
+      "settings": [
+        {
+          "key": "showOthers",
+          "type": "toggle",
+          "label": "Show other players' badges",
+          "default": true
+        },
+        {
+          "key": "shareMine",
+          "type": "toggle",
+          "label": "Let other NovoMC players see your badge",
+          "default": true
+        }
+      ]
+    },
+    {
       "id": "freelook",
       "name": "Freelook",
       "category": "qol",

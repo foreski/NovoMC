@@ -109,7 +109,7 @@ public final class NovoClient {
                 new AutoGgModule(), new AutoTextModule(), new HitSoundsModule(), new LowHealthModule(),
                 new WaypointsModule(), new ScreenshotsModule(), new ModListModule(), new LoadingScreenModule(),
                 // Batch 5
-                new HypixelToolsModule(), new QuickplayModule(), new PatcherFixesModule(), new DynamicLightsModule());
+                new HypixelToolsModule(), new QuickplayModule(), new PatcherFixesModule(), new DynamicLightsModule(), new NovoBadgeModule());
 
         for (KeyBinding key : new KeyBinding[] {MENU_KEY, ZOOM_KEY, FREELOOK_KEY, SNAPLOOK_KEY, STOPWATCH_KEY, WAYPOINT_ADD_KEY, WAYPOINTS_KEY,
                 QUICKPLAY_KEY, REQUEUE_KEY, REPORT_KEY}) {

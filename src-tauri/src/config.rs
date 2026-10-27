@@ -59,6 +59,13 @@ fn candidates(app: &AppHandle) -> Vec<PathBuf> {
     out
 }
 
+/// The relay's base URL (the bug-report URL without /report), if set up.
+pub fn relay_base(app: &AppHandle) -> Option<String> {
+    let url = get(app).bug_report_url.as_deref()?.trim();
+    let base = url.strip_suffix("/report").unwrap_or(url).trim_end_matches('/');
+    (!base.is_empty()).then(|| base.to_string())
+}
+
 /// The Microsoft sign-in client ID, or an error explaining where to set it.
 pub fn msa_client_id(app: &AppHandle) -> AppResult<String> {
     get(app)

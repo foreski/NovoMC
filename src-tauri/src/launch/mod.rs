@@ -26,6 +26,7 @@ use tokio::sync::mpsc;
 use tokio_util::sync::CancellationToken;
 
 use crate::auth;
+use crate::config;
 use crate::download::engine::Progress;
 use crate::download::forge;
 use crate::download::install::{self, Tracker};
@@ -248,6 +249,11 @@ async fn start(app: &AppHandle, instance_id: &str, stop: CancellationToken, serv
     .await
     .map_err(|e| AppError::Other(e.to_string()))??;
 
+    let mut jvm_args: Vec<String> = instance.jvm_args.split_whitespace().map(String::from).collect();
+    // The NovoMC mod asks the relay who else is on NovoMC (the badge next to names).
+    if let Some(relay) = config::relay_base(app) {
+        jvm_args.push(format!("-Dnovomc.relay={relay}"));
+    }
     let args = args::build(&args::LaunchContext {
         version: &version,
         account: &account,
@@ -258,7 +264,7 @@ async fn start(app: &AppHandle, instance_id: &str, stop: CancellationToken, serv
         game_assets: &game_assets,
         memory_mb: instance.memory_mb.unwrap_or(settings.memory_mb),
         optimized_flags: settings.optimized_flags,
-        extra_jvm_args: &instance.jvm_args.split_whitespace().map(String::from).collect::<Vec<_>>(),
+        extra_jvm_args: &jvm_args,
         resolution: settings.resolution,
         fullscreen: settings.fullscreen,
         server,
@@ -510,6 +516,10 @@ mod tests {
             // NOVOMC_TEST_MODE=benchmark (FPS) or modcheck (mod behavior); default is the screenshot autotest.
             let mode = std::env::var("NOVOMC_TEST_MODE").unwrap_or_else(|_| "autotest".into());
             extra.push(format!("-Dnovomc.{mode}=true"));
+            // NOVOMC_TEST_RELAY=<base url> points the badge at a local relay (wrangler dev).
+            if let Ok(relay) = std::env::var("NOVOMC_TEST_RELAY") {
+                extra.push(format!("-Dnovomc.relay={relay}"));
+            }
         }
         let account = offline::new_account("NovoTester").unwrap();
         let args = args::build(&args::LaunchContext {

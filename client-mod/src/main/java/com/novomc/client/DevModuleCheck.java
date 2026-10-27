@@ -6,6 +6,7 @@ import com.novomc.client.modules.AutoGgModule;
 import com.novomc.client.modules.EntityCullingModule;
 import com.novomc.client.modules.HitSoundsModule;
 import com.novomc.client.modules.HypixelToolsModule;
+import com.novomc.client.modules.NovoBadgeModule;
 import com.novomc.client.modules.PatcherFixesModule;
 import com.novomc.client.gui.GuiQuickplay;
 import com.novomc.client.modules.LowHealthModule;
@@ -59,6 +60,7 @@ public final class DevModuleCheck {
     private int failed;
     private Robot robot;
     private int windowW;
+    private boolean drawTab;
 
     /** Dev (named) or production (SRG) method name. */
     private static String name(String named, String srg) {
@@ -669,6 +671,41 @@ public final class DevModuleCheck {
             }
         });
 
+        // ---- NovoMC Badge (needs -Dnovomc.relay): we say hello, then see our own badge.
+        if (!System.getProperty("novomc.relay", "").isEmpty()) {
+            then(3, new Runnable() {
+                public void run() {
+                    only("novo_badge", "nametags");
+                    set("nametags", "showOwn", true);
+                    mc.gameSettings.thirdPersonView = 2;
+                    look(0, 0);
+                }
+            });
+            then(80, new Runnable() {
+                public void run() {
+                    java.util.UUID me = mc.getSession().getProfile().getId();
+                    check("novo_badge.online", NovoBadgeModule.has(me), "relay lists us as on NovoMC (" + me + ")");
+                    shot("badge-nametag");
+                    mc.gameSettings.thirdPersonView = 0;
+                    // Singleplayer alone never shows the tab list; draw it ourselves for the shot.
+                    drawTab = true;
+                }
+            });
+            then(3, new Runnable() {
+                public void run() {
+                    shot("badge-tab");
+                    drawTab = false;
+                    set("novo_badge", "shareMine", false);
+                }
+            });
+            then(60, new Runnable() {
+                public void run() {
+                    java.util.UUID me = mc.getSession().getProfile().getId();
+                    check("novo_badge.optOut", !NovoBadgeModule.has(me), "turning sharing off removes our badge");
+                }
+            });
+        }
+
         // ---- Visual mods: one screenshot each.
         for (final String id : new String[] {"chunk_borders", "hitbox", "block_outline", "crosshair", "fog", "old_animations", "hit_color"}) {
             then(3, new Runnable() {
@@ -697,6 +734,13 @@ public final class DevModuleCheck {
                 mc.shutdown();
             }
         });
+    }
+
+    @SubscribeEvent
+    public void onOverlay(net.minecraftforge.client.event.RenderGameOverlayEvent.Post event) {
+        if (drawTab && event.type == net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType.ALL) {
+            mc.ingameGUI.getTabList().renderPlayerlist(event.resolution.getScaledWidth(), mc.theWorld.getScoreboard(), null);
+        }
     }
 
     @SubscribeEvent
