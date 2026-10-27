@@ -17,7 +17,7 @@ import org.lwjgl.opengl.Display;
  * (no VSync, unlimited frame rate) so only rendering cost differs.
  */
 public final class DevBenchmark {
-    private static final String[] PERFORMANCE = {"entity_culling", "particle_limiter", "performance_tweaks"};
+    private static final String[] PERFORMANCE = {"entity_culling", "particle_limiter", "performance_tweaks", "sodium"};
     private static final int WARMUP = 100;
     private static final int MEASURE = 300;
 

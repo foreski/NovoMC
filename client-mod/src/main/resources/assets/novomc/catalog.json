@@ -709,6 +709,103 @@
       ]
     },
     {
+      "id": "sodium",
+      "name": "Sodium Renderer",
+      "category": "performance",
+      "enabled": true,
+      "description": "NovoMC's port of Sodium's chunk renderer: compact vertices in shared region buffers, one draw per region instead of one per chunk. Needs OpenGL 3.3 and VBOs.",
+      "settings": []
+    },
+    {
+      "id": "fast_math",
+      "name": "Fast Math",
+      "category": "performance",
+      "enabled": true,
+      "description": "Smaller, cache-friendly sine and cosine tables. Inspired by OptiFine; NovoMC's own code.",
+      "settings": []
+    },
+    {
+      "id": "smart_animations",
+      "name": "Smart Animations",
+      "category": "performance",
+      "enabled": true,
+      "description": "Only animates water, lava and other block textures that are on screen. Inspired by OptiFine; NovoMC's own code.",
+      "settings": []
+    },
+    {
+      "id": "lazy_chunks",
+      "name": "Lazy Chunk Loading",
+      "category": "performance",
+      "enabled": true,
+      "description": "Singleplayer loads chunks over more ticks, for fewer stutters. Inspired by OptiFine; NovoMC's own code.",
+      "settings": []
+    },
+    {
+      "id": "connected_textures",
+      "name": "Connected Textures",
+      "category": "visual",
+      "enabled": true,
+      "description": "Seamless glass out of the box, plus connected textures (CTM) from resource packs. Inspired by OptiFine; NovoMC's own code.",
+      "settings": []
+    },
+    {
+      "id": "custom_sky",
+      "name": "Custom Sky",
+      "category": "visual",
+      "enabled": true,
+      "description": "Shows skyboxes from resource packs (OptiFine / MCPatcher sky format). Inspired by OptiFine; NovoMC's own code.",
+      "settings": []
+    },
+    {
+      "id": "better_grass",
+      "name": "Better Grass",
+      "category": "visual",
+      "enabled": false,
+      "description": "Grass and mycelium cover the sides of blocks. Inspired by OptiFine; NovoMC's own code.",
+      "settings": [
+        {
+          "key": "mode",
+          "type": "choice",
+          "label": "Mode",
+          "default": "fancy",
+          "options": [
+            {
+              "value": "fast",
+              "label": "Fast (all sides)"
+            },
+            {
+              "value": "fancy",
+              "label": "Fancy (follows slopes)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "better_snow",
+      "name": "Better Snow",
+      "category": "visual",
+      "enabled": false,
+      "description": "Snow fills in around plants, fences and walls. Inspired by OptiFine; NovoMC's own code.",
+      "settings": []
+    },
+    {
+      "id": "custom_menus",
+      "name": "Custom Menus",
+      "category": "qol",
+      "enabled": true,
+      "description": "NovoMC's own Options screen, and every other menu (servers, worlds, controls, dialogs) restyled to match NovoMC.",
+      "settings": []
+    },
+    {
+      "id": "video_settings",
+      "name": "Video Settings",
+      "category": "qol",
+      "enabled": true,
+      "description": "NovoMC's Video Settings screen: vanilla options plus Sodium and the rendering features in one place.",
+      "settings": []
+    },
+    {
       "id": "patcher_fixes",
       "name": "Patcher Fixes",
       "category": "performance",

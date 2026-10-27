@@ -109,3 +109,34 @@ tasks.shadowJar {
 }
 
 tasks.assemble.get().dependsOn(tasks.remapJar)
+
+// Standalone Sodium Renderer: build/libs/novomc-sodium-<version>.jar, the port alone
+// (no NovoMC modules) for testing it on plain Forge. Built with `gradlew sodiumJar`.
+val standalone: SourceSet = sourceSets.create("standalone") {
+    compileClasspath += sourceSets.main.get().compileClasspath + sourceSets.main.get().output
+}
+val sodiumShadowJar by tasks.registering(com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar::class) {
+    destinationDirectory.set(layout.buildDirectory.dir("intermediates"))
+    archiveBaseName.set("novomc-sodium")
+    archiveClassifier.set("non-obfuscated-with-deps")
+    from(standalone.output)
+    from(sourceSets.main.get().output) {
+        include("com/novomc/client/sodium/**", "assets/novomc/shaders/sodium/**", "mixins.$modid.refmap.json",
+            "com/novomc/client/mixin/MixinChunkRenderDispatcher*", "com/novomc/client/mixin/MixinVboRenderList*",
+            "com/novomc/client/mixin/MixinVertexBuffer*", "com/novomc/client/mixin/accessor/ChunkRenderContainerAccessor*")
+    }
+    configurations = listOf(shadowImpl)
+    dependencies { include(dependency("org.spongepowered:mixin")) }
+    exclude("META-INF/*.SF", "META-INF/*.RSA", "META-INF/services/javax.annotation.processing.Processor")
+    manifest.attributes(mapOf(
+        "FMLCorePluginContainsFMLMod" to "true",
+        "ForceLoadAsMod" to "true",
+        "TweakClass" to "org.spongepowered.asm.launch.MixinTweaker",
+        "MixinConfigs" to "mixins.novomc_sodium.json",
+    ))
+}
+val sodiumJar by tasks.registering(net.fabricmc.loom.task.RemapJarTask::class) {
+    archiveBaseName.set("novomc-sodium")
+    archiveClassifier.set("")
+    input.set(sodiumShadowJar.flatMap { it.archiveFile })
+}

@@ -30,9 +30,16 @@ More FPS, 69 built-in mods, thousands of resource packs, one click to play.
 
 ## ⚡ Double your FPS
 
-NovoMC Client ships its own performance mods for 1.8.9, written from scratch: no OptiFine, no
-third-party mods.
+NovoMC Client ships its own performance mods for 1.8.9: no OptiFine, no third-party mod jars.
 
+- **Sodium Renderer**, our port of [Sodium](https://github.com/CaffeineMC/sodium)'s chunk renderer to 1.8.9:
+  compact vertices packed into shared region buffers, drawn with one call per region instead of one per chunk
+  (needs OpenGL 3.3, otherwise vanilla rendering is used).
+- **OptiFine-style options, rebuilt by NovoMC**: Fast Math, Smart Animations, Lazy Chunk Loading, Connected
+  Textures (seamless glass out of the box, plus CTM from resource packs), Custom Sky (pack skyboxes),
+  Better Grass and Better Snow. Inspired by [OptiFine](https://optifine.net); none of its code is used.
+- **No vanilla menus**: NovoMC's own Options and Video Settings screens, and every other menu (servers, worlds,
+  controls, language, dialogs) drawn with NovoMC's buttons, sliders, fields, lists and backdrop.
 - **Smart culling** skips far-away mobs, armor stands, dropped items, chests, signs, skulls and banners.
 - **Particle limiter** caps particle spam in fights and drops particles you can't see anyway.
 - **Uncapped frame rate**, VBO rendering, no entity shadows and no clouds, switched on for you.
@@ -42,7 +49,7 @@ third-party mods.
 In our lobby stress test (400 armor stands, ~1,900 chests and skulls, constant particles) NovoMC went from
 **126 FPS to 259 FPS: +105%**. Every optimization can be switched off if you prefer vanilla.
 
-## 🎮 69 mods, built in
+## 🎮 79 mods, built in
 
 Everything a PvP player wants, ready the moment you join a server. Toggle mods and change their
 settings in-game (Right Shift) or from the launcher, and drag any HUD element exactly where you want it.
@@ -109,6 +116,10 @@ check a server's rules before using it there.
 
 NovoMC is a Tauri 2 (Rust) + React launcher and a Forge 1.8.9 mod. See
 **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** for setup, build commands and the project layout.
+
+The Sodium Renderer (`client-mod/src/main/java/com/novomc/client/sodium`) is ported from Sodium 0.5 by
+JellySquid and the CaffeineMC contributors and stays under the
+[GNU LGPL v3](client-mod/src/main/resources/com/novomc/client/sodium/LICENSE-SODIUM.txt).
 
 ---
 

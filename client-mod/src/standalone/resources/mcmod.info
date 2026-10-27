@@ -1,0 +1,11 @@
+[
+  {
+    "modid": "novomc_sodium",
+    "name": "NovoMC Sodium",
+    "description": "NovoMC's port of Sodium's chunk renderer to 1.8.9, on its own. Ported from Sodium 0.5 by JellySquid and the CaffeineMC contributors (GNU LGPL v3). Needs OpenGL 3.3.",
+    "version": "0.1.0",
+    "mcversion": "1.8.9",
+    "url": "",
+    "authorList": ["NovoMC", "JellySquid (Sodium)"]
+  }
+]

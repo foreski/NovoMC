@@ -1,0 +1,15 @@
+{
+  "package": "com.novomc.client.mixin",
+  "refmap": "mixins.novomc.refmap.json",
+  "minVersion": "0.7",
+  "compatibilityLevel": "JAVA_8",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "MixinChunkRenderDispatcher",
+    "MixinVboRenderList",
+    "MixinVertexBuffer",
+    "accessor.ChunkRenderContainerAccessor"
+  ]
+}

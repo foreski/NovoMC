@@ -22,6 +22,10 @@ import com.novomc.client.modules.KeystrokesModule;
 import com.novomc.client.modules.MemoryModule;
 import com.novomc.client.modules.ParticleLimiterModule;
 import com.novomc.client.modules.PerformanceTweaksModule;
+import com.novomc.client.modules.CustomMenusModule;
+import com.novomc.client.modules.RenderFeatureModule;
+import com.novomc.client.modules.SodiumModule;
+import com.novomc.client.modules.VideoSettingsModule;
 import com.novomc.client.modules.PingModule;
 import com.novomc.client.modules.PotionEffectsModule;
 import com.novomc.client.modules.SaturationModule;
@@ -92,7 +96,7 @@ public final class NovoClient {
                 new MemoryModule(), new ClockModule(), new SaturationModule(), new ItemCounterModule(),
                 new ToggleSprintModule(), new ZoomModule(), new FullbrightModule(), new CrosshairModule(),
                 new EntityCullingModule(), new ParticleLimiterModule(), new UnfocusedFpsModule(),
-                new PerformanceTweaksModule(),
+                new PerformanceTweaksModule(), new SodiumModule(),
                 // Batch 2
                 new ComboCounterModule(), new ReachDisplayModule(), new OldAnimationsModule(), new HitColorModule(),
                 new BlockOutlineModule(), new HurtCamModule(), new FovChangerModule(), new ParticleChangerModule(),
@@ -109,7 +113,12 @@ public final class NovoClient {
                 new AutoGgModule(), new AutoTextModule(), new HitSoundsModule(), new LowHealthModule(),
                 new WaypointsModule(), new ScreenshotsModule(), new ModListModule(), new LoadingScreenModule(),
                 // Batch 5
-                new HypixelToolsModule(), new QuickplayModule(), new PatcherFixesModule(), new DynamicLightsModule(), new NovoBadgeModule());
+                new HypixelToolsModule(), new QuickplayModule(), new PatcherFixesModule(), new DynamicLightsModule(), new NovoBadgeModule(),
+                // OptiFine-style rendering options (NovoMC code) and the Video Settings screen
+                new RenderFeatureModule("fast_math"), new RenderFeatureModule("smart_animations"),
+                new RenderFeatureModule("lazy_chunks"), new RenderFeatureModule("connected_textures"),
+                new RenderFeatureModule("custom_sky"), new RenderFeatureModule("better_grass"),
+                new RenderFeatureModule("better_snow"), new VideoSettingsModule(), new CustomMenusModule());
 
         for (KeyBinding key : new KeyBinding[] {MENU_KEY, ZOOM_KEY, FREELOOK_KEY, SNAPLOOK_KEY, STOPWATCH_KEY, WAYPOINT_ADD_KEY, WAYPOINTS_KEY,
                 QUICKPLAY_KEY, REQUEUE_KEY, REPORT_KEY}) {
@@ -123,6 +132,9 @@ public final class NovoClient {
         MinecraftForge.EVENT_BUS.register(new NovoClient());
         MinecraftForge.EVENT_BUS.register(CpsTracker.INSTANCE);
         MinecraftForge.EVENT_BUS.register(new ShaderController());
+        MinecraftForge.EVENT_BUS.register(new com.novomc.client.render.ConnectedTextures());
+        ((net.minecraft.client.resources.IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager())
+                .registerReloadListener(new com.novomc.client.render.CustomSky());
         for (Module m : MODULES) {
             MinecraftForge.EVENT_BUS.register(m);
         }
@@ -132,6 +144,9 @@ public final class NovoClient {
         }
         if (DevBenchmark.active()) {
             MinecraftForge.EVENT_BUS.register(new DevBenchmark());
+        }
+        if (DevFeatureTest.active()) {
+            MinecraftForge.EVENT_BUS.register(new DevFeatureTest());
         }
         if (DevModuleCheck.active()) {
             MinecraftForge.EVENT_BUS.register(new DevModuleCheck());

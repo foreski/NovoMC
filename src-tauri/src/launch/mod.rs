@@ -502,7 +502,13 @@ mod tests {
         let java = java::resolve(&version, &Settings::default(), &Progress::default(), &none).await.unwrap();
         println!("{launch_id}: needs {:?}, using {}", java::requirement(&version), java.display());
 
-        let game_dir = root.join("instances").join("test");
+        // NOVOMC_TEST_BARE=1 (with NOVOMC_TEST_MOD) runs in a fresh instance that has only that jar:
+        // no companion mods, NovoMC splash, resource packs or settings left by earlier runs.
+        let bare = std::env::var_os("NOVOMC_TEST_BARE").is_some();
+        let game_dir = root.join("instances").join(if bare { "test-bare" } else { "test" });
+        if bare {
+            let _ = std::fs::remove_dir_all(&game_dir);
+        }
         let natives_dir = root.join("versions").join(&launch_id).join("natives");
         let game_assets = prepare_files(&root, &version, &game_dir, &natives_dir).unwrap();
         // NOVOMC_TEST_MOD=<jar> installs the NovoMC mod and runs its in-game autotest.
@@ -511,8 +517,10 @@ mod tests {
         if let Some(jar) = &test_mod {
             std::fs::create_dir_all(game_dir.join("mods")).unwrap();
             std::fs::copy(jar, game_dir.join("mods").join("novomc-client.jar")).unwrap();
-            crate::instances::companions::install(&root, &game_dir.join("mods"), true).await.unwrap();
-            crate::instances::splash::write(&game_dir).unwrap();
+            if !bare {
+                crate::instances::companions::install(&root, &game_dir.join("mods"), true).await.unwrap();
+                crate::instances::splash::write(&game_dir).unwrap();
+            }
             // NOVOMC_TEST_MODE=benchmark (FPS) or modcheck (mod behavior); default is the screenshot autotest.
             let mode = std::env::var("NOVOMC_TEST_MODE").unwrap_or_else(|_| "autotest".into());
             extra.push(format!("-Dnovomc.{mode}=true"));

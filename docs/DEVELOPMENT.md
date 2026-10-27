@@ -122,8 +122,17 @@ Lunar Client's mod list but none of its code or assets.
 - **Fair play:** visual and quality-of-life only, like Lunar. Nothing automates input or reveals
   information vanilla hides. Lunar lets servers turn Freelook off through its own server protocol; NovoMC
   has no such protocol, so check a server's rules before using Freelook there.
-- **No third-party performance mods.** FPS gains come from NovoMC's own 1.8.9 optimization modules
+- **No third-party performance mod jars.** FPS gains come from NovoMC's own 1.8.9 optimization modules,
+  including the Sodium Renderer (`com.novomc.client.sodium`, ported from Sodium 0.5, LGPL v3: it draws each
+  8x4x8-chunk region with one glMultiDrawArrays from a shared arena buffer; needs GL 3.3 and VBOs),
   plus the tuned JVM flags.
+- **OptiFine-style options** (`com.novomc.client.render`, NovoMC code inspired by OptiFine; no OptiFine code):
+  Fast Math (4096-entry sine table), Smart Animations (chunks record their animated textures; only those
+  drawn since the last tick animate), Lazy Chunk Loading (integrated server sends 5 chunks/tick instead of 10),
+  Connected Textures (47 glass border tiles generated from the active pack, plus `optifine/ctm` and
+  `mcpatcher/ctm` properties with method ctm/horizontal/vertical), Custom Sky (`optifine/sky/world0/skyN.properties`),
+  Better Grass (fast/fancy) and Better Snow. All are modules; the Video Settings module replaces vanilla
+  Video Settings with `GuiNovoVideo`. Dev check: `-Dnovomc.features=true` (`NOVOMC_TEST_MODE=features`).
 - **Resource Packs library:** in-game browser for every Modrinth resource pack that supports 1.8.x
   (about 2,700), with search, sorting (popular / relevance / newest / updated), category chips and an
   Installed tab. Install downloads the pack from Modrinth's CDN (SHA-1 checked) into `resourcepacks/`
