@@ -34,6 +34,7 @@ import com.novomc.client.modules.LowHealthModule;
 import com.novomc.client.modules.WaypointsModule;
 import com.novomc.client.modules.ScreenshotsModule;
 import com.novomc.client.modules.ModListModule;
+import com.novomc.client.modules.LoadingScreenModule;
 import com.novomc.client.modules.ZoomModule;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -102,7 +103,7 @@ public final class NovoClient {
                 new PlaytimeModule(), new DayCounterModule(),
                 // Batch 4
                 new AutoGgModule(), new AutoTextModule(), new HitSoundsModule(), new LowHealthModule(),
-                new WaypointsModule(), new ScreenshotsModule(), new ModListModule());
+                new WaypointsModule(), new ScreenshotsModule(), new ModListModule(), new LoadingScreenModule());
 
         for (KeyBinding key : new KeyBinding[] {MENU_KEY, ZOOM_KEY, FREELOOK_KEY, SNAPLOOK_KEY, STOPWATCH_KEY, WAYPOINT_ADD_KEY, WAYPOINTS_KEY}) {
             ClientRegistry.registerKeyBinding(key);

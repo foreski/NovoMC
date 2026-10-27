@@ -11,11 +11,14 @@
     "MixinEntity",
     "MixinEntityRenderer",
     "MixinFontRenderer",
+    "MixinGuiConnecting",
+    "MixinGuiDownloadTerrain",
     "MixinGuiIngame",
     "MixinGuiIngameForge",
     "MixinGuiPlayerTabOverlay",
     "MixinGuiScreen",
     "MixinItemRenderer",
+    "MixinLoadingScreenRenderer",
     "MixinLayerArmorBase",
     "MixinRender",
     "MixinRenderManager",
@@ -24,9 +27,11 @@
     "MixinRendererLivingEntity",
     "MixinScoreboard",
     "MixinScreenShotHelper",
+    "MixinSplashProgressThread",
     "MixinTileEntityRendererDispatcher",
     "accessor.EntityRendererAccessor",
     "accessor.ShaderGroupAccessor",
-    "accessor.GuiMainMenuAccessor"
+    "accessor.GuiMainMenuAccessor",
+    "accessor.MinecraftAccessor"
   ]
 }

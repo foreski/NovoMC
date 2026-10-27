@@ -6,6 +6,7 @@
 
 pub mod client;
 pub mod companions;
+pub mod splash;
 pub mod store;
 
 use serde::Deserialize;

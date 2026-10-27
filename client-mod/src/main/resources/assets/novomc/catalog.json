@@ -986,6 +986,14 @@
       ]
     },
     {
+      "id": "loading_screen",
+      "name": "Loading Screen",
+      "category": "visual",
+      "enabled": true,
+      "description": "NovoMC fades in with a spinning loading ring while you connect to servers and load worlds.",
+      "settings": []
+    },
+    {
       "id": "items_2d",
       "name": "2D Items",
       "category": "visual",

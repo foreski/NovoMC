@@ -233,6 +233,9 @@ async fn start(app: &AppHandle, instance_id: &str, stop: CancellationToken, serv
     emit(app, state(LaunchStage::Starting));
     instances::client::sync(app, &root, &instance)?;
     instances::companions::sync(&root, &instance).await?;
+    if instances::client::supported(&instance) && instance.client_mod {
+        instances::splash::write(&instances::store::game_dir(&root, instance_id))?;
+    }
     let game_dir = instances::store::game_dir(&root, instance_id);
     if let Some(lang) = &settings.game_language {
         options::set_language(&game_dir, lang, id)?;
@@ -503,6 +506,7 @@ mod tests {
             std::fs::create_dir_all(game_dir.join("mods")).unwrap();
             std::fs::copy(jar, game_dir.join("mods").join("novomc-client.jar")).unwrap();
             crate::instances::companions::install(&root, &game_dir.join("mods"), true).await.unwrap();
+            crate::instances::splash::write(&game_dir).unwrap();
             // NOVOMC_TEST_MODE=benchmark (FPS) or modcheck (mod behavior); default is the screenshot autotest.
             let mode = std::env::var("NOVOMC_TEST_MODE").unwrap_or_else(|_| "autotest".into());
             extra.push(format!("-Dnovomc.{mode}=true"));

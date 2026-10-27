@@ -156,7 +156,14 @@ public final class DevAutoTest {
                 shot("novomc-pause");
                 mc.displayGuiScreen(null);
                 break;
-            case 410:
+            case 400:
+                mc.displayGuiScreen(new net.minecraft.client.gui.GuiDownloadTerrain(mc.getNetHandler()));
+                break;
+            case 406:
+                shot("novomc-loading");
+                mc.displayGuiScreen(null);
+                break;
+            case 420:
                 System.out.println("[NovoMC] Autotest finished");
                 mc.shutdown();
                 break;
