@@ -87,8 +87,21 @@ writeFileSync(feedFile, JSON.stringify(feed, null, 2) + '\n');
 console.log(`\nBuilt ${installerName} and latest.json in\n  ${bundle}`);
 
 if (flag('--publish')) {
-  run(gh(), ['release', 'create', `v${version}`, `"${installer}"`, `"${feedFile}"`, '--repo', REPO, '--title', `"NovoMC ${version}"`, '--notes', JSON.stringify(notes)]);
-  console.log(`\nPublished v${version}. Installed copies of NovoMC will offer this update on their next start.`);
+  const tag = `v${version}`;
+  const releases = JSON.parse(execFileSync(gh(), ['release', 'list', '--repo', REPO, '--limit', '100', '--json', 'tagName'], {
+    cwd: root,
+    encoding: 'utf8',
+    shell: true,
+  }));
+  if (releases.some((release) => release.tagName === tag)) {
+    run(gh(), ['release', 'upload', tag, `"${installer}"`, `"${feedFile}"`, '--repo', REPO, '--clobber']);
+    run(gh(), ['release', 'edit', tag, '--repo', REPO, '--title', `"NovoMC ${version}"`, '--notes', JSON.stringify(notes)]);
+    console.log(`\nUpdated existing GitHub release ${tag}.`);
+  } else {
+    run(gh(), ['release', 'create', tag, `"${installer}"`, `"${feedFile}"`, '--repo', REPO, '--title', `"NovoMC ${version}"`, '--notes', JSON.stringify(notes)]);
+    console.log(`\nPublished ${tag}.`);
+  }
+  console.log('Existing installs may need to download the installer manually if the release version did not change.');
 } else {
   console.log('\nNot published. Re-run with --publish to create the GitHub release.');
 }

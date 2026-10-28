@@ -109,11 +109,11 @@ function PlayCluster({ selected, instances, onSelect, onPlay }: {
 
   const progress = launch?.stage === 'java' || launch?.stage === 'installing' ? launch.progress : null;
   return (
-    <div ref={ref} className="relative flex h-[72px] w-80 overflow-hidden rounded-2xl shadow-[0_18px_50px_-12px] shadow-brand-a/60">
+    <div ref={ref} className="relative flex h-[72px] w-80 overflow-visible rounded-2xl shadow-[0_18px_50px_-12px] shadow-brand-a/60">
       <button
         onClick={onPlay}
         disabled={busy}
-        className="group relative flex-1 overflow-hidden bg-gradient-to-r from-brand-a to-brand-b text-white transition-[filter] enabled:hover:brightness-110 disabled:cursor-default"
+        className="group relative flex-1 overflow-hidden rounded-l-2xl bg-gradient-to-r from-brand-a to-brand-b text-white transition-[filter] enabled:hover:brightness-110 disabled:cursor-default"
       >
         {!busy && <span className="shine" />}
         {progress != null && <span className="absolute inset-y-0 left-0 bg-white/20 transition-[width]" style={{ width: `${progress * 100}%` }} />}
@@ -129,7 +129,7 @@ function PlayCluster({ selected, instances, onSelect, onPlay }: {
         onClick={() => setOpen((o) => !o)}
         aria-label={t('home.switchInstance')}
         title={t('home.switchInstance')}
-        className="grid w-14 place-items-center border-l border-white/20 bg-brand-b text-white transition-[filter] hover:brightness-110"
+        className="grid w-14 place-items-center rounded-r-2xl border-l border-white/20 bg-brand-b text-white transition-[filter] hover:brightness-110"
       >
         <ChevronUp size={20} className={`transition-transform ${open ? '' : 'rotate-180'}`} />
       </button>
@@ -189,10 +189,10 @@ export function HomePage({ onNavigate }: { onNavigate: (p: PageId) => void }) {
   return (
     <div className="flex min-h-full flex-col">
       {/* Hero: in-game artwork with the instance and the launch controls on top. */}
-      <section className="relative flex min-h-[440px] flex-[1_0_58vh] flex-col justify-end overflow-hidden">
+      <section className="relative flex min-h-[440px] flex-[1_0_58vh] flex-col justify-end overflow-visible">
         {/* Masked rather than faded to a colour, so it melts into the app backdrop below. */}
         <div
-          className="pointer-events-none absolute inset-0"
+          className="pointer-events-none absolute inset-0 overflow-hidden"
           style={{ maskImage: 'linear-gradient(to bottom, black 45%, transparent)', WebkitMaskImage: 'linear-gradient(to bottom, black 45%, transparent)' }}
         >
           <motion.img
