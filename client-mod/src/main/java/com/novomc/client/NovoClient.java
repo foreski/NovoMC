@@ -114,7 +114,7 @@ public final class NovoClient {
                 new AutoGgModule(), new AutoTextModule(), new HitSoundsModule(), new LowHealthModule(),
                 new WaypointsModule(), new ScreenshotsModule(), new ModListModule(), new LoadingScreenModule(),
                 // Batch 5
-                new HypixelToolsModule(), new QuickplayModule(), new PatcherFixesModule(), new DynamicLightsModule(), new NovoBadgeModule(),
+                new HypixelToolsModule(), new QuickplayModule(), new PatcherFixesModule(), new DynamicLightsModule(), new NovoBadgeModule(), new NovoCapesModule(),
                 // OptiFine-style rendering options (NovoMC code) and the Video Settings screen
                 new RenderFeatureModule("fast_math"), new RenderFeatureModule("smart_animations"),
                 new RenderFeatureModule("lazy_chunks"), new RenderFeatureModule("connected_textures"),
@@ -219,6 +219,7 @@ public final class NovoClient {
                 m.onTick();
             }
         }
+        NovoBadgeModule.tickPresence(mc);
         if (MENU_KEY.isPressed() && mc.currentScreen == null && mc.theWorld != null) {
             mc.displayGuiScreen(new GuiHudEditor());
         }

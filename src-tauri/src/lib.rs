@@ -11,6 +11,7 @@ pub mod instances;
 pub mod java;
 pub mod launch;
 pub mod news;
+pub mod novo;
 pub mod paths;
 pub mod report;
 pub mod servers;
@@ -72,6 +73,14 @@ pub fn run() {
             auth::set_active_account,
             auth::microsoft_login,
             auth::skins::get_skin_head,
+            novo::novo_account,
+            novo::novo_login,
+            novo::novo_logout,
+            novo::novo_set_display_name,
+            novo::novo_set_cape,
+            novo::novo_link,
+            novo::novo_unlink,
+            novo::sync::novo_sync_settings,
             report::report_bug,
             servers::list_servers,
             servers::save_servers,

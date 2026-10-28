@@ -1328,7 +1328,23 @@
         {
           "key": "shareMine",
           "type": "toggle",
-          "label": "Let other Novo Client players see your badge",
+          "label": "Let other Novo Client players see your badge and cape",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "novo_capes",
+      "modern": true,
+      "name": "Novo Capes",
+      "category": "visual",
+      "enabled": true,
+      "description": "Capes from Novo accounts. Pick yours in the launcher's Accounts page; other Novo Client players see it while you're online.",
+      "settings": [
+        {
+          "key": "showOthers",
+          "type": "toggle",
+          "label": "Show other players' capes",
           "default": true
         }
       ]

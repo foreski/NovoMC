@@ -676,6 +676,8 @@ public final class DevModuleCheck {
             then(3, new Runnable() {
                 public void run() {
                     only("novo_badge", "nametags");
+                    // A previous run's opt-out check leaves sharing off in modules.json.
+                    set("novo_badge", "shareMine", true);
                     set("nametags", "showOwn", true);
                     mc.gameSettings.thirdPersonView = 2;
                     look(0, 0);
@@ -695,6 +697,23 @@ public final class DevModuleCheck {
                 public void run() {
                     shot("badge-tab");
                     drawTab = false;
+                    // Novo Capes: the relay says which cape our Novo account wears (the local
+                    // test relay links us to one wearing "ember"); seen from behind.
+                    only("novo_badge", "novo_capes");
+                    mc.gameSettings.thirdPersonView = 1;
+                    // Facing the wall the badge shot looked away from, so the camera behind has room.
+                    look(180, 15);
+                }
+            });
+            then(80, new Runnable() {
+                public void run() {
+                    java.util.UUID me = mc.getSession().getProfile().getId();
+                    String cape = com.novomc.client.net.NovoPresence.INSTANCE.cape(me);
+                    check("novo_capes.worn", cape != null, "relay says we wear a Novo cape (" + cape + ")");
+                    net.minecraft.util.ResourceLocation tex = mc.thePlayer.getLocationCape();
+                    check("novo_capes.drawn", tex != null && tex.getResourcePath().equals("textures/capes/" + cape + ".png"), "our cape texture is " + tex);
+                    shot("cape");
+                    mc.gameSettings.thirdPersonView = 0;
                     set("novo_badge", "shareMine", false);
                 }
             });

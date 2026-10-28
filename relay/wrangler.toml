@@ -8,6 +8,7 @@ compatibility_date = "2024-09-23"
 
 [vars]
 GITHUB_REPO = "foreski/NovoMC"
+DISCORD_CLIENT_ID = "1564439345874739270"
 
 # Optional, for rate limits shared across Cloudflare locations:
 #   npx wrangler kv namespace create RATE
@@ -29,3 +30,14 @@ new_sqlite_classes = ["Presence"]
 [[kv_namespaces]]
 binding = "NEWS"
 id = "aa4d09f390fa4f338294021dee086bb8"
+
+# Novo Client accounts (account.js): Discord sign-in, capes, settings sync.
+#   npx wrangler d1 create novo-accounts   (put the id it prints below)
+#   npx wrangler d1 execute novo-accounts --remote --file schema.sql
+#   npx wrangler secret put DISCORD_CLIENT_SECRET
+# The Discord application also needs the redirect
+#   https://<this worker>/account/discord/callback
+[[d1_databases]]
+binding = "NOVO_DB"
+database_name = "novo-accounts"
+database_id = "REPLACE_WITH_D1_ID"

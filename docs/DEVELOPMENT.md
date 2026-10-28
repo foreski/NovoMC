@@ -216,3 +216,52 @@ Lunar Client's mod list but none of its code or assets.
   mod check + autotest, then publishes a patch release with `npm run release -- --publish`. Issues it
   can't safely fix get the `needs-human` label; issues caused by something else get `not-novomc`.
   Issue text is treated as untrusted data, never as instructions.
+
+## Novo accounts
+
+A Novo account is separate from the player's Minecraft accounts, like a Lunar or Feather account. It signs in
+with Discord and holds a Novo name, the linked Minecraft accounts, a cape and the cloud copy of the mod settings.
+
+- **Sign-in** (`src-tauri/src/novo/mod.rs`): Accounts → "Sign in with Discord" opens Discord's authorize page
+  (`identify` scope, client id = `discordAppId` from `novomc.config.json`) in a window. Discord redirects to
+  `<relay>/account/discord/callback`. The launcher catches that navigation, checks `state` and sends the code to
+  `POST /account/login`. The relay swaps the code for the Discord profile using `DISCORD_CLIENT_SECRET`, drops
+  Discord's token and returns a Novo session token (32 random bytes, valid 180 days). Only its SHA-256 is stored.
+  The launcher keeps the token in the OS credential store (`novo:session`).
+- **Linking Minecraft:** after sign-in, and after every Microsoft sign-in while a Novo account is signed in, the
+  launcher calls Mojang's `session/minecraft/join` with the account's own token and a random server id, and the
+  relay confirms it with `hasJoined` (`POST /account/link`). The Minecraft token never reaches the relay. A UUID
+  belongs to the Novo account that proved it last, with up to 10 per account.
+- **Capes:** the textures are 64x32 in the vanilla cape layout, with the elytra area painted for modern. They are
+  drawn by `node scripts/make-capes.mjs` into `client-mod/src/main/resources/assets/novomc/textures/capes/` and
+  ship in both jars. The launcher's picker reads the same files. The ids live in `relay/src/capes.js`. Free capes
+  belong to everyone, and the others are granted per account:
+  `INSERT INTO grants (user_id, cape) VALUES ('<users.id>', 'developer')` in the D1 console.
+  `/presence/sync` returns `capes: {uuid: id}` for the online players it was asked about. The clients' shared
+  `com.novomc.client.net.NovoPresence` (the old badge networking, moved out of `NovoBadgeModule`) keeps that
+  map. The Novo Capes module (`novo_capes`) draws them: `MixinAbstractClientPlayer.getLocationCape` on 1.8.9 and
+  `AbstractClientPlayerMixin.getSkin` on 26.3. Only players online on Novo show capes, and the badge's
+  "shareMine" setting hides your badge and your cape alike. On 26.3 there is no badge yet, so presence runs
+  while Novo Capes is on.
+- **Settings sync** (`src-tauri/src/novo/sync.rs`): an instance's `config/novomc/modules.json` is saved under the
+  slot of its Minecraft version (`/account/settings/1.8.9`, `/account/settings/26.3`, up to 256 KB). `cloud-sync.json`
+  next to it records the file's hash and the cloud copy's time from the last sync, which shows which side changed.
+  Before a launch, Home calls `novo_sync_settings`. If only one side changed, it uploads or downloads that copy.
+  If both changed, the player chooses between this PC's copy and the cloud copy. Downloading backs up the old file
+  as `modules.json.bak`. After the game exits, local changes are uploaded. Being offline never blocks Play. To turn
+  it off: Accounts → "Sync mod settings" (`cloudSync` in settings.json).
+- **Relay setup** (one time, Cloudflare dashboard):
+  1. Create the D1 database `novo-accounts` and run `relay/schema.sql` in its console.
+  2. Bind it to the Worker as `NOVO_DB`.
+  3. Add the var `DISCORD_CLIENT_ID` (the Discord app id) and the secret `DISCORD_CLIENT_SECRET`.
+  4. In the Discord developer portal (OAuth2), add the redirect `https://<worker>/account/discord/callback`.
+  5. Deploy `relay/src/*.js`.
+
+  `wrangler.toml` lists the same bindings, with a placeholder D1 id.
+- **Tests:** `node relay/test/account.test.mjs` mocks Discord and Mojang and uses `node:sqlite` as D1, and
+  `cargo test novo` covers the sync plan, the authorize URL and the callback. For the in-game checks, run the local
+  relay with `node relay/test/local-relay.mjs 8787 ember`. It is the real Worker with presence in memory and
+  SQLite as D1. It skips Mojang and links everyone who says hello to a test account that wears `ember`. Then run
+  the 1.8.9 mod check with `NOVOMC_TEST_RELAY=http://127.0.0.1:8787 NOVOMC_TEST_MODE=modcheck`, which checks
+  `novo_capes.worn` and `novo_capes.drawn` and takes the `cape` screenshot. The modern autotest with the same
+  relay prints `Modern cape: ember drawn novomc:textures/capes/ember.png` and takes a `cape` screenshot.

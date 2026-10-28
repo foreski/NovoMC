@@ -434,6 +434,7 @@ async fn monitor(app: AppHandle, mut child: Child, exited: LaunchState, game_dir
 
     *app.state::<Games>().lock() = None;
     crate::discord::set(crate::discord::Presence::Launcher);
+    crate::novo::sync::after_game(&app, exited.instance_id.clone());
     if crashed && settings::load().map(|s| s.auto_report_crashes).unwrap_or(false) {
         let content = crash_report.as_ref().map(|c| c.content.clone()).unwrap_or_else(|| format!("Exit code {}", exit_code.unwrap_or(-1)));
         crate::report::report_crash(app.clone(), exited.instance_id.clone(), content, recent.iter().cloned().collect());

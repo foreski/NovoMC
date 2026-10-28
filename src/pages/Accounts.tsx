@@ -2,6 +2,7 @@ import { useEffect, useState, type MouseEvent } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Check, Copy, Loader2, LogIn, MousePointerClick, Trash2 } from 'lucide-react';
 import { Avatar } from '../components/Avatar';
+import { NovoAccountCard } from '../components/NovoAccountCard';
 import type { Account } from '../lib/api';
 import { useAccounts } from '../lib/accounts';
 import { useT } from '../lib/i18n';
@@ -181,6 +182,8 @@ export function AccountsPage() {
       </header>
 
       <MicrosoftCard />
+
+      <NovoAccountCard />
 
       <section className="flex flex-col gap-3">
         <h2 className="text-xs font-bold tracking-[0.2em] text-novo-muted uppercase">{t('acc.saved')}</h2>

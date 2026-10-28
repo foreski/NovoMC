@@ -64,7 +64,7 @@ public class NovoModern implements ClientModInitializer {
                 new More.Scoreboard(), new More.Chat(), new More.Nametags(), new More.Hitbox(), new More.ChunkBorders(), new More.Waypoints(), 
                 new Pvp.AttackCooldown(), new Pvp.TotemPops(), new Pvp.TargetHud(), new Pvp.ArmorAlert(), new Pvp.MaceHud(), new Pvp.HitSounds(),
                 new Pvp.ParticleChanger(), new Pvp.TntCountdown(), new Pvp.TabEditor(), profiles,
-                new Menus.CustomMenus(), new Menus.MainMenu(), new Menus.LoadingScreen());
+                new Menus.CustomMenus(), new Menus.MainMenu(), new Menus.LoadingScreen(), new Cosmetics.NovoCapes());
         // Mods switch on once the game is up: options and the player don't exist yet here.
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> apply());
 
@@ -99,6 +99,7 @@ public class NovoModern implements ClientModInitializer {
                 m.tick();
             }
         }
+        Cosmetics.tickPresence(mc);
     }
 
     public static List<HudModule> hudModules() {

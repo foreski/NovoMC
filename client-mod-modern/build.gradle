@@ -20,6 +20,7 @@ sourceSets {
 			srcDir new File(shared, 'java')
 			include 'com/novomc/modern/**'
 			include 'com/novomc/client/config/**'
+			include 'com/novomc/client/net/**'
 		}
 	}
 }
@@ -39,6 +40,7 @@ processResources {
 	from(new File(shared, 'resources')) {
 		include 'assets/novomc/catalog.json'
 		include 'assets/novomc/textures/gui/**'
+		include 'assets/novomc/textures/capes/**'
 	}
 	// The 1.8.9 client's Poppins fonts, where modern Minecraft's font loader looks (lower-case names).
 	from(new File(shared, 'resources/assets/novomc/fonts')) {

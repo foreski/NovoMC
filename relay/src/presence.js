@@ -6,13 +6,16 @@
 //     access token and a random serverId (exactly what joining a server does);
 //     we confirm with "hasJoined", so a badge can't be claimed for someone
 //     else's account. The access token never comes here.
-//   POST /presence/sync  {session?, uuids: [...]} -> {online: [...], session: bool}
+//   POST /presence/sync  {session?, uuids: [...]} -> {online: [...], session: bool, capes: {uuid: id}}
 //     Keeps the caller's own session alive (if it has one) and says which of
-//     the given players are on NovoMC.
+//     the given players are on NovoMC, and the Novo capes they wear (from
+//     accounts, see account.js; only online players' capes are shown).
 //   POST /presence/bye   {session}
 //
 // State lives in memory in one Durable Object; if it restarts, clients see
 // session:false and say hello again.
+
+import { capesOf } from './account.js';
 
 const NAME = /^[A-Za-z0-9_]{1,16}$/;
 const SERVER_ID = /^[0-9a-f]{8,40}$/;
@@ -57,7 +60,15 @@ export async function handlePresence(request, env, path) {
     if (!Array.isArray(body.uuids)) return json({ error: 'uuids must be a list' }, 400);
     const uuids = [...new Set(body.uuids.slice(0, MAX_LOOKUP).map(normalizeUuid).filter(Boolean))];
     const session = typeof body.session === 'string' ? body.session.slice(0, 64) : null;
-    return store.fetch('https://presence/sync', { method: 'POST', body: JSON.stringify({ session, uuids }) });
+    const res = await store.fetch('https://presence/sync', { method: 'POST', body: JSON.stringify({ session, uuids }) });
+    const out = await res.json();
+    try {
+      out.capes = await capesOf(env.NOVO_DB, out.online);
+    } catch (e) {
+      // Accounts being down never hides badges.
+      out.capes = {};
+    }
+    return json(out);
   }
   if (path === '/presence/bye') {
     const session = typeof body.session === 'string' ? body.session.slice(0, 64) : null;
@@ -67,7 +78,7 @@ export async function handlePresence(request, env, path) {
 }
 
 /** The verified player's UUID, or null. */
-async function verify(env, body) {
+export async function verify(env, body) {
   // Local testing only (wrangler dev --var PRESENCE_DEV_NO_VERIFY:1): trust the given uuid.
   if (env.PRESENCE_DEV_NO_VERIFY === '1') return normalizeUuid(body.uuid);
   if (typeof body.name !== 'string' || !NAME.test(body.name)) return null;

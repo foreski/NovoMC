@@ -110,10 +110,13 @@ pub async fn microsoft_login(app: tauri::AppHandle) -> AppResult<AccountStore> {
 
     let code = rx.await.map_err(|_| AppError::Other("Sign-in was cancelled".into()))?.map_err(AppError::Other)?;
     let account = microsoft::sign_in_with_code(&client_id, &code).await?;
-    store::update(|s| {
+    let uuid = account.uuid.clone();
+    let saved = store::update(|s| {
         s.accounts.retain(|a| a.uuid != account.uuid);
         s.active_uuid = Some(account.uuid.clone());
         s.accounts.push(account);
         Ok(())
-    })
+    })?;
+    crate::novo::link_in_background(&app, uuid);
+    Ok(saved)
 }

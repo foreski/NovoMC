@@ -1,4 +1,4 @@
-//! Microsoft refresh tokens in the OS credential store (Windows Credential
+//! Microsoft refresh tokens and the Novo session token in the OS credential store (Windows Credential
 //! Manager, macOS Keychain, Secret Service on Linux). Never written to disk
 //! by NovoMC itself.
 
@@ -29,6 +29,31 @@ pub fn refresh_token(uuid: &str) -> AppResult<Option<String>> {
 
 pub fn delete(uuid: &str) {
     if let Ok(e) = entry(uuid) {
+        let _ = e.delete_credential();
+    }
+}
+
+/// The Novo account's session token (see `crate::novo`), one per launcher.
+fn novo_entry() -> AppResult<Entry> {
+    Entry::new(SERVICE, "novo:session").map_err(|e| AppError::Other(format!("Credential store unavailable: {e}")))
+}
+
+pub fn save_novo_token(token: &str) -> AppResult<()> {
+    novo_entry()?
+        .set_password(token)
+        .map_err(|e| AppError::Other(format!("Couldn't save the Novo sign-in to the credential store: {e}")))
+}
+
+pub fn novo_token() -> AppResult<Option<String>> {
+    match novo_entry()?.get_password() {
+        Ok(token) => Ok(Some(token)),
+        Err(keyring::Error::NoEntry) => Ok(None),
+        Err(e) => Err(AppError::Other(format!("Couldn't read the Novo sign-in: {e}"))),
+    }
+}
+
+pub fn delete_novo_token() {
+    if let Ok(e) = novo_entry() {
         let _ = e.delete_credential();
     }
 }

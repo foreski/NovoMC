@@ -32,8 +32,16 @@ const servers: Server[] = [
 
 const settings = {
   memoryMb: 4096, optimizedFlags: true, javaPath: null, afterLaunch: 'minimize', resolution: null, fullscreen: false, accent: null,
-  autoReportCrashes: true, discordPresence: true, uiLanguage: null, gameLanguage: null, lastVersion: '1.8.9', lastInstance: 'pvp',
+  autoReportCrashes: true, discordPresence: true, uiLanguage: null, gameLanguage: null, lastVersion: '1.8.9', lastInstance: 'pvp', cloudSync: true,
 } as unknown as Settings;
+
+// Signed in once the mock sign-in runs.
+let novo: Record<string, unknown> | null = null;
+const CAPES = [['novo', 'Novo'], ['aurora', 'Aurora'], ['ember', 'Ember'], ['frost', 'Frost'], ['verdant', 'Verdant'], ['midnight', 'Midnight'], ['early_supporter', 'Early Supporter'], ['developer', 'Developer']];
+const novoAccount = () => ({
+  id: 'mock', displayName: 'Steve', discordName: 'steve', avatarUrl: null, cape: 'ember', minecraft: [],
+  capes: CAPES.map(([id, name], i) => ({ id, name, owned: i < 6 })),
+});
 
 const info: AppInfo = { name: 'NovoMC', version: '0.1.8', dataDir: 'C:\\NovoMC (mock)', totalMemoryMb: 16384 };
 
@@ -48,6 +56,12 @@ const replies: Record<string, (args: Record<string, unknown>) => unknown> = {
   save_servers: (a) => a.servers,
   ping_server: (a) => ({ online: a.address === 'mc.hypixel.net' ? 41823 : 2104, max: 200000, latencyMs: 38, motd: '' }),
   get_skin_head: () => null,
+  novo_account: () => novo,
+  novo_login: () => (novo = novoAccount()),
+  novo_logout: () => (novo = null),
+  novo_set_cape: (a) => (novo = { ...novo, cape: a.cape }),
+  novo_set_display_name: (a) => (novo = { ...novo, displayName: a.name }),
+  novo_sync_settings: () => ({ action: 'off', localModified: null, cloudModified: null }),
   check_update: () => null,
   list_java: () => [],
   list_versions: () => [],

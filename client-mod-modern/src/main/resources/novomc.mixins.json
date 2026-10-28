@@ -2,7 +2,7 @@
 	"required": true,
 	"package": "com.novomc.modern.mixin",
 	"compatibilityLevel": "JAVA_25",
-	"client": ["AbstractButtonMixin", "AbstractWidgetMixin", "AbstractSliderButtonMixin", "CameraMixin", "ChatComponentAccess", "ChatComponentMixin", "CooldownInstanceAccessor", "CycleButtonMixin", "DebugRendererMixin", "EditBoxMixin", "EntityRendererMixin", "GameRendererMixin", "GuiMixin", "HudMixin", "ItemCooldownsAccessor", "LevelMixin", "LevelRendererMixin", "LivingEntityMixin", "LivingEntityRendererMixin", "LoadingOverlayMixin", "MouseHandlerMixin", "OptionInstanceAccessor", "OptionsSubScreenAccessor", "OverlayTextureMixin", "PlainButtonMixin", "PlayerTabOverlayAccessor", "PlayerTabOverlayMixin", "ScreenMixin", "SubmitNodeCollectionMixin", "VideoSettingsInvoker"],
+	"client": ["AbstractButtonMixin", "AbstractClientPlayerMixin", "AbstractWidgetMixin", "AbstractSliderButtonMixin", "CameraMixin", "ChatComponentAccess", "ChatComponentMixin", "CooldownInstanceAccessor", "CycleButtonMixin", "DebugRendererMixin", "EditBoxMixin", "EntityRendererMixin", "GameRendererMixin", "GuiMixin", "HudMixin", "ItemCooldownsAccessor", "LevelMixin", "LevelRendererMixin", "LivingEntityMixin", "LivingEntityRendererMixin", "LoadingOverlayMixin", "MouseHandlerMixin", "OptionInstanceAccessor", "OptionsSubScreenAccessor", "OverlayTextureMixin", "PlainButtonMixin", "PlayerTabOverlayAccessor", "PlayerTabOverlayMixin", "ScreenMixin", "SubmitNodeCollectionMixin", "VideoSettingsInvoker"],
 	"injectors": {
 		"defaultRequire": 1
 	}

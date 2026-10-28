@@ -65,6 +65,31 @@ export interface Settings {
   gameLanguage: string | null;
   lastVersion: string | null;
   lastInstance: string | null;
+  /** Keep Novo Client settings in the Novo account. */
+  cloudSync: boolean;
+}
+
+export interface NovoCape {
+  id: string;
+  name: string;
+  owned: boolean;
+}
+
+/** The Novo account (Discord sign-in), separate from the Minecraft accounts. */
+export interface NovoAccount {
+  id: string;
+  displayName: string;
+  discordName: string | null;
+  avatarUrl: string | null;
+  cape: string | null;
+  capes: NovoCape[];
+  minecraft: { uuid: string; name: string }[];
+}
+
+export interface SyncResult {
+  action: 'off' | 'none' | 'uploaded' | 'downloaded' | 'conflict';
+  localModified: number | null;
+  cloudModified: number | null;
 }
 
 export type Loader = 'vanilla' | 'forge' | 'fabric';
@@ -218,6 +243,16 @@ export const api = {
   microsoftLogin: () => invoke<AccountStore>('microsoft_login'),
   /** The player's skin head as a data URL (null for default skins). */
   getSkinHead: (uuid: string) => invoke<string | null>('get_skin_head', { uuid }),
+  novoAccount: () => invoke<NovoAccount | null>('novo_account'),
+  novoLogin: () => invoke<NovoAccount>('novo_login'),
+  novoLogout: () => invoke<void>('novo_logout'),
+  novoSetDisplayName: (name: string) => invoke<NovoAccount>('novo_set_display_name', { name }),
+  novoSetCape: (cape: string | null) => invoke<NovoAccount>('novo_set_cape', { cape }),
+  novoLink: (uuid: string) => invoke<NovoAccount>('novo_link', { uuid }),
+  novoUnlink: (uuid: string) => invoke<NovoAccount>('novo_unlink', { uuid }),
+  /** resolve: which side wins ('local' uploads, 'cloud' downloads). */
+  novoSyncSettings: (instanceId: string, resolve?: 'local' | 'cloud') =>
+    invoke<SyncResult>('novo_sync_settings', { instanceId, resolve: resolve ?? null }),
   setActiveAccount: (uuid: string) => invoke<AccountStore>('set_active_account', { uuid }),
   listVersions: (refresh = false) => invoke<VersionSummary[]>('list_versions', { refresh }),
   installVersion: (id: string) => invoke<void>('install_version', { id }),

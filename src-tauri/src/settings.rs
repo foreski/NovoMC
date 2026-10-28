@@ -52,6 +52,8 @@ pub struct Settings {
     pub last_version: Option<String>,
     /// Instance launched last, preselected on Home.
     pub last_instance: Option<String>,
+    /// Keep Novo Client settings in the Novo account (see `novo::sync`).
+    pub cloud_sync: bool,
 }
 
 impl Default for Settings {
@@ -70,6 +72,7 @@ impl Default for Settings {
             game_language: None,
             last_version: None,
             last_instance: None,
+            cloud_sync: true,
         }
     }
 }

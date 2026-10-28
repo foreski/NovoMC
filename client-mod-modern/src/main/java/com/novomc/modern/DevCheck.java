@@ -168,6 +168,14 @@ public final class DevCheck {
             shot(mc, "waypoint");
         } else if (ticks == 175) {
             shot(mc, "profile");
+            // Novo Capes (with -Dnovomc.relay, e.g. relay/test/local-relay.mjs): seen from behind.
+            mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+        } else if (ticks == 186) {
+            String cape = com.novomc.client.net.NovoPresence.INSTANCE.cape(mc.player.getUUID());
+            net.minecraft.core.ClientAsset.Texture tex = mc.player.getSkin().cape();
+            System.out.println("[NovoMC] Modern cape: " + cape + " drawn " + (tex == null ? null : tex.texturePath()));
+            shot(mc, "cape");
+            mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
         } else if (ticks == 190) {
             mc.gui.setScreen(new com.novomc.modern.ui.NovoHudEditor(null));
         } else if (ticks == 205) {
