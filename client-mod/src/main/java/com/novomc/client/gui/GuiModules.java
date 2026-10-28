@@ -39,14 +39,6 @@ public class GuiModules extends NovoPanelScreen {
     private static final ResourceLocation CHEVRON = icon("chevron-down");
     private static final ResourceLocation MOVE = icon("move");
     private static final ResourceLocation RESET = icon("rotate-ccw");
-    private static final Map<String, ResourceLocation> CATEGORY_ICON = new HashMap<String, ResourceLocation>();
-
-    static {
-        CATEGORY_ICON.put("hud", icon("layout-dashboard"));
-        CATEGORY_ICON.put("visual", SPARKLES);
-        CATEGORY_ICON.put("qol", SPARKLES);
-        CATEGORY_ICON.put("performance", icon("gauge"));
-    }
 
     private final Set<String> open = new HashSet<String>();
     private String category = "all";
@@ -113,7 +105,7 @@ public class GuiModules extends NovoPanelScreen {
         for (Map.Entry<String, String> c : Catalog.categories().entrySet()) {
             chips.add(new String[] {c.getKey(), c.getValue()});
         }
-        int toolbarBottom = drawChips("category", chips, category, CATEGORY_ICON, l, r, top + 58);
+        int toolbarBottom = drawChips("category", chips, category, l, r, top + 58);
         drawGrid(l, r, toolbarBottom + 8, p[3] - PAD);
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
@@ -164,38 +156,25 @@ public class GuiModules extends NovoPanelScreen {
             }
         }
 
-        // Two columns only when cards stay wide enough to read the descriptions.
-        int cols = r - l >= 460 ? 2 : 1;
-        int gap = 6;
-        float colW = (r - l - gap * (cols - 1)) / (float) cols;
-        float[] colY = new float[cols];
-
-        // Heights first, so scrolling can be clamped before drawing.
+        // One column of rows, as on the modern client. Heights first, so scrolling can be clamped before drawing.
+        int gap = 4;
         float[] heights = new float[shown.size()];
+        float content = 0;
         for (int i = 0; i < shown.size(); i++) {
             Module m = shown.get(i);
             float t = ease("open/" + m.id(), open.contains(m.id()) ? 1 : 0);
             heights[i] = HEADER + t * expandedHeight(m);
-            colY[i % cols] += heights[i] + gap;
+            content += heights[i] + gap;
         }
-        float content = 0;
-        for (float c : colY) {
-            content = Math.max(content, c - gap);
-        }
-        float max = updateScroll(content, bottom - top);
+        float max = updateScroll(Math.max(0, content - gap), bottom - top);
 
         clip(l - 1, top, r + 1, bottom);
-        for (int c = 0; c < cols; c++) {
-            colY[c] = top - scroll;
-        }
+        float y = top - scroll;
         for (int i = 0; i < shown.size(); i++) {
-            int c = i % cols;
-            float x = l + c * (colW + gap);
-            float y = colY[c];
             if (y + heights[i] >= top && y <= bottom) {
-                drawCard(shown.get(i), x, y, colW, heights[i], l - 1, top, r + 1, bottom);
+                drawCard(shown.get(i), l, y, r - l, heights[i], l - 1, top, r + 1, bottom);
             }
-            colY[c] += heights[i] + gap;
+            y += heights[i] + gap;
         }
         noClip();
 
@@ -232,27 +211,16 @@ public class GuiModules extends NovoPanelScreen {
         float sw = ease("switch/" + m.id(), on ? 1 : 0);
 
         clip(gl, gt, gr, gb);
-        int fill = Draw.blend(0xB0121722, 0xC0182340, sw);
-        Draw.round(x, y, x + w, y + h, 6, Draw.blend(fill, 0xD01C2333, hv * 0.5f));
-        Draw.roundOutline(x, y, x + w, y + h, 6, Draw.blend(Draw.blend(0x1FFFFFFF, 0x775B8CFF, sw), 0x40FFFFFF, hv * (1 - sw) * 0.6f));
+        // A flat row with an accent bar while the mod is on, as on the modern client.
+        flatRow(x, y, x + w, y + h, hv, sw > 0.02f ? Draw.withAlpha(ACCENT, Math.round(sw * 255)) : 0);
         clip(Math.max(gl, x), Math.max(gt, y), Math.min(gr, x + w), Math.min(gb, y + h));
 
-        // Header: category icon, name, description, chevron and switch.
-        float bx = x + 6;
-        float by = y + 5;
-        Draw.round(bx, by, bx + 20, by + 20, 5, Draw.blend(0xFF1E2433, 0xFF4A5FD0, sw));
-        if (sw > 0) {
-            Draw.round(bx + 10, by, bx + 20, by + 20, 5, Draw.withAlpha(PURPLE, Math.round(sw * 70)));
-        }
-        Draw.roundOutline(bx, by, bx + 20, by + 20, 5, 0x1AFFFFFF);
-        ResourceLocation icon = CATEGORY_ICON.get(m.def.category);
-        Draw.icon(icon != null ? icon : SPARKLES, bx + 5, by + 5, 10, Draw.blend(MUTED, 0xFFFFFFFF, sw));
-
+        // Header: name, description, chevron and switch.
         boolean canExpand = expandable(m);
-        float switchX = x + w - 26;
-        float textW = switchX - (x + 32) - (canExpand ? 16 : 6);
-        Draw.text(Draw.trim(m.def.name, (int) textW), x + 32, y + 6, TEXT);
-        Draw.text(Draw.trim(m.def.description, (int) textW), x + 32, y + 17, MUTED);
+        float switchX = x + w - 34;
+        float textW = switchX - (x + 10) - (canExpand ? 18 : 6);
+        Draw.bold(Draw.trim(m.def.name, (int) textW - 6), x + 10, y + 5, TEXT);
+        Draw.text(Draw.trim(m.def.description, (int) textW), x + 10, y + 16, MUTED);
 
         hit(x, y, x + w, y + HEADER, new Runnable() {
             public void run() {
@@ -269,13 +237,13 @@ public class GuiModules extends NovoPanelScreen {
             Float opened = anim.get("open/" + m.id());
             float t = opened != null ? opened : 0;
             GlStateManager.pushMatrix();
-            GlStateManager.translate(switchX - 10, y + 15, 0);
+            GlStateManager.translate(switchX - 12, y + 15, 0);
             GlStateManager.rotate(180 * t, 0, 0, 1);
             Draw.icon(CHEVRON, -4, -4, 8, hover ? TEXT : MUTED);
             GlStateManager.popMatrix();
         }
-        toggle(switchX, y + 10, 20, 10, sw);
-        hit(switchX - 2, y + 6, switchX + 22, y + 24, new Runnable() {
+        toggle(switchX, y + 9, 24, 12, sw);
+        hit(switchX - 4, y + 5, switchX + 28, y + 25, new Runnable() {
             public void run() {
                 setEnabled(m, !m.isEnabled());
             }

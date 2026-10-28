@@ -30,7 +30,6 @@ public class GuiResourcePacks extends NovoPanelScreen {
     private static final ResourceLocation CHECK = icon("check");
     private static final ResourceLocation SORT = icon("arrow-up-down");
     private static final ResourceLocation FOLDER = icon("folder-open");
-    private static final ResourceLocation LAYERS = icon("layers");
     private static final ExecutorService SEARCH = Executors.newSingleThreadExecutor(new java.util.concurrent.ThreadFactory() {
         public Thread newThread(Runnable r) {
             Thread t = new Thread(r, "NovoMC pack search");
@@ -45,13 +44,6 @@ public class GuiResourcePacks extends NovoPanelScreen {
         {"vanilla-like", "Vanilla-like"}, {"themed", "Themed"}, {"realistic", "Realistic"}, {"fonts", "Fonts"}
     };
     private static final String[][] SORTS = {{"downloads", "Popular"}, {"relevance", "Relevance"}, {"newest", "Newest"}, {"updated", "Updated"}};
-    private static final Map<String, ResourceLocation> CHIP_ICONS = new HashMap<String, ResourceLocation>();
-
-    static {
-        CHIP_ICONS.put("installed", LAYERS);
-        CHIP_ICONS.put("combat", SWORDS);
-    }
-
     private String category = "all";
     private int sort;
     private final List<Modrinth.Hit> results = new ArrayList<Modrinth.Hit>();
@@ -189,7 +181,7 @@ public class GuiResourcePacks extends NovoPanelScreen {
         for (String[] c : CATEGORIES) {
             chips.add(c);
         }
-        int toolbarBottom = drawChips("category", chips, category, CHIP_ICONS, l, r, top + 58);
+        int toolbarBottom = drawChips("category", chips, category, l, r, top + 58);
         if ("installed".equals(category)) {
             drawInstalled(l, r, toolbarBottom + 8, p[3] - PAD);
         } else {
@@ -268,9 +260,7 @@ public class GuiResourcePacks extends NovoPanelScreen {
     private void drawCardBase(String id, float x, float y, float w, boolean active) {
         boolean hover = in(x, y, x + w, y + CARD);
         float hv = ease("hover/" + id, hover ? 1 : 0);
-        int fill = active ? 0xC0182340 : 0xB0121722;
-        Draw.round(x, y, x + w, y + CARD, 6, Draw.blend(fill, 0xD01C2333, hv * 0.5f));
-        Draw.roundOutline(x, y, x + w, y + CARD, 6, active ? 0x775B8CFF : Draw.blend(0x1FFFFFFF, 0x40FFFFFF, hv));
+        flatRow(x, y, x + w, y + CARD, hv, active ? ACCENT : 0);
     }
 
     private void drawHit(final Modrinth.Hit hit, float x, float y, float w, float gl, float gt, float gr, float gb) {

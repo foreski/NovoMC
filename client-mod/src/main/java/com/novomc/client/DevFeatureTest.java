@@ -57,10 +57,13 @@ public final class DevFeatureTest {
                 case 90: shot("menu-language"); mc.displayGuiScreen(new com.novomc.client.gui.GuiModules(new GuiMainMenu())); break;
                 case 100: shot("menu-mods"); mc.displayGuiScreen(new com.novomc.client.gui.GuiResourcePacks(new GuiMainMenu())); break;
                 // Pack icons come from Modrinth; give them a few seconds.
-                case 160: shot("menu-packs"); mc.displayGuiScreen(new GuiMainMenu()); break;
+                case 160: shot("menu-packs"); mc.displayGuiScreen(new com.novomc.client.gui.GuiModules(new GuiMainMenu()).expand("fps")); break;
+                case 175: shot("menu-mods-open"); mc.displayGuiScreen(new com.novomc.client.gui.GuiQuickplay(new GuiMainMenu())); break;
+                case 185: shot("menu-quickplay"); mc.displayGuiScreen(new com.novomc.client.gui.GuiTrainers(new GuiMainMenu())); break;
+                case 195: shot("menu-trainers"); mc.displayGuiScreen(new GuiMainMenu()); break;
                 default: break;
             }
-            if (menuTicks > 170) {
+            if (menuTicks > 200) {
                 started = true;
                 mc.gameSettings.pauseOnLostFocus = false;
                 WorldSettings ws = new WorldSettings(42L, WorldSettings.GameType.CREATIVE, false, false, WorldType.FLAT);
@@ -117,6 +120,15 @@ public final class DevFeatureTest {
                 break;
             case 120:
                 shot("video-performance");
+                for (com.novomc.client.module.Module m : NovoClient.modules()) {
+                    if (m instanceof com.novomc.client.modules.WaypointsModule) {
+                        ((com.novomc.client.modules.WaypointsModule) m).addHere();
+                    }
+                }
+                mc.displayGuiScreen(new com.novomc.client.gui.GuiWaypoints(null));
+                break;
+            case 130:
+                shot("menu-waypoints");
                 mc.displayGuiScreen(null);
                 System.out.println("[NovoMC] Autotest finished");
                 mc.shutdown();

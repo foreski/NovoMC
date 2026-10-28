@@ -224,14 +224,12 @@ public abstract class NovoPanelScreen extends GuiScreen {
      * A row of chips ({id, label}); the active one is highlighted and clicking
      * one calls {@link #chipSelected}. Wraps onto more rows; returns the bottom edge.
      */
-    protected int drawChips(final String group, List<String[]> chips, String active, Map<String, ResourceLocation> icons, int l, int r,
-            int top) {
+    protected int drawChips(final String group, List<String[]> chips, String active, int l, int r, int top) {
         int h = 16;
         float x = l;
         float y = top;
         for (final String[] c : chips) {
-            ResourceLocation icon = icons != null ? icons.get(c[0]) : null;
-            int w = Draw.width(c[1]) + 16 + (icon != null ? 11 : 0);
+            int w = Draw.width(c[1]) + 16;
             if (x + w > r) {
                 x = l;
                 y += h + 4;
@@ -240,12 +238,7 @@ public abstract class NovoPanelScreen extends GuiScreen {
             boolean hover = in(x, y, x + w, y + h);
             Draw.round(x, y, x + w, y + h, 8, on ? 0x2E5B8CFF : hover ? 0x14FFFFFF : 0x00000000);
             Draw.roundOutline(x, y, x + w, y + h, 8, on ? 0x995B8CFF : 0x26FFFFFF);
-            float tx = x + 8;
-            if (icon != null) {
-                Draw.icon(icon, tx, y + 4, 8, on ? ACCENT : MUTED);
-                tx += 11;
-            }
-            Draw.text(c[1], tx, y + 4, on || hover ? TEXT : MUTED);
+            Draw.text(c[1], x + 8, y + 4, on || hover ? TEXT : MUTED);
             hit(x, y, x + w, y + h, new Runnable() {
                 public void run() {
                     chipSelected(group, c[0]);
@@ -279,6 +272,17 @@ public abstract class NovoPanelScreen extends GuiScreen {
     }
 
     // ---- Small widgets ----
+
+    /**
+     * A flat list row, as on the modern client: no outline, lighter on hover
+     * (t = 0..1) and, when {@code accent} isn't 0, a thin bar on the left (for "on").
+     */
+    protected void flatRow(float l, float t, float r, float b, float hover, int accent) {
+        Draw.round(l, t, r, b, 5, Draw.blend(0x0AFFFFFF, 0x16FFFFFF, hover));
+        if (accent != 0) {
+            Draw.rect(Math.round(l), Math.round(t + 6), Math.round(l) + 2, Math.round(b - 6), accent);
+        }
+    }
 
     protected void toggle(float x, float y, float w, float h, float t) {
         Draw.round(x, y, x + w, y + h, h / 2, Draw.blend(0xFF2A3142, ACCENT, t));

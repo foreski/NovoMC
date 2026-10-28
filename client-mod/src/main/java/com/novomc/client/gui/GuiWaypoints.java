@@ -88,8 +88,7 @@ public class GuiWaypoints extends NovoPanelScreen {
 
     private void row(final WaypointsModule wm, final WaypointsModule.Waypoint w, float l, float y, float r) {
         boolean hover = in(l, y, r, y + ROW);
-        Draw.round(l, y, r, y + ROW, 6, hover ? 0xD01C2333 : 0xB0121722);
-        Draw.roundOutline(l, y, r, y + ROW, 6, w.visible ? Draw.withAlpha(w.color, 0x88) : 0x1FFFFFFF);
+        flatRow(l, y, r, y + ROW, ease("h" + System.identityHashCode(w), hover ? 1 : 0), 0);
 
         // Color dot: click to cycle through the palette.
         float cx = l + 8;

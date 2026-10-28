@@ -45,6 +45,15 @@ public final class Draw {
         }
     }
 
+    /** Poppins SemiBold for names and titles (pixel font when Modern Font is off). */
+    public static void bold(String s, float x, float y, int argb) {
+        if (font() != null && NovoFont.SEMIBOLD.available()) {
+            NovoFont.SEMIBOLD.draw(s, x, y, argb, true);
+        } else {
+            text(s, x, y, argb);
+        }
+    }
+
     public static void text(String s, float x, float y, int argb, boolean shadow) {
         NovoFont f = font();
         if (f != null) {
@@ -180,6 +189,8 @@ public final class Draw {
 
     private static void roundShape(float l, float t, float r, float b, float radius, int argb, int mode) {
         radius = Math.max(0, Math.min(radius, Math.min(r - l, b - t) / 2f));
+        // In a world, alpha testing drops pixels under ~10% opacity, which would hide faint fills.
+        GlStateManager.disableAlpha();
         GlStateManager.enableBlend();
         GlStateManager.disableTexture2D();
         GlStateManager.disableCull();
@@ -199,6 +210,7 @@ public final class Draw {
         GL11.glEnd();
         GL11.glDisable(GL11.GL_LINE_SMOOTH);
         GlStateManager.enableCull();
+        GlStateManager.enableAlpha();
         GlStateManager.enableTexture2D();
         GlStateManager.color(1, 1, 1, 1);
     }

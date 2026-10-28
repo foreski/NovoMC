@@ -151,8 +151,7 @@ public class GuiQuickplay extends NovoPanelScreen {
         int color = COLORS[game % COLORS.length];
         boolean on = open == game;
         boolean hover = in(x, y, x + w, y + CARD_H);
-        Draw.round(x, y, x + w, y + CARD_H, 6, on ? 0xE0182033 : hover ? 0xD01C2333 : 0xB0121722);
-        Draw.roundOutline(x, y, x + w, y + CARD_H, 6, on ? Draw.withAlpha(color, 0xAA) : 0x1FFFFFFF);
+        flatRow(x, y, x + w, y + CARD_H, ease("h" + game, hover || on ? 1 : 0), on ? color : 0);
         Draw.round(x + 8, y + 9, x + 24, y + 25, 8, Draw.withAlpha(color, 0x33));
         Draw.icon(PLAY, x + 12, y + 13, 8, color);
         Draw.text(Draw.trim(g[0], (int) w - 40), x + 30, y + 8, TEXT);

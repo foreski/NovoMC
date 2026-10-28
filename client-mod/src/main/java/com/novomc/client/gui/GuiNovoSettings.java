@@ -223,7 +223,7 @@ public abstract class GuiNovoSettings extends NovoPanelScreen {
 
         String[][] sections = sections();
         int listTop = sections.length > 1
-                ? drawChips("section", java.util.Arrays.asList(sections), section, null, l, r, top + 58) + 8 : top + 60;
+                ? drawChips("section", java.util.Arrays.asList(sections), section, l, r, top + 58) + 8 : top + 60;
         int listBottom = bottom - 8;
 
         updateDrag(r);
