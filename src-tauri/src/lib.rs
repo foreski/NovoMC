@@ -39,7 +39,7 @@ fn app_info() -> AppResult<AppInfo> {
     sys.refresh_memory();
     Ok(AppInfo {
         name: "NovoMC",
-        version: env!("CARGO_PKG_VERSION"),
+        version: env!("CARGO_PKG_VERSION").split('+').next().unwrap_or(env!("CARGO_PKG_VERSION")),
         data_dir: paths::data_dir()?.display().to_string(),
         total_memory_mb: sys.total_memory() / (1024 * 1024),
     })
@@ -55,7 +55,22 @@ pub fn run() {
         .manage(download::Installs::default())
         .manage(launch::Games::default())
         .manage(updater::PendingUpdate::default())
-        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(
+            tauri_plugin_updater::Builder::new()
+                .default_version_comparator(|current, remote| {
+                    let candidate = remote.version;
+                    if candidate > current {
+                        return true;
+                    }
+                    candidate.major == current.major
+                        && candidate.minor == current.minor
+                        && candidate.patch == current.patch
+                        && candidate.pre == current.pre
+                        && candidate.build.as_str().parse::<u64>().unwrap_or(0)
+                            > current.build.as_str().parse::<u64>().unwrap_or(0)
+                })
+                .build(),
+        )
         .setup(|app| {
             discord::start(app.handle());
             paths::ensure_layout()?;

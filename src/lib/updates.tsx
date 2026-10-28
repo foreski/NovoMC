@@ -1,5 +1,5 @@
 // Launcher self-update state: checked once at startup (quietly) and on demand from Settings.
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { api, onUpdateProgress, type UpdateInfo } from './api';
 
 export type UpdateStatus = 'idle' | 'checking' | 'available' | 'current' | 'installing' | 'error';
@@ -25,17 +25,29 @@ export function UpdatesProvider({ children }: { children: ReactNode }) {
   const [progress, setProgress] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [dismissed, setDismissed] = useState(false);
+  const checkingRef = useRef(false);
 
   const check = useCallback(async () => {
+    if (checkingRef.current) return;
+    checkingRef.current = true;
     setStatus('checking');
     setError(null);
     try {
       const found = await api.checkUpdate();
       setUpdate(found);
-      setStatus(found ? 'available' : 'current');
+      if (found) {
+        // Signed releases install automatically on startup (and after a manual check).
+        setStatus('installing');
+        setProgress(0);
+        await api.installUpdate();
+      } else {
+        setStatus('current');
+      }
     } catch (e) {
       setError(String(e));
       setStatus('error');
+    } finally {
+      checkingRef.current = false;
     }
   }, []);
 

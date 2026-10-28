@@ -83,7 +83,9 @@ public class NovoTitleScreen extends Screen {
 
         NovoUi.draw(g, NovoUi.text(minecraft.getUser().getName()), 32, 13, 0xFFD0D6E2);
         String mc = FabricLoader.getInstance().getModContainer("minecraft").map(c -> c.getMetadata().getVersion().getFriendlyString()).orElse("");
-        NovoUi.draw(g, NovoUi.text("Novo Client (Minecraft " + mc + ")"), 4, height - 11, 0xFF8A94A6);
+        String novoVersion = FabricLoader.getInstance().getModContainer("novomc")
+                .map(c -> c.getMetadata().getVersion().getFriendlyString()).orElse("unknown");
+        NovoUi.draw(g, NovoUi.text("Novo Client " + novoVersion + " (Minecraft " + mc + ")"), 4, height - 11, 0xFF8A94A6);
         Component legal = NovoUi.text("Not an official Minecraft product");
         NovoUi.draw(g, legal, width - NovoUi.width(legal) - 4, height - 11, 0xFF8A94A6);
 

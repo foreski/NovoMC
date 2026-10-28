@@ -1,6 +1,6 @@
 [package]
 name = "novomc"
-version = "0.3.3"
+version = "0.3.4"
 description = "NovoMC - a Minecraft Java Edition launcher"
 authors = ["NovoMC"]
 edition = "2021"

@@ -42,13 +42,17 @@ fn err(e: impl std::fmt::Display) -> AppError {
 pub async fn check_update(app: AppHandle) -> AppResult<Option<UpdateInfo>> {
     let update = app.updater().map_err(err)?.check().await.map_err(err)?;
     let info = update.as_ref().map(|u| UpdateInfo {
-        version: u.version.clone(),
-        current_version: u.current_version.clone(),
+        version: display_version(&u.version),
+        current_version: display_version(&u.current_version),
         notes: u.body.clone(),
         date: u.date.map(|d| d.to_string()),
     });
     *app.state::<PendingUpdate>().0.lock().unwrap() = update;
     Ok(info)
+}
+
+fn display_version(version: &str) -> String {
+    version.split('+').next().unwrap_or(version).to_owned()
 }
 
 /// Downloads and installs the update found by `check_update`, emitting

@@ -27,14 +27,11 @@ export function UpdateBanner() {
                 ? t('upd.installing', { pct: progress != null ? Math.floor(progress * 100) : 0 })
                 : t('upd.available', { version: update.version })}
             </span>
-            <button
+            {installing && <Loader2 size={14} className="animate-spin text-accent" />}
+            {!installing && <button
               onClick={install}
-              disabled={installing}
-              className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-brand-a to-brand-b px-3 py-1.5 text-sm font-bold text-white transition-all hover:brightness-110 disabled:opacity-70"
-            >
-              {installing && <Loader2 size={14} className="animate-spin" />}
-              {t('upd.updateNow')}
-            </button>
+              className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-brand-a to-brand-b px-3 py-1.5 text-sm font-bold text-white transition-all hover:brightness-110"
+            >{t('upd.updateNow')}</button>}
             {!installing && (
               <button
                 onClick={dismiss}

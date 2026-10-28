@@ -28,7 +28,7 @@ export function TitleBar({ page, onNavigate, showNavigation = true }: { page: Pa
   return (
     <header
       data-tauri-drag-region
-      className="relative flex h-14 shrink-0 items-center gap-4 bg-novo-panel/50 backdrop-blur-xl"
+      className="relative z-50 flex h-14 shrink-0 items-center gap-4 bg-novo-panel/50 backdrop-blur-xl"
     >
       <div data-tauri-drag-region className="flex shrink-0 items-center gap-2.5 pl-3.5">
         <img src={logo} alt="" className="pointer-events-none h-5 w-5 drop-shadow-[0_0_8px_rgb(180_91_255/0.6)]" />
