@@ -229,9 +229,13 @@ with Discord and holds a Novo name, the linked Minecraft accounts, a cape and th
   Discord's token and returns a Novo session token (32 random bytes, valid 180 days). Only its SHA-256 is stored.
   The launcher keeps the token in the OS credential store (`novo:session`).
 - **Linking Minecraft:** after sign-in, and after every Microsoft sign-in while a Novo account is signed in, the
-  launcher calls Mojang's `session/minecraft/join` with the account's own token and a random server id, and the
-  relay confirms it with `hasJoined` (`POST /account/link`). The Minecraft token never reaches the relay. A UUID
-  belongs to the Novo account that proved it last, with up to 10 per account.
+  launcher sends each Microsoft account's name and UUID to `POST /account/link`. The relay doesn't check them:
+  Mojang answers every request from Cloudflare Workers with HTTP 403 (sessionserver, api.mojang.com and
+  minecraftservices alike), so the old `hasJoined` check can't run there. The owner chose to trust the client over
+  collecting Minecraft tokens. `/presence/hello` works the same way, so a modified client could claim someone
+  else's badge or cape. If that becomes a problem, Mojang's player certificates (the chat-signing key pair,
+  checkable offline with Mojang's public keys) can prove ownership without calling Mojang. A UUID belongs to the
+  Novo account that linked it last, with up to 10 per account.
 - **Capes:** the textures are 64x32 in the vanilla cape layout, with the elytra area painted for modern. They are
   drawn by `node scripts/make-capes.mjs` into `client-mod/src/main/resources/assets/novomc/textures/capes/` and
   ship in both jars. The launcher's picker reads the same files. The ids live in `relay/src/capes.js`. Free capes
@@ -258,10 +262,10 @@ with Discord and holds a Novo name, the linked Minecraft accounts, a cape and th
   5. Deploy `relay/src/*.js`.
 
   `wrangler.toml` lists the same bindings, with a placeholder D1 id.
-- **Tests:** `node relay/test/account.test.mjs` mocks Discord and Mojang and uses `node:sqlite` as D1, and
+- **Tests:** `node relay/test/account.test.mjs` mocks Discord and uses `node:sqlite` as D1, and
   `cargo test novo` covers the sync plan, the authorize URL and the callback. For the in-game checks, run the local
   relay with `node relay/test/local-relay.mjs 8787 ember`. It is the real Worker with presence in memory and
-  SQLite as D1. It skips Mojang and links everyone who says hello to a test account that wears `ember`. Then run
+  SQLite as D1. It links everyone who says hello to a test account that wears `ember`. Then run
   the 1.8.9 mod check with `NOVOMC_TEST_RELAY=http://127.0.0.1:8787 NOVOMC_TEST_MODE=modcheck`, which checks
   `novo_capes.worn` and `novo_capes.drawn` and takes the `cape` screenshot. The modern autotest with the same
   relay prints `Modern cape: ember drawn novomc:textures/capes/ember.png` and takes a `cape` screenshot.

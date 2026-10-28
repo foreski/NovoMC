@@ -1,4 +1,4 @@
-// Tests accounts with Discord and Mojang mocked and D1 played by node:sqlite:
+// Tests accounts with Discord mocked and D1 played by node:sqlite:
 // `node relay/test/account.test.mjs`
 import assert from 'node:assert/strict';
 import worker from '../src/worker.js';
@@ -21,19 +21,13 @@ globalThis.fetch = async (url, init = {}) => {
   calls.push({ url, init });
   if (url === 'https://discord.com/api/oauth2/token') {
     const form = new URLSearchParams(init.body);
-    if (form.get('code') !== 'good-code' || form.get('client_secret') !== 'shh') return new Response('{}', { status: 400 });
+    if (form.get('code') !== 'good-code' || form.get('client_secret') !== 'shh') return new Response('{"error":"invalid_grant"}', { status: 400 });
     assert.equal(form.get('redirect_uri'), 'https://relay.example/account/discord/callback');
     return new Response(JSON.stringify({ access_token: 'discord-token' }));
   }
   if (url === 'https://discord.com/api/users/@me') {
     assert.equal(init.headers.Authorization, 'Bearer discord-token');
     return new Response(JSON.stringify({ id: '42', username: 'steve', global_name: 'Steve 🎮', avatar: 'abc123' }));
-  }
-  if (url.startsWith('https://sessionserver.mojang.com/session/minecraft/hasJoined?')) {
-    if (url.includes('username=Steve') && url.includes('serverId=abcdef12')) {
-      return new Response(JSON.stringify({ id: STEVE.replace(/-/g, ''), name: 'Steve' }));
-    }
-    return new Response(null, { status: 204 });
   }
   throw new Error(`unexpected fetch ${url}`);
 };
@@ -61,7 +55,9 @@ assert.equal(r.status, 200);
 assert.match(r.body, /close this window/);
 
 // A bad code is refused; a good one creates the account.
-assert.equal((await call('POST', '/account/login', { code: 'bad' })).status, 403);
+r = await call('POST', '/account/login', { code: 'bad' });
+assert.equal(r.status, 403);
+assert.match(r.body.error, /invalid_grant/);
 r = await call('POST', '/account/login', { code: 'good-code' });
 assert.equal(r.status, 200);
 const token = r.body.token;
@@ -98,15 +94,16 @@ r = await call('PATCH', '/account/me', { cape: 'developer' }, token);
 assert.equal(r.status, 200);
 assert.equal(r.body.cape, 'developer');
 
-// Linking Minecraft needs Mojang's confirmation.
-assert.equal((await call('POST', '/account/link', { name: 'Steve', serverId: 'ffffffff' }, token)).status, 403);
-r = await call('POST', '/account/link', { name: 'Steve', serverId: 'abcdef12' }, token);
+// Linking takes the Minecraft account as given (Mojang blocks Workers); junk is refused.
+assert.equal((await call('POST', '/account/link', { name: 'Steve', uuid: 'junk' }, token)).status, 400);
+assert.equal((await call('POST', '/account/link', { name: 'Steve; drop', uuid: STEVE }, token)).status, 400);
+r = await call('POST', '/account/link', { name: 'Steve', uuid: STEVE }, token);
 assert.deepEqual(r.body.minecraft, [{ uuid: STEVE, name: 'Steve' }]);
 
 // Online players' capes come back with presence; offline ones don't.
 let sync = await call('POST', '/presence/sync', { uuids: [STEVE] });
 assert.deepEqual(sync.body.capes, {});
-const hello = await call('POST', '/presence/hello', { name: 'Steve', serverId: 'abcdef12' });
+const hello = await call('POST', '/presence/hello', { name: 'Steve', uuid: STEVE });
 sync = await call('POST', '/presence/sync', { session: hello.body.session, uuids: [STEVE] });
 assert.deepEqual(sync.body.online, [STEVE]);
 assert.deepEqual(sync.body.capes, { [STEVE]: 'developer' });

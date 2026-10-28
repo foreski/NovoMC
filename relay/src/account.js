@@ -8,8 +8,8 @@
 //   GET    /account/discord/callback          a page saying the window can close
 //   GET    /account/me                        -> account
 //   PATCH  /account/me     {displayName?, cape?}  -> account   (cape: an owned id or null)
-//   POST   /account/link   {name, serverId}   -> account
-//          Proved through Mojang's session server, exactly like /presence/hello.
+//   POST   /account/link   {name, uuid}       -> account
+//          Not checked with Mojang, exactly like /presence/hello.
 //   DELETE /account/link/<uuid>               -> account
 //   POST   /account/logout
 //   GET    /account/settings/<slot>           -> {data, updatedAt} | 404
@@ -35,6 +35,8 @@ const SLOT = /^[0-9a-z._-]{1,32}$/;
 const DISPLAY_NAME = /^[\p{L}\p{N}_ .-]{2,24}$/u;
 
 const loginHits = new Map();
+// Discord asks API clients to identify themselves this way.
+const DISCORD_UA = 'DiscordBot (https://github.com/foreski/NovoMC, 1)';
 
 export async function handleAccount(request, env, path) {
   if (request.method === 'GET' && path === '/account/discord/callback') return closePage();
@@ -77,11 +79,11 @@ export async function handleAccount(request, env, path) {
     const body = await readSmall(request);
     if (!body) return json({ error: 'Bad JSON' }, 400);
     const uuid = await verify(env, body);
-    if (!uuid) return json({ error: "Mojang couldn't confirm that Minecraft account" }, 403);
+    if (!uuid) return json({ error: 'Bad Minecraft account' }, 400);
     const name = typeof body.name === 'string' ? body.name.slice(0, 16) : '?';
     const existing = await db.prepare('SELECT COUNT(*) AS n FROM links WHERE user_id = ? AND uuid != ?').bind(user.id, uuid).first();
     if (existing && existing.n >= MAX_LINKS) return json({ error: `At most ${MAX_LINKS} Minecraft accounts per Novo account` }, 400);
-    // Whoever proves they own the Minecraft account gets it, even if another Novo account had it.
+    // The latest Novo account to link a Minecraft account gets it.
     await db
       .prepare('INSERT INTO links (uuid, user_id, name, linked_at) VALUES (?, ?, ?, ?) ON CONFLICT(uuid) DO UPDATE SET user_id = excluded.user_id, name = excluded.name, linked_at = excluded.linked_at')
       .bind(uuid, user.id, name, Date.now())
@@ -132,18 +134,24 @@ async function login(env, db, code, origin) {
   if (!env.DISCORD_CLIENT_ID || !env.DISCORD_CLIENT_SECRET) return json({ error: 'Discord sign-in not configured' }, 500);
   const tokenRes = await fetch('https://discord.com/api/oauth2/token', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': DISCORD_UA },
     body: new URLSearchParams({
-      client_id: env.DISCORD_CLIENT_ID,
-      client_secret: env.DISCORD_CLIENT_SECRET,
+      client_id: env.DISCORD_CLIENT_ID.trim(),
+      client_secret: discordSecret(env),
       grant_type: 'authorization_code',
       code,
       redirect_uri: `${origin}/account/discord/callback`,
     }),
   });
-  if (!tokenRes.ok) return json({ error: 'Discord refused the sign-in; try again' }, 403);
+  if (!tokenRes.ok) {
+    // Discord's error code (invalid_client = wrong secret, invalid_grant = stale code or redirect mismatch).
+    const detail = await tokenRes.json().catch(() => ({}));
+    const reason = /^[a-z_]{1,40}$/.test(detail.error || '') ? detail.error : `HTTP ${tokenRes.status}`;
+    console.log(`Discord token exchange failed: ${reason} (secret length ${discordSecret(env).length})`);
+    return json({ error: `Discord refused the sign-in (${reason}); try again` }, 403);
+  }
   const { access_token: discordToken } = await tokenRes.json();
-  const meRes = await fetch('https://discord.com/api/users/@me', { headers: { Authorization: `Bearer ${discordToken}` } });
+  const meRes = await fetch('https://discord.com/api/users/@me', { headers: { Authorization: `Bearer ${discordToken}`, 'User-Agent': DISCORD_UA } });
   if (!meRes.ok) return json({ error: "Couldn't read your Discord profile" }, 502);
   const me = await meRes.json();
   if (!me || !/^\d{1,24}$/.test(String(me.id))) return json({ error: "Couldn't read your Discord profile" }, 502);
@@ -218,6 +226,11 @@ export async function capesOf(db, uuids) {
     out[r.uuid] = cape.id;
   }
   return out;
+}
+
+/** The client secret without what a paste can add (spaces, line breaks, a Ctrl+V control character); Discord secrets are [A-Za-z0-9_-]. */
+function discordSecret(env) {
+  return env.DISCORD_CLIENT_SECRET.replace(/[^A-Za-z0-9_-]/g, '');
 }
 
 function defaultName(discordName) {

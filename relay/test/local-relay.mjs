@@ -1,7 +1,6 @@
 // A local relay for the in-game checks, without wrangler: the real Worker
-// with presence in memory and D1 played by SQLite. Mojang isn't asked (so
-// offline test accounts work), and every player who says hello is linked to
-// a test Novo account wearing the given cape.
+// with presence in memory and D1 played by SQLite. Every player who says
+// hello is linked to a test Novo account wearing the given cape.
 //
 //   node relay/test/local-relay.mjs [port=8787] [cape=ember]
 //   NOVOMC_TEST_RELAY=http://127.0.0.1:8787 NOVOMC_TEST_MODE=modcheck ... cargo test launch_real -- --ignored
@@ -19,7 +18,6 @@ db.sqlite
 const presence = new Presence(null, null);
 const env = {
   NOVO_DB: db,
-  PRESENCE_DEV_NO_VERIFY: '1',
   PRESENCE: { idFromName: () => 'global', get: () => ({ fetch: (url, init) => presence.fetch(new Request(url, init)) }) },
 };
 

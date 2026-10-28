@@ -1,11 +1,11 @@
 // NovoMC presence: which players are on NovoMC right now, so the client can
 // show the NovoMC badge next to their names.
 //
-//   POST /presence/hello {name, serverId}  -> {session}
-//     The client first calls Mojang's session server "join" with its own
-//     access token and a random serverId (exactly what joining a server does);
-//     we confirm with "hasJoined", so a badge can't be claimed for someone
-//     else's account. The access token never comes here.
+//   POST /presence/hello {name, uuid}  -> {session}
+//     The client says which Minecraft account it plays as. It isn't checked:
+//     Mojang refuses every request from Cloudflare Workers (HTTP 403), so the
+//     old hasJoined check can't run here, and the owner chose to trust the
+//     client's word rather than collect Minecraft tokens.
 //   POST /presence/sync  {session?, uuids: [...]} -> {online: [...], session: bool, capes: {uuid: id}}
 //     Keeps the caller's own session alive (if it has one) and says which of
 //     the given players are on NovoMC, and the Novo capes they wear (from
@@ -18,7 +18,6 @@
 import { capesOf } from './account.js';
 
 const NAME = /^[A-Za-z0-9_]{1,16}$/;
-const SERVER_ID = /^[0-9a-f]{8,40}$/;
 const UUID = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$/i;
 const MAX_BODY = 8 * 1024;
 const MAX_LOOKUP = 120;
@@ -53,7 +52,7 @@ export async function handlePresence(request, env, path) {
     const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
     if (!allowHello(ip)) return json({ error: 'Too many requests' }, 429);
     const uuid = await verify(env, body);
-    if (!uuid) return json({ error: 'Not verified' }, 403);
+    if (!uuid) return json({ error: 'Bad player' }, 400);
     return store.fetch('https://presence/hello', { method: 'POST', body: JSON.stringify({ uuid }) });
   }
   if (path === '/presence/sync') {
@@ -77,17 +76,11 @@ export async function handlePresence(request, env, path) {
   return json({ error: 'Not found' }, 404);
 }
 
-/** The verified player's UUID, or null. */
+/** The player's UUID from a hello or link request, or null if malformed. */
 export async function verify(env, body) {
-  // Local testing only (wrangler dev --var PRESENCE_DEV_NO_VERIFY:1): trust the given uuid.
-  if (env.PRESENCE_DEV_NO_VERIFY === '1') return normalizeUuid(body.uuid);
+  // Trusted as given (see the top of this file); only the shape is checked.
   if (typeof body.name !== 'string' || !NAME.test(body.name)) return null;
-  if (typeof body.serverId !== 'string' || !SERVER_ID.test(body.serverId)) return null;
-  const url = `https://sessionserver.mojang.com/session/minecraft/hasJoined?username=${encodeURIComponent(body.name)}&serverId=${body.serverId}`;
-  const res = await fetch(url, { headers: { 'User-Agent': 'NovoMC-presence' } });
-  if (res.status !== 200) return null;
-  const profile = await res.json().catch(() => null);
-  return profile ? normalizeUuid(profile.id) : null;
+  return normalizeUuid(body.uuid);
 }
 
 function allowHello(ip) {

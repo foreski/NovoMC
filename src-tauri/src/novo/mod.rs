@@ -6,9 +6,9 @@
 //!   `<relay>/account/discord/callback`, where we catch the code (like the
 //!   Microsoft sign-in) and the relay swaps it for a Novo session token. The
 //!   token lives in the OS credential store.
-//! - Linking: we prove each Microsoft account through Mojang's session server
-//!   (`join` here, `hasJoined` on the relay), so the Minecraft token never
-//!   leaves for the relay.
+//! - Linking: each Microsoft account on this PC is sent as name + UUID. The
+//!   relay can't check it with Mojang (Mojang blocks Cloudflare Workers), so
+//!   it trusts the launcher; no Minecraft token is involved.
 //! - `sync`: `config/novomc/modules.json` per Minecraft version.
 
 pub mod sync;
@@ -24,7 +24,6 @@ use crate::error::{AppError, AppResult};
 
 const LOGIN_WINDOW: &str = "novo-login";
 const DISCORD_AUTHORIZE: &str = "https://discord.com/oauth2/authorize";
-const MOJANG_JOIN: &str = "https://sessionserver.mojang.com/session/minecraft/join";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -243,17 +242,7 @@ pub async fn link(app: &AppHandle, uuid: &str) -> AppResult<NovoAccount> {
         .into_iter()
         .find(|a| a.uuid == uuid && a.kind == AccountKind::Microsoft)
         .ok_or_else(|| AppError::Other("Only Microsoft accounts on this PC can be linked".into()))?;
-    let access_token = auth::microsoft::access_token(&config::msa_client_id(app)?, &player).await?;
-    let server_id = random_hex(10);
-    let res = http::client()
-        .post(MOJANG_JOIN)
-        .json(&json!({ "accessToken": access_token, "selectedProfile": player.uuid.replace('-', ""), "serverId": server_id }))
-        .send()
-        .await?;
-    if !res.status().is_success() {
-        return Err(AppError::Other(format!("Mojang refused to confirm {} (HTTP {})", player.username, res.status().as_u16())));
-    }
-    account_from(call(app, reqwest::Method::POST, "/account/link", Some(json!({ "name": player.username, "serverId": server_id }))).await?)
+    account_from(call(app, reqwest::Method::POST, "/account/link", Some(json!({ "name": player.username, "uuid": player.uuid }))).await?)
 }
 
 /// After a Microsoft sign-in: link it too, if a Novo account is signed in.
