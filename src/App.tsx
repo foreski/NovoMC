@@ -18,9 +18,7 @@ import { InstallsProvider } from './lib/installs';
 import { InstancesProvider } from './lib/instances';
 import { HomePage } from './pages/Home';
 import { InstancesPage } from './pages/Instances';
-import { ModLibraryPage } from './pages/ModLibrary';
 import { SettingsPage } from './pages/Settings';
-import { VersionsPage } from './pages/Versions';
 import { MarketplacePage } from './pages/Marketplace';
 import { LoginScreen } from './components/LoginScreen';
 import { useT } from './lib/i18n';
@@ -28,25 +26,17 @@ import { useT } from './lib/i18n';
 function Page({
   page,
   onNavigate,
-  createFor,
-  onCreateInstance,
 }: {
   page: PageId;
   onNavigate: (p: PageId) => void;
-  createFor?: string;
-  onCreateInstance: (versionId: string) => void;
 }) {
   switch (page) {
     case 'home':
       return <HomePage onNavigate={onNavigate} />;
     case 'instances':
-      return <InstancesPage onNavigate={onNavigate} createFor={createFor} />;
-    case 'versions':
-      return <VersionsPage onCreateInstance={onCreateInstance} />;
+      return <InstancesPage onNavigate={onNavigate} />;
     case 'marketplace':
       return <MarketplacePage />;
-    case 'mods':
-      return <ModLibraryPage onNavigate={onNavigate} />;
     case 'settings':
       return <SettingsPage onNavigate={onNavigate} />;
   }
@@ -64,15 +54,8 @@ function LauncherApp() {
   useEffect(() => {
     api.getSettings().then((s) => applyAccent(s.accent), () => {});
   }, []);
-  // Version to prefill when Versions' "+ Instance" opens the create dialog.
-  const [createFor, setCreateFor] = useState<string>();
   const navigate = (p: PageId) => {
-    setCreateFor(undefined);
     setPage(p);
-  };
-  const createInstanceFor = (versionId: string) => {
-    setCreateFor(versionId);
-    setPage('instances');
   };
 
   return (
@@ -94,7 +77,7 @@ function LauncherApp() {
                           exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
                           transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                         >
-                          <Page page={page} onNavigate={navigate} createFor={createFor} onCreateInstance={createInstanceFor} />
+                          <Page page={page} onNavigate={navigate} />
                         </motion.div>
                       </AnimatePresence>
                     </main>

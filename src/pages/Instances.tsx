@@ -186,33 +186,47 @@ function LoaderPicker({
   );
 }
 
-function CreateDialog({ open, onClose, initialVersion }: { open: boolean; onClose: () => void; initialVersion?: string }) {
-  const { create } = useInstances();
+function CreateDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { create, instances } = useInstances();
   const { start } = useInstalls();
   const t = useT();
   const [name, setName] = useState('');
-  const [version, setVersion] = useState(initialVersion ?? PVP_VERSION);
-  const [loader, setLoader] = useState<Loader>(defaultLoader(initialVersion ?? PVP_VERSION));
+  const [nameEdited, setNameEdited] = useState(false);
+  const [version, setVersion] = useState(PVP_VERSION);
+  const [loader, setLoader] = useState<Loader>(defaultLoader(PVP_VERSION));
   const [loaderVersion, setLoaderVersion] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (open) {
-      const v = initialVersion ?? PVP_VERSION;
-      setName(initialVersion ? `Minecraft ${initialVersion}` : '');
+      const v = PVP_VERSION;
+      setName('');
+      setNameEdited(false);
       setVersion(v);
       setLoader(defaultLoader(v));
       setLoaderVersion(null);
       setError(null);
     }
-  }, [open, initialVersion]);
+  }, [open]);
+
+  const automaticName = (() => {
+    const base = `Minecraft ${version} · ${loaderLabel({ loader, loaderVersion, version } as Instance)}`;
+    const used = new Set((instances ?? []).map((i) => i.name.trim().toLocaleLowerCase()));
+    if (!used.has(base.toLocaleLowerCase())) return base;
+    let suffix = 2;
+    while (used.has(`${base} (${suffix})`.toLocaleLowerCase())) suffix++;
+    return `${base} (${suffix})`;
+  })();
+  useEffect(() => {
+    if (open && !nameEdited) setName(automaticName);
+  }, [open, nameEdited, automaticName]);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
     try {
-      await create(name.trim() || `Minecraft ${version}`, version, loader, loader === 'vanilla' ? null : loaderVersion);
+      await create(name.trim() || automaticName, version, loader, loader === 'vanilla' ? null : loaderVersion);
       // Start downloading right away so Play is instant later.
       const installed = (await api.listVersions(false)).find((v) => v.id === version)?.installed;
       if (!installed) start(version);
@@ -228,14 +242,14 @@ function CreateDialog({ open, onClose, initialVersion }: { open: boolean; onClos
     <Modal open={open} onClose={onClose} title={t('inst.new')}>
       <form onSubmit={submit} className="flex flex-col gap-5">
         <div className="flex items-center gap-4">
-          <InstanceIcon name={name || `Minecraft ${version}`} size={56} />
+          <InstanceIcon name={name || automaticName} size={56} />
           <div className="flex-1">
             <label className={label}>{t('inst.name')}</label>
             <input
               autoFocus
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={`Minecraft ${version}`}
+              onChange={(e) => { setName(e.target.value); setNameEdited(true); }}
+              placeholder={automaticName}
               maxLength={40}
               className={input}
             />
@@ -527,13 +541,36 @@ function InstanceCard({
   );
 }
 
-export function InstancesPage({ onNavigate, createFor }: { onNavigate: (p: PageId) => void; createFor?: string }) {
+type InstanceSort = 'recent' | 'newest' | 'name' | 'version';
+
+export function InstancesPage({ onNavigate }: { onNavigate: (p: PageId) => void }) {
   const { instances, error } = useInstances();
   const { play } = useGame();
   const t = useT();
-  const [creating, setCreating] = useState(!!createFor);
+  const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<Instance | null>(null);
   const [deleting, setDeleting] = useState<Instance | null>(null);
+  const [query, setQuery] = useState('');
+  const [sort, setSort] = useState<InstanceSort>('recent');
+  const [filter, setFilter] = useState<'all' | 'pvp' | 'modern' | 'other'>('all');
+  const shown = useMemo(() => {
+    const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+    const q = query.trim().toLocaleLowerCase();
+    return [...(instances ?? [])]
+      .filter((i) => {
+        const category = i.version === PVP_VERSION && i.loader === 'forge' ? 'pvp'
+          : i.version === '26.3' && i.loader === 'fabric' ? 'modern' : 'other';
+        const matchesFilter = filter === 'all' || category === filter;
+        const matchesQuery = !q || `${i.name} ${i.version} ${loaderLabel(i)}`.toLocaleLowerCase().includes(q);
+        return matchesFilter && matchesQuery;
+      })
+      .sort((a, b) => {
+        if (sort === 'name') return collator.compare(a.name, b.name);
+        if (sort === 'newest') return b.createdAt - a.createdAt || collator.compare(a.name, b.name);
+        if (sort === 'version') return collator.compare(b.version, a.version) || collator.compare(a.name, b.name);
+        return (b.lastPlayed ?? 0) - (a.lastPlayed ?? 0) || b.createdAt - a.createdAt;
+      });
+  }, [instances, query, sort, filter]);
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6 p-8 pb-36">
@@ -555,6 +592,19 @@ export function InstancesPage({ onNavigate, createFor }: { onNavigate: (p: PageI
 
       {error && <p className="rounded-2xl border border-danger/30 bg-danger/10 p-4 text-danger">{error}</p>}
 
+      {!!instances?.length && <section className="glass flex flex-wrap items-center gap-3 rounded-2xl p-3">
+        <div className="flex min-w-52 flex-1 items-center gap-2 rounded-xl border border-novo-border bg-novo-bg/70 px-3 focus-within:border-accent/60">
+          <Search size={15} className="shrink-0 text-novo-muted" />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search instances" className="w-full bg-transparent py-2 text-sm outline-none placeholder:text-novo-muted" />
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {(['all', 'pvp', 'modern', 'other'] as const).map((key) => <button key={key} onClick={() => setFilter(key)} className={`rounded-lg px-3 py-2 text-xs font-bold capitalize transition-colors ${filter === key ? 'bg-accent/15 text-accent' : 'text-novo-muted hover:bg-novo-hover hover:text-novo-text'}`}>{key === 'pvp' ? 'PvP' : key}</button>)}
+        </div>
+        <select value={sort} onChange={(e) => setSort(e.target.value as InstanceSort)} aria-label="Sort instances" className="rounded-xl border border-novo-border bg-novo-bg/70 px-3 py-2 text-sm outline-none focus:border-accent/60">
+          <option value="recent">Recently played</option><option value="newest">Recently added</option><option value="name">Name A–Z</option><option value="version">Minecraft version</option>
+        </select>
+      </section>}
+
       {instances?.length === 0 ? (
         <button
           onClick={() => setCreating(true)}
@@ -566,10 +616,16 @@ export function InstancesPage({ onNavigate, createFor }: { onNavigate: (p: PageI
           <p className="mt-4 font-semibold">{t('inst.empty')}</p>
           <p className="text-novo-muted">{t('inst.emptyHint')}</p>
         </button>
+      ) : shown.length === 0 ? (
+        <div className="glass rounded-3xl p-12 text-center">
+          <p className="font-semibold">No matching instances</p>
+          <p className="mt-1 text-sm text-novo-muted">Change the search or filter to see your instances.</p>
+          <button onClick={() => { setQuery(''); setFilter('all'); }} className="mt-4 rounded-xl px-4 py-2 text-sm font-semibold text-accent hover:bg-accent/10">Clear filters</button>
+        </div>
       ) : (
         <motion.div layout className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <AnimatePresence mode="popLayout">
-            {instances?.map((i) => (
+            {shown.map((i) => (
               <InstanceCard
                 key={i.id}
                 instance={i}
@@ -585,7 +641,7 @@ export function InstancesPage({ onNavigate, createFor }: { onNavigate: (p: PageI
         </motion.div>
       )}
 
-      <CreateDialog open={creating} onClose={() => setCreating(false)} initialVersion={createFor} />
+      <CreateDialog open={creating} onClose={() => setCreating(false)} />
       <EditDialog instance={editing} onClose={() => setEditing(null)} />
       <DeleteDialog instance={deleting} onClose={() => setDeleting(null)} />
     </div>

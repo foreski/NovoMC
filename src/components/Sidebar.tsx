@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
-import { Check, ChevronDown, Loader2, Plus, Boxes, Home, Layers, Package, Store, UserCircle } from 'lucide-react';
+import { Check, ChevronDown, Loader2, Plus, Boxes, Home, Store, UserCircle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useAccounts } from '../lib/accounts';
 import { useNovo } from '../lib/novo';
@@ -9,13 +9,11 @@ import { RingAvatar } from './Avatar';
 
 const BANNER_URLS = import.meta.glob('../../client-mod/src/main/resources/assets/novomc/textures/banners/*.png', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 
-export type PageId = 'home' | 'instances' | 'versions' | 'mods' | 'marketplace' | 'settings';
+export type PageId = 'home' | 'instances' | 'marketplace' | 'settings';
 
 const items: { id: PageId; label: Key; icon: LucideIcon }[] = [
   { id: 'home', label: 'nav.home', icon: Home },
   { id: 'instances', label: 'nav.instances', icon: Boxes },
-  { id: 'versions', label: 'nav.versions', icon: Layers },
-  { id: 'mods', label: 'nav.mods', icon: Package },
   { id: 'marketplace', label: 'nav.marketplace', icon: Store },
 ];
 
