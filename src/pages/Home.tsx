@@ -182,7 +182,7 @@ export function HomePage({ onNavigate }: { onNavigate: (p: PageId) => void }) {
 
   function onPlay(server?: string) {
     if (!selected) return onNavigate('instances');
-    if (!active) return onNavigate('accounts');
+    if (!active) return;
     play(selected.id, server);
   }
 

@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
   avatar TEXT,
   display_name TEXT NOT NULL,
   cape TEXT,
+  banner TEXT,
   created_at INTEGER NOT NULL
 );
 CREATE TABLE IF NOT EXISTS sessions (

@@ -10,17 +10,20 @@ import { TitleBar } from './components/TitleBar';
 import { I18nProvider } from './lib/i18n';
 import { UpdatesProvider } from './lib/updates';
 import { AccountsProvider } from './lib/accounts';
+import { NovoProvider, useNovo } from './lib/novo';
 import { api } from './lib/api';
 import { applyAccent } from './lib/theme';
 import { GameProvider } from './lib/game';
 import { InstallsProvider } from './lib/installs';
 import { InstancesProvider } from './lib/instances';
-import { AccountsPage } from './pages/Accounts';
 import { HomePage } from './pages/Home';
 import { InstancesPage } from './pages/Instances';
 import { ModLibraryPage } from './pages/ModLibrary';
 import { SettingsPage } from './pages/Settings';
 import { VersionsPage } from './pages/Versions';
+import { MarketplacePage } from './pages/Marketplace';
+import { LoginScreen } from './components/LoginScreen';
+import { useT } from './lib/i18n';
 
 function Page({
   page,
@@ -40,16 +43,18 @@ function Page({
       return <InstancesPage onNavigate={onNavigate} createFor={createFor} />;
     case 'versions':
       return <VersionsPage onCreateInstance={onCreateInstance} />;
-    case 'accounts':
-      return <AccountsPage />;
+    case 'marketplace':
+      return <MarketplacePage />;
     case 'mods':
       return <ModLibraryPage onNavigate={onNavigate} />;
     case 'settings':
-      return <SettingsPage />;
+      return <SettingsPage onNavigate={onNavigate} />;
   }
 }
 
-export default function App() {
+function LauncherApp() {
+  const novo = useNovo();
+  const t = useT();
   // In development, ?page=mods (etc.) opens a page directly, for screenshots.
   const [page, setPage] = useState<PageId>(
     () => ((import.meta.env.DEV && new URLSearchParams(location.search).get('page')) as PageId) || 'home',
@@ -71,16 +76,11 @@ export default function App() {
   };
 
   return (
-    <MotionConfig reducedMotion="user">
-      <I18nProvider>
-      <UpdatesProvider>
-      <AccountsProvider>
-        <InstallsProvider>
-          <GameProvider>
-            <InstancesProvider>
-              <div className="relative isolate flex h-full flex-col">
-                <Backdrop />
-                <TitleBar page={page} onNavigate={navigate} />
+      <div className="relative isolate flex h-full flex-col">
+        <Backdrop />
+        <TitleBar page={page} onNavigate={navigate} showNavigation={novo.loaded && !!novo.account} />
+        {!novo.loaded ? <div className="flex-1" /> : !novo.account ? <LoginScreen /> : <div className="flex min-h-0 flex-1 flex-col">
+          {novo.offline && <div className="border-b border-amber-400/20 bg-amber-400/10 px-4 py-1.5 text-center text-xs text-amber-200">{t('login.offline')}</div>}
                 <div className="flex min-h-0 flex-1">
                   <div className="relative min-w-0 flex-1 overflow-hidden">
                     <UpdateBanner />
@@ -101,15 +101,13 @@ export default function App() {
                     <Console />
                   </div>
                 </div>
-                <DownloadDock />
-                <BugToast />
-              </div>
-            </InstancesProvider>
-          </GameProvider>
-        </InstallsProvider>
-      </AccountsProvider>
-      </UpdatesProvider>
-      </I18nProvider>
-    </MotionConfig>
+          <DownloadDock />
+          <BugToast />
+        </div>}
+      </div>
   );
+}
+
+export default function App() {
+  return <MotionConfig reducedMotion="user"><I18nProvider><UpdatesProvider><AccountsProvider><NovoProvider><InstallsProvider><GameProvider><InstancesProvider><LauncherApp /></InstancesProvider></GameProvider></InstallsProvider></NovoProvider></AccountsProvider></UpdatesProvider></I18nProvider></MotionConfig>;
 }

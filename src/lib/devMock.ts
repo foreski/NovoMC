@@ -38,9 +38,11 @@ const settings = {
 // Signed in once the mock sign-in runs.
 let novo: Record<string, unknown> | null = null;
 const CAPES = [['novo', 'Novo'], ['aurora', 'Aurora'], ['ember', 'Ember'], ['frost', 'Frost'], ['verdant', 'Verdant'], ['midnight', 'Midnight'], ['early_supporter', 'Early Supporter'], ['developer', 'Developer']];
+const BANNERS = [['aurora', 'Aurora'], ['nebula', 'Nebula'], ['sunset', 'Sunset'], ['forest', 'Forest'], ['developer', 'Developer']];
 const novoAccount = () => ({
-  id: 'mock', displayName: 'Steve', discordName: 'steve', avatarUrl: null, cape: 'ember', minecraft: [],
+  id: 'mock', displayName: 'Steve', discordName: 'steve', avatarUrl: null, cape: 'ember', banner: 'aurora', minecraft: [],
   capes: CAPES.map(([id, name], i) => ({ id, name, owned: i < 6 })),
+  banners: BANNERS.map(([id, name], i) => ({ id, name, owned: i < 4 })),
 });
 
 const info: AppInfo = { name: 'NovoMC', version: '0.1.8', dataDir: 'C:\\NovoMC (mock)', totalMemoryMb: 16384 };
@@ -60,6 +62,7 @@ const replies: Record<string, (args: Record<string, unknown>) => unknown> = {
   novo_login: () => (novo = novoAccount()),
   novo_logout: () => (novo = null),
   novo_set_cape: (a) => (novo = { ...novo, cape: a.cape }),
+  novo_set_banner: (a) => (novo = { ...novo, banner: a.banner }),
   novo_set_display_name: (a) => (novo = { ...novo, displayName: a.name }),
   novo_sync_settings: () => ({ action: 'off', localModified: null, cloudModified: null }),
   check_update: () => null,

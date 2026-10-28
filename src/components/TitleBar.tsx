@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { isTauri } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
-import { Copy, Minus, Square, X } from 'lucide-react';
+import { Copy, Minus, Settings, Square, X } from 'lucide-react';
 import { useT } from '../lib/i18n';
 import logo from '../../assets/branding/novomc-logo.svg';
 import { AccountButton, NavTabs, type PageId } from './Sidebar';
@@ -10,7 +10,7 @@ import { AccountButton, NavTabs, type PageId } from './Sidebar';
 const win = isTauri() ? getCurrentWindow() : null;
 
 /** Custom frameless title bar with the page tabs and the account. Empty space is a drag region. */
-export function TitleBar({ page, onNavigate }: { page: PageId; onNavigate: (p: PageId) => void }) {
+export function TitleBar({ page, onNavigate, showNavigation = true }: { page: PageId; onNavigate: (p: PageId) => void; showNavigation?: boolean }) {
   const [maximized, setMaximized] = useState(false);
   const t = useT();
 
@@ -38,9 +38,17 @@ export function TitleBar({ page, onNavigate }: { page: PageId; onNavigate: (p: P
         </span>
       </div>
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-brand-b/50 to-transparent" />
-      <NavTabs page={page} onChange={onNavigate} />
+      {showNavigation && <NavTabs page={page} onChange={onNavigate} />}
       <div data-tauri-drag-region className="flex-1 self-stretch" />
-      <AccountButton onClick={() => onNavigate('accounts')} />
+      {showNavigation && <>
+        <AccountButton onSettings={() => onNavigate('settings')} />
+        <button
+          className={`grid h-9 w-9 place-items-center rounded-xl transition-colors ${page === 'settings' ? 'bg-novo-selected text-accent' : 'text-novo-muted hover:bg-novo-hover hover:text-novo-text'}`}
+          onClick={() => onNavigate('settings')}
+          aria-label={t('nav.settings')}
+          title={t('nav.settings')}
+        ><Settings size={17} /></button>
+      </>}
       <div className="flex h-full shrink-0">
         <button className={btn} onClick={() => win?.minimize()} aria-label={t('title.minimize')}>
           <Minus size={15} />

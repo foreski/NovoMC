@@ -35,6 +35,14 @@ pub struct Cape {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct Banner {
+    pub id: String,
+    pub name: String,
+    pub owned: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct LinkedPlayer {
     pub uuid: String,
     pub name: String,
@@ -50,6 +58,8 @@ pub struct NovoAccount {
     pub avatar_url: Option<String>,
     pub cape: Option<String>,
     pub capes: Vec<Cape>,
+    pub banner: Option<String>,
+    pub banners: Vec<Banner>,
     pub minecraft: Vec<LinkedPlayer>,
 }
 
@@ -226,6 +236,11 @@ pub async fn novo_set_cape(app: AppHandle, cape: Option<String>) -> AppResult<No
 }
 
 #[tauri::command]
+pub async fn novo_set_banner(app: AppHandle, banner: Option<String>) -> AppResult<NovoAccount> {
+    account_from(call(&app, reqwest::Method::PATCH, "/account/me", Some(json!({ "banner": banner }))).await?)
+}
+
+#[tauri::command]
 pub async fn novo_link(app: AppHandle, uuid: String) -> AppResult<NovoAccount> {
     link(&app, &uuid).await
 }
@@ -290,11 +305,13 @@ mod tests {
     fn account_parses_from_relay_json() {
         let v = json!({
             "id": "u1", "displayName": "Steve", "discordName": "steve", "avatarUrl": null, "cape": "ember",
-            "capes": [{ "id": "ember", "name": "Ember", "owned": true }],
+            "capes": [{ "id": "ember", "name": "Ember", "owned": true }], "banner": "aurora",
+            "banners": [{ "id": "aurora", "name": "Aurora", "owned": true }],
             "minecraft": [{ "uuid": "069a79f4-44e9-4726-a5be-fca90e38aaf5", "name": "Steve" }]
         });
         let a = account_from(Some(v)).unwrap();
         assert_eq!(a.cape.as_deref(), Some("ember"));
+        assert_eq!(a.banner.as_deref(), Some("aurora"));
         assert_eq!(a.minecraft[0].name, "Steve");
     }
 }

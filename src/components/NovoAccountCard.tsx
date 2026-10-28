@@ -5,6 +5,7 @@ import { motion } from 'motion/react';
 import { Check, Cloud, Link2, Loader2, Lock, LogOut, Pencil, Sparkles, Unlink, X } from 'lucide-react';
 import { api, type NovoAccount, type Settings } from '../lib/api';
 import { useAccounts } from '../lib/accounts';
+import { useNovo } from '../lib/novo';
 import { useT } from '../lib/i18n';
 import { Switch } from './Switch';
 
@@ -14,9 +15,13 @@ const CAPE_URLS = import.meta.glob('../../client-mod/src/main/resources/assets/n
   query: '?url',
   import: 'default',
 }) as Record<string, string>;
+const BANNER_URLS = import.meta.glob('../../client-mod/src/main/resources/assets/novomc/textures/banners/*.png', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 
 function capeUrl(id: string): string | undefined {
   return Object.entries(CAPE_URLS).find(([path]) => path.endsWith(`/${id}.png`))?.[1];
+}
+function bannerUrl(id: string | null): string | undefined {
+  return id ? Object.entries(BANNER_URLS).find(([path]) => path.endsWith(`/${id}.png`))?.[1] : undefined;
 }
 
 /** The outer side of a cape texture (10x16 at 1,1 of 64x32), scaled up crisp. */
@@ -45,18 +50,16 @@ function DiscordIcon({ size = 18 }: { size?: number }) {
   );
 }
 
-export function NovoAccountCard() {
+export function NovoAccountCard({ onMarketplace }: { onMarketplace?: () => void }) {
   const t = useT();
   const { accounts } = useAccounts();
-  const [account, setAccount] = useState<NovoAccount | null>(null);
-  const [loaded, setLoaded] = useState(false);
+  const { account, update, signIn, signOut } = useNovo();
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
   const [settings, setSettings] = useState<Settings | null>(null);
 
   useEffect(() => {
-    api.novoAccount().then(setAccount, (e) => setError(String(e))).finally(() => setLoaded(true));
     api.getSettings().then(setSettings, () => {});
   }, []);
 
@@ -66,18 +69,16 @@ export function NovoAccountCard() {
     setError(null);
     try {
       const next = await call();
-      if (next !== undefined) setAccount(next);
+      if (next !== undefined && next !== null) update(next);
     } catch (e) {
       const msg = String(e);
       if (!msg.includes('cancelled')) setError(msg);
       // A lapsed session signs us out.
-      if (msg.includes('signed out')) setAccount(null);
+      if (msg.includes('signed out')) await signOut();
     } finally {
       setBusy(null);
     }
-  }, []);
-
-  if (!loaded) return null;
+  }, [signOut, update]);
 
   if (!account) {
     return (
@@ -90,7 +91,7 @@ export function NovoAccountCard() {
         <p className="relative mt-1 flex-1 text-novo-muted">{t('novo.hint')}</p>
         {error && <p className="relative mt-3 text-xs text-danger">{error}</p>}
         <button
-          onClick={() => run('login', api.novoLogin)}
+          onClick={() => run('login', signIn)}
           disabled={busy !== null}
           className="relative mt-5 flex items-center justify-center gap-2 rounded-2xl bg-[#5865F2] py-3 font-bold text-white shadow-[0_10px_30px_-10px] shadow-[#5865F2]/70 transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-60"
         >
@@ -122,6 +123,7 @@ export function NovoAccountCard() {
   return (
     <div className="glass relative flex flex-col gap-6 overflow-hidden rounded-3xl p-6">
       <div className="absolute -top-24 -right-16 h-64 w-64 rounded-full bg-brand-a/15 blur-3xl" />
+      {bannerUrl(account.banner) && <div className="pointer-events-none absolute inset-x-0 top-0 h-36 bg-cover bg-center opacity-60" style={{ backgroundImage: `linear-gradient(180deg,transparent,rgba(11,14,20,.96)),url(${bannerUrl(account.banner)})` }} />}
 
       <div className="relative flex items-center gap-4">
         {account.avatarUrl ? (
@@ -170,7 +172,7 @@ export function NovoAccountCard() {
           )}
         </div>
         <button
-          onClick={() => run('logout', async () => (await api.novoLogout(), null))}
+          onClick={() => run('logout', async () => { await signOut(); return undefined; })}
           disabled={busy !== null}
           className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-novo-muted transition-colors hover:bg-danger/10 hover:text-danger"
         >
@@ -181,27 +183,9 @@ export function NovoAccountCard() {
 
       {error && <p className="relative -mt-3 text-xs text-danger">{error}</p>}
 
-      <section className="relative flex flex-col gap-3">
-        <h3 className="text-xs font-bold tracking-[0.2em] text-novo-muted uppercase">{t('novo.cape')}</h3>
-        <div className="flex flex-wrap gap-3">
-          <CapeTile selected={account.cape === null} label={t('novo.noCape')} onClick={() => run('cape', () => api.novoSetCape(null))}>
-            <div className="grid h-20 w-[50px] place-items-center rounded-sm border border-dashed border-novo-border-strong text-novo-muted">
-              <X size={16} />
-            </div>
-          </CapeTile>
-          {account.capes.map((c) => (
-            <CapeTile
-              key={c.id}
-              selected={account.cape === c.id}
-              locked={!c.owned}
-              label={c.name}
-              onClick={() => c.owned && run('cape', () => api.novoSetCape(c.id))}
-            >
-              <CapePreview id={c.id} />
-            </CapeTile>
-          ))}
-        </div>
-        <p className="text-xs text-novo-muted">{t('novo.capeHint')}</p>
+      <section className="relative flex items-center justify-between gap-3 rounded-2xl bg-novo-elev p-4">
+        <div><p className="font-semibold">{t('marketplace.banners')} · {t('novo.cape')}</p><p className="text-xs text-novo-muted">{t('marketplace.changeCosmetics')}</p></div>
+        <button onClick={onMarketplace} className="rounded-xl bg-novo-elev-2 px-4 py-2 text-sm font-semibold hover:bg-novo-hover">{t('marketplace.open')}</button>
       </section>
 
       <section className="relative flex flex-col gap-3">
@@ -247,7 +231,7 @@ export function NovoAccountCard() {
   );
 }
 
-function CapeTile({
+export function CapeTile({
   selected,
   locked,
   label,

@@ -75,6 +75,12 @@ export interface NovoCape {
   owned: boolean;
 }
 
+export interface NovoBanner {
+  id: string;
+  name: string;
+  owned: boolean;
+}
+
 /** The Novo account (Discord sign-in), separate from the Minecraft accounts. */
 export interface NovoAccount {
   id: string;
@@ -82,7 +88,9 @@ export interface NovoAccount {
   discordName: string | null;
   avatarUrl: string | null;
   cape: string | null;
+  banner: string | null;
   capes: NovoCape[];
+  banners: NovoBanner[];
   minecraft: { uuid: string; name: string }[];
 }
 
@@ -248,6 +256,7 @@ export const api = {
   novoLogout: () => invoke<void>('novo_logout'),
   novoSetDisplayName: (name: string) => invoke<NovoAccount>('novo_set_display_name', { name }),
   novoSetCape: (cape: string | null) => invoke<NovoAccount>('novo_set_cape', { cape }),
+  novoSetBanner: (banner: string | null) => invoke<NovoAccount>('novo_set_banner', { banner }),
   novoLink: (uuid: string) => invoke<NovoAccount>('novo_link', { uuid }),
   novoUnlink: (uuid: string) => invoke<NovoAccount>('novo_unlink', { uuid }),
   /** resolve: which side wins ('local' uploads, 'cloud' downloads). */

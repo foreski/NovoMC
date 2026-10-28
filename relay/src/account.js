@@ -24,7 +24,7 @@
 //   DISCORD_CLIENT_SECRET  (secret)
 
 import { verify, normalizeUuid } from './presence.js';
-import { CAPES, ownedCapes } from './capes.js';
+import { BANNERS, CAPES, ownedBanners, ownedCapes } from './capes.js';
 
 const MAX_BODY = 8 * 1024;
 const MAX_SETTINGS = 256 * 1024;
@@ -71,6 +71,12 @@ export async function handleAccount(request, env, path) {
       if (cape !== null && !(await ownedCapes(db, user.id)).includes(cape)) return json({ error: "You don't own that cape" }, 403);
       await db.prepare('UPDATE users SET cape = ? WHERE id = ?').bind(cape, user.id).run();
       user.cape = cape;
+    }
+    if ('banner' in body) {
+      const banner = body.banner === null ? null : String(body.banner);
+      if (banner !== null && !(await ownedBanners(db, user.id)).includes(banner)) return json({ error: "You don't own that banner" }, 403);
+      await db.prepare('UPDATE users SET banner = ? WHERE id = ?').bind(banner, user.id).run();
+      user.banner = banner;
     }
     return json(await account(db, user));
   }
@@ -194,6 +200,7 @@ async function authenticate(db, request) {
 async function account(db, user) {
   const { results: links } = await db.prepare('SELECT uuid, name FROM links WHERE user_id = ? ORDER BY linked_at').bind(user.id).all();
   const owned = await ownedCapes(db, user.id);
+  const ownedBannerIds = await ownedBanners(db, user.id);
   return {
     id: user.id,
     displayName: user.display_name,
@@ -201,6 +208,8 @@ async function account(db, user) {
     avatarUrl: user.avatar ? `https://cdn.discordapp.com/avatars/${user.discord_id}/${user.avatar}.png?size=128` : null,
     cape: user.cape && owned.includes(user.cape) ? user.cape : null,
     capes: CAPES.map((c) => ({ id: c.id, name: c.name, owned: owned.includes(c.id) })),
+    banner: user.banner && ownedBannerIds.includes(user.banner) ? user.banner : null,
+    banners: BANNERS.map((b) => ({ id: b.id, name: b.name, owned: ownedBannerIds.includes(b.id) })),
     minecraft: links.map((l) => ({ uuid: l.uuid, name: l.name })),
   };
 }

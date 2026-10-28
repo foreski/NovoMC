@@ -68,6 +68,8 @@ assert.equal(r.body.account.cape, null);
 assert.deepEqual(r.body.account.minecraft, []);
 assert.ok(r.body.account.capes.find((c) => c.id === 'novo').owned);
 assert.ok(!r.body.account.capes.find((c) => c.id === 'developer').owned);
+assert.ok(r.body.account.banners.find((b) => b.id === 'aurora').owned);
+assert.ok(!r.body.account.banners.find((b) => b.id === 'developer').owned);
 // Only the token's hash is stored.
 assert.ok(!JSON.stringify(db.sqlite.prepare('SELECT * FROM sessions').all()).includes(token));
 
@@ -87,12 +89,18 @@ assert.equal((await call('PATCH', '/account/me', { cape: 'developer' }, token)).
 assert.equal((await call('PATCH', '/account/me', { cape: 'nope' }, token)).status, 403);
 r = await call('PATCH', '/account/me', { cape: 'ember' }, token);
 assert.equal(r.body.cape, 'ember');
+assert.equal((await call('PATCH', '/account/me', { banner: 'developer' }, token)).status, 403);
+r = await call('PATCH', '/account/me', { banner: 'aurora' }, token);
+assert.equal(r.body.banner, 'aurora');
 
 // Granted capes become owned.
 db.sqlite.prepare("INSERT INTO grants (user_id, cape) VALUES (?, 'developer')").run(r.body.id);
+db.sqlite.prepare("INSERT INTO grants (user_id, cape) VALUES (?, 'banner:developer')").run(r.body.id);
 r = await call('PATCH', '/account/me', { cape: 'developer' }, token);
 assert.equal(r.status, 200);
 assert.equal(r.body.cape, 'developer');
+r = await call('PATCH', '/account/me', { banner: 'developer' }, token);
+assert.equal(r.body.banner, 'developer');
 
 // Linking takes the Minecraft account as given (Mojang blocks Workers); junk is refused.
 assert.equal((await call('POST', '/account/link', { name: 'Steve', uuid: 'junk' }, token)).status, 400);
@@ -113,6 +121,8 @@ sync = await call('POST', '/presence/sync', { uuids: [STEVE] });
 assert.deepEqual(sync.body.capes, {});
 r = await call('PATCH', '/account/me', { cape: null }, token);
 assert.equal(r.body.cape, null);
+r = await call('PATCH', '/account/me', { banner: null }, token);
+assert.equal(r.body.banner, null);
 
 // Settings: nothing yet, then save and read back per slot.
 assert.equal((await call('GET', '/account/settings/1.8.9', undefined, token)).status, 404);

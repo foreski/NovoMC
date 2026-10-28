@@ -78,6 +78,7 @@ pub fn run() {
             novo::novo_logout,
             novo::novo_set_display_name,
             novo::novo_set_cape,
+            novo::novo_set_banner,
             novo::novo_link,
             novo::novo_unlink,
             novo::sync::novo_sync_settings,

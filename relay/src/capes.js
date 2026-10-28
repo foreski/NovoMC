@@ -14,8 +14,22 @@ export const CAPES = [
   { id: 'developer', name: 'Developer', free: false },
 ];
 
+export const BANNERS = [
+  { id: 'aurora', name: 'Aurora', free: true },
+  { id: 'nebula', name: 'Nebula', free: true },
+  { id: 'sunset', name: 'Sunset', free: true },
+  { id: 'forest', name: 'Forest', free: true },
+  { id: 'developer', name: 'Developer', free: false },
+];
+
 export async function ownedCapes(db, userId) {
   const { results } = await db.prepare('SELECT cape FROM grants WHERE user_id = ?').bind(userId).all();
   const granted = new Set(results.map((r) => r.cape));
   return CAPES.filter((c) => c.free || granted.has(c.id)).map((c) => c.id);
+}
+
+export async function ownedBanners(db, userId) {
+  const { results } = await db.prepare("SELECT cape FROM grants WHERE user_id = ? AND cape LIKE 'banner:%'").bind(userId).all();
+  const granted = new Set(results.map((r) => r.cape.slice('banner:'.length)));
+  return BANNERS.filter((b) => b.free || granted.has(b.id)).map((b) => b.id);
 }

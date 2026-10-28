@@ -26,6 +26,8 @@ import { api, type AfterLaunch, type JavaInstall, type Settings } from '../lib/a
 import { LANGUAGES, systemLang, useI18n, type Key, type Lang } from '../lib/i18n';
 import { useUpdates } from '../lib/updates';
 import { ACCENT_PRESETS, applyAccent, DEFAULT_ACCENT } from '../lib/theme';
+import { NovoAccountCard } from '../components/NovoAccountCard';
+import type { PageId } from '../components/Sidebar';
 
 /** Minecraft language codes with their own names. */
 const GAME_LANGUAGES: [string, string][] = [
@@ -97,7 +99,7 @@ function Card({
 
 const gb = (mb: number) => `${(mb / 1024).toFixed(mb % 1024 === 0 ? 0 : 1)} GB`;
 
-export function SettingsPage() {
+export function SettingsPage({ onNavigate }: { onNavigate: (page: PageId) => void }) {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [totalMb, setTotalMb] = useState(16384);
   const [dataDir, setDataDir] = useState('');
@@ -191,6 +193,10 @@ export function SettingsPage() {
       {error && <p className="rounded-2xl border border-danger/30 bg-danger/10 p-4 text-danger">{error}</p>}
 
       <div className="grid items-start gap-5 lg:grid-cols-2">
+        <section className="glass rounded-3xl p-6 lg:col-span-2">
+          <h2 className="mb-4 text-lg font-bold">{t('novo.title')}</h2>
+          <NovoAccountCard onMarketplace={() => onNavigate('marketplace')} />
+        </section>
         <Card icon={Cpu} title={t('inst.memory')} text={t('set.memoryText')}>
           <div className="flex items-baseline justify-between">
             <span className="font-mono text-3xl font-black">{gb(settings.memoryMb)}</span>

@@ -296,6 +296,8 @@ async fn start(app: &AppHandle, instance_id: &str, stop: CancellationToken, serv
         AfterLaunch::Keep => {}
         AfterLaunch::Minimize => {
             if let Some(w) = app.get_webview_window("main") {
+                // Keep the launcher represented on the Windows taskbar while minimized.
+                let _ = w.set_skip_taskbar(false);
                 let _ = w.minimize();
             }
         }
