@@ -114,7 +114,8 @@ public abstract class NovoPanelScreen extends GuiScreen {
         } else {
             drawDefaultBackground();
         }
-        int pw = Math.min(width - 16, 540);
+        int preferredWidth = Math.min(760, Math.max(420, Math.round(width * 0.68f)));
+        int pw = Math.max(0, Math.min(width - 24, preferredWidth));
         int px = (width - pw) / 2;
         int py = 8;
         int pb = height - 8;

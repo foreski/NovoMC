@@ -50,7 +50,8 @@ public abstract class NovoPanel extends Screen {
         lastFrame = now;
         k = 1 - (float) Math.exp(-dt * 16);
         hits.clear();
-        int pw = Math.min(width - 16, 540);
+        int preferredWidth = Math.min(760, Math.max(420, Math.round(width * 0.68f)));
+        int pw = Math.max(0, Math.min(width - 24, preferredWidth));
         int px = (width - pw) / 2;
         NovoUi.round(g, px, 8, px + pw, height - 8, NovoUi.PANEL);
         NovoUi.roundOutline(g, px, 8, px + pw, height - 8, 0x22FFFFFF);

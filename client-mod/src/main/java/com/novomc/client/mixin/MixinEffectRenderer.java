@@ -29,14 +29,33 @@ public abstract class MixinEffectRenderer {
             ci.cancel();
             return;
         }
+        int count = ParticleLimiterModule.trackedParticles();
+        if (count < 0) {
+            count = novomc$countParticles();
+            ParticleLimiterModule.refreshParticleCount(count);
+        }
+        if (count >= limit) {
+            ci.cancel();
+        } else {
+            ParticleLimiterModule.particleAdded();
+        }
+    }
+
+    @Inject(method = "updateEffects", at = @At("RETURN"))
+    private void novomc$refreshParticleCount(CallbackInfo ci) {
+        if (ParticleLimiterModule.limit() < 0) {
+            return;
+        }
+        ParticleLimiterModule.refreshParticleCount(novomc$countParticles());
+    }
+
+    private int novomc$countParticles() {
         int count = 0;
         for (List<EntityFX>[] layer : fxLayers) {
             for (List<EntityFX> list : layer) {
                 count += list.size();
             }
         }
-        if (count >= limit) {
-            ci.cancel();
-        }
+        return count;
     }
 }

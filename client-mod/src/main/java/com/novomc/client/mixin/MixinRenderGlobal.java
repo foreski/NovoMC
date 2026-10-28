@@ -1,6 +1,7 @@
 package com.novomc.client.mixin;
 
 import com.novomc.client.render.CustomSky;
+import com.novomc.client.modules.EntityCullingModule;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.RenderGlobal;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,5 +19,12 @@ public abstract class MixinRenderGlobal {
             target = "Lnet/minecraft/client/multiplayer/WorldClient;getRainStrength(F)F", ordinal = 0))
     private void novomc$customSky(float partialTicks, int pass, CallbackInfo ci) {
         CustomSky.render(theWorld, partialTicks);
+    }
+
+    @Inject(method = "renderEntities", at = @At("HEAD"))
+    private void novomc$beginEntityCullingFrame(net.minecraft.entity.Entity viewEntity,
+            net.minecraft.client.renderer.culling.ICamera camera, float partialTicks,
+            CallbackInfo ci) {
+        EntityCullingModule.beginRenderFrame();
     }
 }

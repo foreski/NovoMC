@@ -119,12 +119,7 @@ public class NovoMods extends NovoPanel {
             g.fill(l, y + 6, l + 2, y + ROW - 6, NovoUi.ACCENT);
         }
         NovoUi.draw(g, NovoUi.bold(d.name), l + 10, y + 6, NovoUi.TEXT);
-        String desc = d.description;
-        int room = r - l - 90;
-        while (NovoUi.width(NovoUi.text(desc)) > room && desc.length() > 4) {
-            desc = desc.substring(0, desc.length() - 4) + "…";
-        }
-        NovoUi.draw(g, NovoUi.text(desc), l + 10, y + 17, NovoUi.MUTED);
+        NovoUi.draw(g, NovoUi.trim(d.description, r - l - 90), l + 10, y + 17, NovoUi.MUTED);
         toggle(g, r - 34, y + 9, d.id, enabled);
         hit(r - 40, y, r, y + ROW, () -> {
             NovoModern.config().setEnabled(d.id, !enabled);

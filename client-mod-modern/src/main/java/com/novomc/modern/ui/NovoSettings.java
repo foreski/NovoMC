@@ -108,7 +108,7 @@ public abstract class NovoSettings extends NovoPanel {
         int ty = row.hint() == null ? y + 10 : y + 5;
         NovoUi.draw(g, NovoUi.bold(row.label()), l + 10, ty, NovoUi.TEXT);
         if (row.hint() != null) {
-            NovoUi.draw(g, NovoUi.text(row.hint()), l + 10, y + 16, NovoUi.MUTED);
+            NovoUi.draw(g, NovoUi.trim(row.hint(), r - l - CONTROL_W - 30), l + 10, y + 16, NovoUi.MUTED);
         }
         if (w != null) {
             w.setPosition(r - CONTROL_W - 4, y + (ROW - w.getHeight()) / 2);

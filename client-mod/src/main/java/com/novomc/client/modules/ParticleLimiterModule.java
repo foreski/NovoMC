@@ -6,6 +6,7 @@ import com.novomc.client.module.Module;
 public class ParticleLimiterModule extends Module {
     private static volatile int limit = -1;
     private static volatile double maxDistanceSq;
+    private static int trackedParticles = -1;
 
     public ParticleLimiterModule() {
         super("particle_limiter");
@@ -19,6 +20,21 @@ public class ParticleLimiterModule extends Module {
     /** The current cap, or -1 when the module is off. */
     public static int limit() {
         return limit;
+    }
+
+    /** Cached particle count; maintained in O(1) on spawn and refreshed once per effects update. */
+    public static int trackedParticles() {
+        return trackedParticles;
+    }
+
+    public static void particleAdded() {
+        if (trackedParticles >= 0) {
+            trackedParticles++;
+        }
+    }
+
+    public static void refreshParticleCount(int count) {
+        trackedParticles = count;
     }
 
     @Override
@@ -36,5 +52,6 @@ public class ParticleLimiterModule extends Module {
     @Override
     protected void onDisable() {
         limit = -1;
+        trackedParticles = -1;
     }
 }

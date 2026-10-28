@@ -642,8 +642,31 @@
       "name": "Entity Culling",
       "category": "performance",
       "enabled": true,
-      "description": "Skips drawing mobs, armor stands, dropped items and block entities (chests, signs, skulls, banners) far away. Big FPS win in lobbies.",
+      "description": "Culls distant entities and block entities. Choose how aggressively render distance limits are applied; player culling is controlled separately.",
       "settings": [
+        {
+          "key": "aggression",
+          "type": "choice",
+          "label": "Culling strength",
+          "default": "balanced",
+          "options": [
+            { "value": "conservative", "label": "Conservative" },
+            { "value": "balanced", "label": "Balanced" },
+            { "value": "aggressive", "label": "Aggressive" }
+          ]
+        },
+        {
+          "key": "occlusion",
+          "type": "toggle",
+          "label": "Cull entities hidden by blocks",
+          "default": true
+        },
+        {
+          "key": "keepPlayerNametags",
+          "type": "toggle",
+          "label": "Don't occlusion-cull players",
+          "default": true
+        },
         {
           "key": "distance",
           "type": "number",
@@ -758,6 +781,15 @@
           "type": "toggle",
           "label": "Freeze texture animations (water, lava, fire)",
           "default": false
+        },
+        {
+          "key": "chunkUpdateLimit",
+          "type": "number",
+          "label": "Chunk rebuilds per second (0 = unlimited)",
+          "default": 0,
+          "min": 0,
+          "max": 120,
+          "step": 10
         }
       ]
     },

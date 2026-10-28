@@ -64,6 +64,27 @@ public final class NovoUi {
         return Minecraft.getInstance().font.width(c);
     }
 
+    /** Trim with an ellipsis without splitting UTF-16 surrogate pairs. */
+    public static Component trim(String value, int maxWidth) {
+        String valueText = value == null ? "" : value;
+        if (maxWidth <= 0) {
+            return text("");
+        }
+        if (width(text(valueText)) <= maxWidth) {
+            return text(valueText);
+        }
+        String ellipsis = "…";
+        int end = valueText.length();
+        while (end > 0) {
+            end = valueText.offsetByCodePoints(end, -1);
+            String candidate = valueText.substring(0, end) + ellipsis;
+            if (width(text(candidate)) <= maxWidth) {
+                return text(candidate);
+            }
+        }
+        return text(ellipsis);
+    }
+
     public static void draw(GuiGraphicsExtractor g, Component c, int x, int y, int color) {
         g.text(Minecraft.getInstance().font, c, x, y, color, false);
     }

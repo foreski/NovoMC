@@ -1,6 +1,7 @@
 package com.novomc.client.modules;
 
 import com.novomc.client.module.Module;
+import java.util.concurrent.locks.LockSupport;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.settings.GameSettings;
 import org.lwjgl.opengl.Display;
@@ -21,6 +22,8 @@ public class PerformanceTweaksModule extends Module {
     private Integer savedClouds;
     private Boolean savedFancy;
     private static volatile boolean noAnimations;
+    private static volatile int chunkUpdatesPerSecond;
+    private static long nextChunkUpdateNanos;
 
     /** Whether texture animations (water, lava, fire, portals) are switched off. */
     public static boolean noAnimations() {
@@ -40,6 +43,10 @@ public class PerformanceTweaksModule extends Module {
     public void onSettingsChanged() {
         GameSettings gs = mc.gameSettings;
         noAnimations = bool("noAnimations");
+        chunkUpdatesPerSecond = Math.max(0, Math.min(120, integer("chunkUpdateLimit")));
+        synchronized (PerformanceTweaksModule.class) {
+            nextChunkUpdateNanos = 0L;
+        }
         if (bool("unlimitedFps")) {
             if (savedVsync == null) {
                 savedVsync = gs.enableVsync;
@@ -87,6 +94,10 @@ public class PerformanceTweaksModule extends Module {
     @Override
     protected void onDisable() {
         noAnimations = false;
+        chunkUpdatesPerSecond = 0;
+        synchronized (PerformanceTweaksModule.class) {
+            nextChunkUpdateNanos = 0L;
+        }
         restoreFrameRate();
         restoreVbo();
         restoreShadows();
@@ -148,6 +159,25 @@ public class PerformanceTweaksModule extends Module {
         if (savedFancy != null) {
             setFancy(savedFancy);
             savedFancy = null;
+        }
+    }
+
+    /** Pace background chunk rebuild starts without ever blocking the render thread. */
+    public static void awaitChunkUpdateSlot() {
+        int rate = chunkUpdatesPerSecond;
+        if (rate <= 0) {
+            return;
+        }
+        long now = System.nanoTime();
+        long slot;
+        synchronized (PerformanceTweaksModule.class) {
+            now = System.nanoTime();
+            slot = Math.max(now, nextChunkUpdateNanos);
+            nextChunkUpdateNanos = slot + 1_000_000_000L / rate;
+        }
+        long delay = slot - now;
+        if (delay > 0L) {
+            LockSupport.parkNanos(delay);
         }
     }
 }

@@ -3,9 +3,11 @@ package com.novomc.client.mixin;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.novomc.client.sodium.SodiumRenderer;
+import com.novomc.client.modules.PerformanceTweaksModule;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
+import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
 import net.minecraft.client.renderer.chunk.CompiledChunk;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.util.EnumWorldBlockLayer;
@@ -21,6 +23,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  */
 @Mixin(ChunkRenderDispatcher.class)
 public abstract class MixinChunkRenderDispatcher {
+    @Inject(method = "getNextChunkUpdate", at = @At("RETURN"))
+    private void novomc$paceChunkRebuilds(CallbackInfoReturnable<ChunkCompileTaskGenerator> cir) {
+        PerformanceTweaksModule.awaitChunkUpdateSlot();
+    }
+
     @Inject(method = "uploadChunk", at = @At("HEAD"), cancellable = true)
     private void novomc$sodiumUpload(EnumWorldBlockLayer layer, WorldRenderer worldRenderer, RenderChunk chunk,
                                      CompiledChunk compiled, CallbackInfoReturnable<ListenableFuture<Object>> cir) {
