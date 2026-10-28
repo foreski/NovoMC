@@ -6,10 +6,12 @@
 //! - `engine`: parallel downloads with SHA1 checks, retries and cancelling.
 //! - `install`: the full install flow and its progress events.
 //! - `forge`: Forge for 1.8.9 (legacy installer format).
+//! - `fabric`: Fabric for modern versions.
 //!
 //! Game files only ever come from Mojang's servers.
 
 pub mod engine;
+pub mod fabric;
 pub mod forge;
 pub mod http;
 pub mod install;

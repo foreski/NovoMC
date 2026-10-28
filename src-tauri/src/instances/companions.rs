@@ -1,11 +1,12 @@
-//! Third-party mods NovoMC installs next to the NovoMC Client in Forge 1.8.9
-//! instances. They are not shipped with NovoMC: each is downloaded once from
+//! Third-party mods Novo Client installs next to its own mod: MemoryFix in
+//! Forge 1.8.9 instances, Fabric API (which the modern client needs) in Fabric
+//! instances. They are not shipped with Novo Client: each is downloaded once from
 //! its author's official release, checked against a pinned SHA-1, cached in
 //! `cache/mods/`, then copied into the instance's `mods/` before launch.
 
 use std::path::Path;
 
-use super::client::supported;
+use super::client::{legacy, modern};
 use super::store::{self, Instance};
 use crate::download::{engine::hash_file, http};
 use crate::error::{AppError, AppResult};
@@ -26,15 +27,32 @@ const COMPANIONS: &[Companion] = &[
     },
 ];
 
+const MODERN_COMPANIONS: &[Companion] = &[
+    // Fabric API (Apache 2.0), required by the modern Novo Client, from its official Modrinth release.
+    // https://modrinth.com/mod/fabric-api
+    Companion {
+        file: "fabric-api-0.165.0+26.3.jar",
+        url: "https://cdn.modrinth.com/data/P7dR8mSH/versions/EQKgpeKu/fabric-api-0.165.0%2B26.3.jar",
+        sha1: "8f8a23d6c9fbf7b075b31b4fb0a1007b0488d1d2",
+    },
+];
+
 /// Installs (or removes, when the client is off) the companion mods for an instance.
 pub async fn sync(root: &Path, inst: &Instance) -> AppResult<()> {
     let mods = store::game_dir(root, &inst.id).join("mods");
-    install(root, &mods, supported(inst) && inst.client_mod).await
+    install(root, &mods, COMPANIONS, legacy(inst) && inst.client_mod).await?;
+    install(root, &mods, MODERN_COMPANIONS, modern(inst) && inst.client_mod).await
+}
+
+/// Puts a client's companion mods into a `mods/` folder: modern (Fabric) or 1.8.9.
+pub async fn install_for(root: &Path, mods: &Path, modern: bool) -> AppResult<()> {
+    install(root, mods, COMPANIONS, !modern).await?;
+    install(root, mods, MODERN_COMPANIONS, modern).await
 }
 
 /// Puts the companion mods into (or, if not `wanted`, removes them from) a `mods/` folder.
-pub async fn install(root: &Path, mods: &Path, wanted: bool) -> AppResult<()> {
-    for c in COMPANIONS {
+async fn install(root: &Path, mods: &Path, companions: &[Companion], wanted: bool) -> AppResult<()> {
+    for c in companions {
         let dest = mods.join(c.file);
         if !wanted {
             if dest.exists() {

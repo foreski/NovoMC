@@ -25,6 +25,10 @@ export interface ModuleDef {
   description: string;
   hud?: { x: number; y: number; stack?: string; center?: boolean };
   settings: SettingDef[];
+  /** Also in the modern (Fabric) client. */
+  modern?: boolean;
+  /** False for modern-only mods (1.9+ combat), which 1.8.9 doesn't have. */
+  legacy?: boolean;
 }
 
 const catalog = raw as unknown as { categories: { id: string; name: string }[]; modules: ModuleDef[] };

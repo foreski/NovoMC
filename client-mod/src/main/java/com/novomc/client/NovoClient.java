@@ -22,6 +22,7 @@ import com.novomc.client.modules.KeystrokesModule;
 import com.novomc.client.modules.MemoryModule;
 import com.novomc.client.modules.ParticleLimiterModule;
 import com.novomc.client.modules.PerformanceTweaksModule;
+import com.novomc.client.modules.AutoProfilesModule;
 import com.novomc.client.modules.CustomMenusModule;
 import com.novomc.client.modules.RenderFeatureModule;
 import com.novomc.client.modules.SodiumModule;
@@ -118,7 +119,8 @@ public final class NovoClient {
                 new RenderFeatureModule("fast_math"), new RenderFeatureModule("smart_animations"),
                 new RenderFeatureModule("lazy_chunks"), new RenderFeatureModule("connected_textures"),
                 new RenderFeatureModule("custom_sky"), new RenderFeatureModule("better_grass"),
-                new RenderFeatureModule("better_snow"), new VideoSettingsModule(), new CustomMenusModule());
+                new RenderFeatureModule("better_snow"), new VideoSettingsModule(), new CustomMenusModule(),
+                new AutoProfilesModule());
 
         for (KeyBinding key : new KeyBinding[] {MENU_KEY, ZOOM_KEY, FREELOOK_KEY, SNAPLOOK_KEY, STOPWATCH_KEY, WAYPOINT_ADD_KEY, WAYPOINTS_KEY,
                 QUICKPLAY_KEY, REQUEUE_KEY, REPORT_KEY}) {
@@ -133,6 +135,7 @@ public final class NovoClient {
         MinecraftForge.EVENT_BUS.register(CpsTracker.INSTANCE);
         MinecraftForge.EVENT_BUS.register(new ShaderController());
         MinecraftForge.EVENT_BUS.register(new com.novomc.client.render.ConnectedTextures());
+        MinecraftForge.EVENT_BUS.register(com.novomc.client.trainer.Trainers.INSTANCE);
         ((net.minecraft.client.resources.IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager())
                 .registerReloadListener(new com.novomc.client.render.CustomSky());
         for (Module m : MODULES) {
@@ -144,6 +147,9 @@ public final class NovoClient {
         }
         if (DevBenchmark.active()) {
             MinecraftForge.EVENT_BUS.register(new DevBenchmark());
+        }
+        if (DevTrainerTest.active()) {
+            MinecraftForge.EVENT_BUS.register(new DevTrainerTest());
         }
         if (DevHeroShot.active()) {
             MinecraftForge.EVENT_BUS.register(new DevHeroShot());

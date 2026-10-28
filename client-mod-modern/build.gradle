@@ -1,0 +1,59 @@
+// Novo Client for modern Minecraft (Fabric, 26.3). Build with `npm run mod`
+// (needs JDK 25). Output: build/libs/novomc-modern-<version>.jar
+//
+// Shares the 1.8.9 mod's version-independent code (module settings and the
+// catalog) and catalog.json, so both clients read the same config format.
+
+plugins {
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
+}
+
+base {
+	archivesName = 'novomc-modern'
+}
+
+def shared = file('../client-mod/src/main')
+
+sourceSets {
+	main {
+		java {
+			srcDir new File(shared, 'java')
+			include 'com/novomc/modern/**'
+			include 'com/novomc/client/config/**'
+		}
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+}
+
+processResources {
+	def version = project.version
+	inputs.property 'version', version
+	filesMatching('fabric.mod.json') {
+		expand 'version': version
+	}
+	from(new File(shared, 'resources')) {
+		include 'assets/novomc/catalog.json'
+		include 'assets/novomc/textures/gui/**'
+	}
+	// The 1.8.9 client's Poppins fonts, where modern Minecraft's font loader looks (lower-case names).
+	from(new File(shared, 'resources/assets/novomc/fonts')) {
+		include '*.ttf', 'OFL.txt'
+		into 'assets/novomc/font'
+		rename { it.toLowerCase() }
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 25
+	it.options.encoding = 'UTF-8'
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+}

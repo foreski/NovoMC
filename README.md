@@ -7,7 +7,7 @@
 **Sodium, re-forged for 1.8.9 — combined with OptiFine's features, custom-made.**
 
 A 1.8.9 Forge PvP client and launcher: Sodium's renderer ported to Forge, OptiFine-style features rebuilt
-from scratch, 80 built-in mods, thousands of resource packs, one click to play.
+from scratch, 81 built-in mods, practice trainers, thousands of resource packs, one click to play.
 
 [![Download](https://img.shields.io/github/v/release/foreski/NovoMC?label=Download&style=for-the-badge&color=5B8CFF)](https://github.com/foreski/NovoMC/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/foreski/NovoMC/total?style=for-the-badge&color=B45BFF)](https://github.com/foreski/NovoMC/releases)
@@ -27,7 +27,7 @@ from scratch, 80 built-in mods, thousands of resource packs, one click to play.
 | --- | --- |
 | 🟦 **Sodium, re-forged** | [Sodium](https://github.com/CaffeineMC/sodium)'s chunk renderer, ported to Minecraft 1.8.9 Forge. Terrain draws region by region in a handful of GPU calls instead of one per chunk. |
 | 🟪 **OptiFine features, custom-made** | Connected Textures, Custom Sky, Smart Animations, Fast Math, Lazy Chunk Loading, Better Grass and Better Snow, written by us from scratch (no OptiFine code), so they work right alongside Sodium. |
-| ⚔️ **A full PvP client** | 80 built-in mods (HUD, keystrokes, 1.7 animations, freelook, zoom and more), all toggleable in-game. |
+| ⚔️ **A full PvP client** | 81 built-in mods (HUD, keystrokes, 1.7 animations, freelook, zoom and more), all toggleable in-game. |
 | 🚀 **Its own launcher** | One-click play: Novo Client installs Minecraft, Forge and Java for you, and keeps itself updated. |
 
 Sodium's speed and OptiFine's features on 1.8.9, in one package built for PvP.
@@ -69,7 +69,7 @@ In our lobby stress test (400 armor stands, ~1,900 chests and skulls, constant p
   <img src="docs/images/ingame-options.png" width="49%" alt="Novo Client's own Options screen" />
 </p>
 
-## 🎮 80 mods, built in
+## 🎮 81 mods, built in
 
 Everything a PvP player wants, ready the moment you join a server. Toggle mods and change their
 settings in-game (Right Shift) or from the launcher, and drag any HUD element exactly where you want it.
@@ -88,6 +88,28 @@ settings in-game (Right Shift) or from the launcher, and drag any HUD element ex
   <img src="docs/images/ingame-mods.png" width="49%" alt="The in-game Mod Library" />
   <img src="docs/images/launcher-mods.png" width="49%" alt="The Mod Library in the launcher" />
 </p>
+
+## 🎯 Your setup for every mode, and drills to sharpen it
+
+- **Auto Mode Profiles.** Novo works out what you're playing (Sword, Pot PvP, UHC, Bed Wars, SkyWars or
+  The Bridge) from the server's scoreboard and your kit, and keeps a separate setup for each mode: HUD layout,
+  which mods are on, their settings and your keybinds. Change something mid-game and it's remembered for
+  that mode.
+- **Trainers.** Practice drills with personal bests, in a private practice world: **Click Speed**, **Aim & Combo**
+  (a strafing target for 30 seconds), **Speedbridge** (30 blocks over the void) and **Pot Refill** (fill your hotbar
+  with splash potions against the clock). Open them from the main menu or the pause menu.
+
+## 🆕 Novo Client for modern Minecraft (26.3, Fabric) — early access
+
+Create a 26.3 instance and pick **Fabric**: Novo installs Fabric and Fabric API and adds its own modern client.
+
+- **52 mods** sharing the same settings and HUD layouts as 1.8.9, plus mods made for modern combat:
+  **Attack Cooldown** (with a crit-ready marker), **Totem Pop Counter**, **Target HUD**, **Armor Durability Alert**,
+  **Mace / Elytra HUD**, and an Item Counter for totems, crystals, wind charges and healing potions.
+- **Novo's menus**: main menu, loading screen, Options and Video Settings, a Mods screen and a drag-and-drop HUD
+  editor (Right Shift).
+- **Modern trainers**: Crystal Speed, Mace Dive and Spear Charge, with personal bests.
+- Auto Mode Profiles for Crystal, Mace, Spear, Nethpot, UHC, Axe and Sword.
 
 ## 🎨 Thousands of resource packs, in-game
 

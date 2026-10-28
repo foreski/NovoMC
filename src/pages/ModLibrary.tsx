@@ -5,7 +5,8 @@ import type { LucideIcon } from 'lucide-react';
 import { InstanceIcon } from '../components/InstanceIcon';
 import type { PageId } from '../components/Sidebar';
 import { Switch } from '../components/Switch';
-import { api, type ClientConfig, type Instance } from '../lib/api';
+import { api, type ClientConfig } from '../lib/api';
+import { novoSupported } from '../lib/loaders';
 import { CATEGORIES, editModule, isEnabled, MODULES, settingValue, type ModuleDef, type SettingDef, type SettingValue } from '../lib/catalog';
 import { useT, type Key } from '../lib/i18n';
 import { useInstances } from '../lib/instances';
@@ -13,8 +14,8 @@ import { useInstances } from '../lib/instances';
 const CATEGORY_ICON: Record<string, LucideIcon> = { hud: LayoutDashboard, qol: Sparkles, performance: Gauge };
 const CATEGORY_KEY: Record<string, Key> = { all: 'mods.all', hud: 'mods.catHud', visual: 'mods.catVisual', qol: 'mods.catQol', performance: 'mods.catPerformance' };
 
-/** Instances the NovoMC Client runs in. */
-const eligible = (i: Instance) => i.loader === 'forge' && i.version === '1.8.9';
+/** Instances the Novo Client runs in. */
+const eligible = novoSupported;
 
 function SettingControl({ def, value, onChange }: { def: SettingDef; value: SettingValue; onChange: (v: SettingValue) => void }) {
   switch (def.type) {
@@ -223,12 +224,14 @@ export function ModLibraryPage({ onNavigate }: { onNavigate: (p: PageId) => void
     }, 300);
   }
 
-  const shown = MODULES.filter(
+  // Each client has its own subset: modern mods for Fabric, everything but the modern-only ones for 1.8.9.
+  const available = selected && selected.loader === 'fabric' ? MODULES.filter((m) => m.modern) : MODULES.filter((m) => m.legacy !== false);
+  const shown = available.filter(
     (m) =>
       (category === 'all' || m.category === category) &&
       (!query.trim() || `${m.name} ${m.description}`.toLowerCase().includes(query.trim().toLowerCase())),
   );
-  const onCount = config ? MODULES.filter((m) => isEnabled(config, m)).length : 0;
+  const onCount = config ? available.filter((m) => isEnabled(config, m)).length : 0;
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6 p-8 pb-36">
@@ -288,7 +291,7 @@ export function ModLibraryPage({ onNavigate }: { onNavigate: (p: PageId) => void
               <div className="flex items-center gap-3 rounded-2xl bg-novo-bg/60 py-2 pr-2 pl-4">
                 <div className="text-right">
                   <div className="text-sm font-semibold">Novo Client</div>
-                  <div className="text-xs text-novo-muted">{selected.clientMod ? t('mods.onCount', { on: onCount, total: MODULES.length }) : t('mods.notInstalled')}</div>
+                  <div className="text-xs text-novo-muted">{selected.clientMod ? t('mods.onCount', { on: onCount, total: available.length }) : t('mods.notInstalled')}</div>
                 </div>
                 <Switch
                   on={selected.clientMod}

@@ -26,6 +26,7 @@ public class GuiNovoPause extends GuiIngameMenu {
     private static final int PACKS = 101;
     private static final int SCREENSHOTS = 102;
     private static final int WAYPOINTS = 103;
+    private static final int TRAINERS = 104;
     private static final int ROWS = 7;
     private static final int W = 184;
     private static final int H = 18;
@@ -59,7 +60,8 @@ public class GuiNovoPause extends GuiIngameMenu {
         buttonList.add(new NovoButton(SCREENSHOTS, left, y, half, H, "Screenshots"));
         buttonList.add(new NovoButton(WAYPOINTS, left + half + GAP, y, half, H, "Waypoints"));
         y += H + GAP;
-        add(vanilla, LAN, left, y, W, "Open to LAN");
+        add(vanilla, LAN, left, y, half, "Open to LAN");
+        buttonList.add(new NovoButton(TRAINERS, left + half + GAP, y, half, H, "Trainers"));
         y += H + GAP + 6;
         GuiButton quit = vanilla.get(DISCONNECT);
         add(vanilla, DISCONNECT, left, y, W, quit != null ? quit.displayString : "Disconnect");
@@ -86,6 +88,8 @@ public class GuiNovoPause extends GuiIngameMenu {
             mc.displayGuiScreen(new GuiScreenshots(this));
         } else if (button.id == WAYPOINTS) {
             mc.displayGuiScreen(new GuiWaypoints(this));
+        } else if (button.id == TRAINERS) {
+            mc.displayGuiScreen(new GuiTrainers(this));
         } else {
             super.actionPerformed(button);
         }

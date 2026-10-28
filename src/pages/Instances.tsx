@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Check, Copy, FolderOpen, Hammer, Loader2, Play, Plus, Search, Settings2, Swords, Trash2 } from 'lucide-react';
+import { Check, Copy, FolderOpen, Hammer, Loader2, Play, Plus, Scroll, Search, Settings2, Swords, Trash2 } from 'lucide-react';
 import { InstanceIcon } from '../components/InstanceIcon';
 import { Modal } from '../components/Modal';
 import type { PageId } from '../components/Sidebar';
@@ -95,7 +95,7 @@ function VersionSelect({ value, onChange }: { value: string; onChange: (id: stri
   );
 }
 
-/** Vanilla / Forge choice, plus the Forge build (recommended preselected). */
+/** Vanilla / Forge / Fabric choice, plus the Forge build (recommended preselected) or the newest Fabric Loader. */
 function LoaderPicker({
   version,
   loader,
@@ -110,22 +110,28 @@ function LoaderPicker({
   const forgeOk = FORGE_SUPPORTED.includes(version);
   const t = useT();
   const [forge, setForge] = useState<ForgeVersions | null>(null);
+  // undefined while asking Fabric; null when Fabric doesn't support the version.
+  const [fabric, setFabric] = useState<string | null | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setForge(null);
+    setFabric(undefined);
     setError(null);
     if (forgeOk) api.listForgeVersions(version).then(setForge, (e) => setError(String(e)));
+    api.fabricLoader(version).then(setFabric, () => setFabric(null));
   }, [version, forgeOk]);
 
-  // Fall back to vanilla on versions without Forge; pick a build once the list arrives.
+  // Fall back to vanilla where the chosen loader isn't available; pick a build once the list arrives.
   useEffect(() => {
-    if (!forgeOk && loader !== 'vanilla') onChange('vanilla', null);
+    if (loader === 'forge' && !forgeOk) onChange('vanilla', null);
+    else if (loader === 'fabric' && fabric === null) onChange('vanilla', null);
+    else if (loader === 'fabric' && fabric && loaderVersion !== fabric) onChange('fabric', fabric);
     else if (loader === 'forge' && forge && !(loaderVersion && forge.versions.includes(loaderVersion))) {
       onChange('forge', forge.recommended ?? forge.versions[0] ?? null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [forgeOk, forge, loader]);
+  }, [forgeOk, forge, fabric, loader]);
 
   const chip = (on: boolean) =>
     `flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
@@ -146,6 +152,15 @@ function LoaderPicker({
         >
           <Hammer size={14} /> Forge
         </button>
+        <button
+          type="button"
+          disabled={!fabric}
+          onClick={() => onChange('fabric', fabric ?? null)}
+          className={chip(loader === 'fabric')}
+        >
+          <Scroll size={14} /> Fabric
+        </button>
+        {loader === 'fabric' && fabric && <span className="font-mono text-sm text-novo-muted">{fabric}</span>}
         {loader === 'forge' &&
           (forge ? (
             <select
@@ -165,7 +180,7 @@ function LoaderPicker({
           ))}
       </div>
       {error && <p className="mt-1.5 text-xs text-danger">{t('inst.forgeLoadError', { error })}</p>}
-      {!forgeOk && <p className="mt-1.5 text-xs text-novo-muted">{t('inst.forgeAvailable', { versions: FORGE_SUPPORTED.join(', ') })}</p>}
+      {!forgeOk && loader !== 'fabric' && <p className="mt-1.5 text-xs text-novo-muted">{t('inst.forgeAvailable', { versions: FORGE_SUPPORTED.join(', ') })}</p>}
       {loader === 'forge' && forgeOk && <p className="mt-1.5 text-xs text-novo-muted">{t('inst.forgeAuto')}</p>}
     </div>
   );
@@ -197,7 +212,7 @@ function CreateDialog({ open, onClose, initialVersion }: { open: boolean; onClos
     e.preventDefault();
     setBusy(true);
     try {
-      await create(name.trim() || `Minecraft ${version}`, version, loader, loader === 'forge' ? loaderVersion : null);
+      await create(name.trim() || `Minecraft ${version}`, version, loader, loader === 'vanilla' ? null : loaderVersion);
       // Start downloading right away so Play is instant later.
       const installed = (await api.listVersions(false)).find((v) => v.id === version)?.installed;
       if (!installed) start(version);
@@ -245,7 +260,7 @@ function CreateDialog({ open, onClose, initialVersion }: { open: boolean; onClos
         {error && <p className="text-sm text-danger">{error}</p>}
         <button
           type="submit"
-          disabled={busy || (loader === 'forge' && !loaderVersion)}
+          disabled={busy || (loader !== 'vanilla' && !loaderVersion)}
           className="relative flex items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-brand-a to-brand-b py-3 font-bold text-white shadow-[0_10px_30px_-10px] shadow-brand-b/70 transition-all hover:brightness-110 disabled:opacity-50"
         >
           <span className="shine" />
@@ -457,7 +472,11 @@ function InstanceCard({
             <span className="rounded-md bg-brand-a/15 px-2 py-0.5 font-mono text-[11px] font-bold text-accent">{instance.version}</span>
             <span
               className={`rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase ${
-                instance.loader === 'forge' ? 'bg-[#fb923c]/15 text-[#fdba74]' : 'bg-novo-elev-2 text-novo-muted'
+                instance.loader === 'forge'
+                  ? 'bg-[#fb923c]/15 text-[#fdba74]'
+                  : instance.loader === 'fabric'
+                    ? 'bg-[#dbd0b4]/15 text-[#e8dcbc]'
+                    : 'bg-novo-elev-2 text-novo-muted'
               }`}
             >
               {loaderLabel(instance)}

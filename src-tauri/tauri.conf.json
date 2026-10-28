@@ -35,6 +35,7 @@
     "publisher": "NovoMC",
     "resources": {
       "resources/novomc-client.jar": "resources/novomc-client.jar",
+      "resources/novomc-client-modern.jar": "resources/novomc-client-modern.jar",
       "../novomc.config.json": "novomc.config.json"
     },
     "shortDescription": "Novo Client Minecraft launcher",

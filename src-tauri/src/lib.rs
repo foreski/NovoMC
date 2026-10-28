@@ -82,6 +82,7 @@ pub fn run() {
             download::install_version,
             download::cancel_install,
             download::forge::list_forge_versions,
+            download::fabric::fabric_loader,
             instances::list_instances,
             instances::create_instance,
             instances::update_instance,

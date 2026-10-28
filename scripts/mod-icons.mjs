@@ -16,6 +16,8 @@ const icons = [
   'layout-dashboard', 'sparkles', 'gauge', 'search', 'chevron-down', 'move', 'rotate-ccw',
   // Resource Packs screen
   'layers', 'download', 'folder-open', 'check', 'arrow-up-down', 'image',
+  // Trainers
+  'target', 'timer', 'mouse-pointer-click', 'flask-conical', 'trophy',
 ];
 const work = join(tmpdir(), `novomc-icons-${Date.now()}`);
 mkdirSync(join(out, 'icons'), { recursive: true });

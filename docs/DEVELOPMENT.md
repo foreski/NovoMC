@@ -126,6 +126,51 @@ Lunar Client's mod list but none of its code or assets.
   including the Sodium Renderer (`com.novomc.client.sodium`, ported from Sodium 0.5, LGPL v3: it draws each
   8x4x8-chunk region with one glMultiDrawArrays from a shared arena buffer; needs GL 3.3 and VBOs),
   plus the tuned JVM flags.
+- **Modern client** (`client-mod-modern/`, Fabric 26.3, Java 25): builds with `npm run mod` next to the 1.8.9 jar
+  (`src-tauri/resources/novomc-client-modern.jar`). It compiles the 1.8.9 mod's `config/` package and `catalog.json`
+  directly, so both clients share the settings format and HUD coordinates; modules with `"modern": true` in the catalog
+  exist on modern and are the only ones the Mod Library shows for Fabric instances. The launcher installs Fabric from
+  Fabric's meta server and Fabric API (pinned, from Modrinth) for 26.3 Fabric instances. Modern Auto Profiles detects
+  Crystal, Mace, Spear, NethPot, UHC, Axe and Sword from the kit. Dev check: `NOVOMC_TEST_VERSION=26.3
+  NOVOMC_TEST_FABRIC=0.20.1 NOVOMC_TEST_BARE=1` with `NOVOMC_TEST_MOD` pointing at the modern jar (creates a world,
+  screenshots, checks the Mace profile).
+- **Modern screens** (`client-mod-modern/.../ui`): `NovoPanel` is the shared glass panel (chips, eased scrolling,
+  scissor clipping, click targets recorded while drawing). On it: `NovoMods` (category chips, switches, settings that
+  open under a row, writing the shared modules.json), `NovoOptions` and `NovoVideo` (replace vanilla's Options and
+  Video Settings under Custom Menus; rows hold vanilla's own option widgets, shown value-only via
+  `AbstractWidgetMixin`, and Video's lists come from vanilla's `VideoSettingsScreen` through an invoker; "More options"
+  and "Fullscreen resolution" open vanilla's screens) and `NovoTrainers`. `NovoHudEditor` (Right Shift in game) drags
+  HUD mods, snaps to the screen centre, resizes on scroll and resets on right-click.
+- **Modern visual mods** (`Visuals`): Crosshair replaces Fabric's vanilla crosshair HUD element; Hit Color repaints the
+  hurt half of the overlay texture (`OverlayTextureMixin`); Block Outline changes the colour/width passed to
+  `LevelRenderer.submitHitOutline` and submits a filled box (high contrast stays vanilla); Freelook (Left Alt) takes
+  mouse turns in `MouseHandlerMixin` and aims the camera in `CameraMixin`.
+- **Modern extras** (`Extras`): Hurt Cam scales `GameRenderer.bobHurt`'s tilt; FOV Changer redirects the player FOV
+  modifier in `Camera.tickFov`; Weather Changer overrides the client level's rain/thunder getters (`LevelMixin`) so
+  the server's weather is kept underneath; Cooldowns reads vanilla's item cooldowns through accessors; plus Unfocused
+  FPS, Stopwatch, Pack Display, Low Health and Mod List. Time Changer and Nick Hider aren't ported yet (26.3's world
+  clocks; names drawn in too many places).
+- **Modern PvP** (`Pvp`): modern-only mods (`"legacy": false` in the catalog, hidden for Forge instances in the Mod
+  Library; 1.8.9 never registers them): Attack Cooldown (charge bar, crit-ready by vanilla's crit rules), Totem Pop
+  Counter (entity event 35 in `LivingEntityMixin`, "-N" on nametags via `EntityRendererMixin`), Target HUD, Armor
+  Durability Alert and Mace / Elytra HUD (smash bonus 4/2/1 per block past 3 and 8). Ports: Hit Sounds (1.8.9 sound
+  names mapped to modern events), Particle Changer, TNT Countdown (gizmos) and Tab Editor (`PlayerTabOverlayMixin`).
+- **Modern batch 4** (`More`): Scoreboard (sidebar background, numbers via `BlankFormat`, shadow; `HudMixin`), Chat
+  (timestamps and stacked repeats in `ChatComponent.addMessage`), Nametags (own tag in third person, background in
+  `SubmitNodeCollection.submitNameTag`), and Hitbox, Chunk Borders and Waypoints drawn as vanilla gizmos from
+  `DebugRenderer.emitGizmos`. Waypoints share 1.8.9's `config/novomc/waypoints.json` (same world keys and dimension
+  numbers); B adds one, M opens `NovoWaypoints`.
+- **Modern trainers** (`client-mod-modern/.../trainer`): Crystal Speed, Mace Dive and Spear Charge in a flat world
+  (`saves/novo-trainer`, level name "Novo Trainer"). Arenas are built by commands run silently as the player on the
+  integrated server; personal bests share 1.8.9's `config/novomc/trainers.json`. R retries, G opens the drill list.
+  The autotest runs all three after the HUD checks.
+- **Auto Mode Profiles** (`profiles/ModeDetector`, `modules/AutoProfilesModule`): the mode comes from the sidebar
+  title/lines (Bed Wars, SkyWars, Bridge, UHC, NoDebuff) or else the kit (4+ splash heals = Pot, sword + lava or
+  gapple + bow/rod = UHC, a sword = Sword). Three matching checks a second apart switch profiles. Each profile stores
+  the non-performance modules' config entries and the key bindings, in `config/novomc/profiles.json`.
+- **Trainers** (`trainer/`): drills run in the `saves/novo-trainer` flat world; arenas are built server-side around
+  (0, 100, 0). Personal bests are in `config/novomc/trainers.json`. Click Speed is a plain screen. Dev check:
+  `-Dnovomc.trainers=true` (`NOVOMC_TEST_MODE=trainers`).
 - **OptiFine-style options** (`com.novomc.client.render`, NovoMC code inspired by OptiFine; no OptiFine code):
   Fast Math (4096-entry sine table), Smart Animations (chunks record their animated textures; only those
   drawn since the last tick animate), Lazy Chunk Loading (integrated server sends 5 chunks/tick instead of 10),

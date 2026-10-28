@@ -1,0 +1,22 @@
+{
+	"schemaVersion": 1,
+	"id": "novomc",
+	"version": "${version}",
+	"name": "Novo Client",
+	"description": "Novo Client's PvP mods, HUD and mode profiles for modern Minecraft. Settings are shared with the Novo Client launcher's Mod Library.",
+	"authors": ["Novo Client"],
+	"contact": { "sources": "https://github.com/foreski/NovoMC" },
+	"license": "All-Rights-Reserved",
+	"icon": "assets/novomc/textures/gui/logo.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": ["com.novomc.modern.NovoModern"]
+	},
+	"mixins": ["novomc.mixins.json"],
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

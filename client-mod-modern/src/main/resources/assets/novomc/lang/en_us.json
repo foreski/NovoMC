@@ -1,0 +1,11 @@
+{
+  "key.category.novomc.novomc": "Novo Client",
+  "key.novomc.zoom": "Zoom",
+  "key.novomc.hud": "Edit HUD",
+  "key.novomc.freelook": "Freelook",
+  "key.novomc.waypoint_add": "Add waypoint",
+  "key.novomc.waypoints": "Waypoint list",
+  "key.novomc.stopwatch": "Stopwatch (Shift resets)",
+  "key.novomc.trainer_restart": "Trainer: retry drill",
+  "key.novomc.trainers": "Trainer: pick a drill"
+}

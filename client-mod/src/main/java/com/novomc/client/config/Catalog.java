@@ -65,6 +65,8 @@ public final class Catalog {
         public final boolean centered;
         /** Setting key to default value. */
         public final Map<String, JsonElement> defaults;
+        /** Also in the modern (26.3) client; every module runs on 1.8.9. */
+        public final boolean modern;
 
         Def(JsonObject o) {
             id = o.get("id").getAsString();
@@ -72,6 +74,7 @@ public final class Catalog {
             description = o.has("description") ? o.get("description").getAsString() : "";
             category = o.get("category").getAsString();
             enabledByDefault = o.get("enabled").getAsBoolean();
+            modern = o.has("modern") && o.get("modern").getAsBoolean();
             JsonObject pos = o.has("hud") ? o.getAsJsonObject("hud") : null;
             hud = pos != null;
             defaultX = pos != null ? pos.get("x").getAsFloat() : 0;

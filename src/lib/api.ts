@@ -67,7 +67,7 @@ export interface Settings {
   lastInstance: string | null;
 }
 
-export type Loader = 'vanilla' | 'forge';
+export type Loader = 'vanilla' | 'forge' | 'fabric';
 
 export interface ForgeVersions {
   /** Full versions (`1.8.9-11.15.1.2318-1.8.9`), newest first. */
@@ -227,6 +227,8 @@ export const api = {
   createInstance: (name: string, version: string, loader: Loader, loaderVersion: string | null) =>
     invoke<Instance>('create_instance', { instance: { name, version, loader, loaderVersion } }),
   listForgeVersions: (minecraft: string) => invoke<ForgeVersions>('list_forge_versions', { minecraft }),
+  /** Newest stable Fabric Loader for the version, or null if Fabric doesn't support it. */
+  fabricLoader: (minecraft: string) => invoke<string | null>('fabric_loader', { minecraft }),
   updateInstance: (instance: Instance) => invoke<Instance>('update_instance', { instance }),
   duplicateInstance: (id: string) => invoke<Instance>('duplicate_instance', { id }),
   deleteInstance: (id: string) => invoke<void>('delete_instance', { id }),

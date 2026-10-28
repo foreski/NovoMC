@@ -28,12 +28,13 @@ use tokio_util::sync::CancellationToken;
 use crate::auth;
 use crate::config;
 use crate::download::engine::Progress;
-use crate::download::forge;
+use crate::download::{fabric, forge};
 use crate::download::install::{self, Tracker};
 use crate::download::version::{load_resolved, AssetIndex, VersionJson};
 use crate::download::Installs;
 use crate::error::{AppError, AppResult};
 use crate::instances;
+use crate::instances::store::Loader;
 use crate::java;
 use crate::paths;
 use crate::settings::{self, AfterLaunch, Settings};
@@ -200,13 +201,16 @@ async fn start(app: &AppHandle, instance_id: &str, stop: CancellationToken, serv
     // Then the loader, if any.
     let launch_id = instance.launch_version();
     if launch_id != id && !install::is_installed(&root, &launch_id) {
-        let forge = instance.loader_version.as_deref().unwrap_or_default();
+        let loader = instance.loader_version.as_deref().unwrap_or_default();
         let tracker = Arc::new(Tracker::default());
         let ticker = progress_ticker(app, state(LaunchStage::Installing), {
             let tracker = tracker.clone();
             move || fraction(&tracker.progress)
         });
-        let installed = forge::install(id, forge, &tracker, &stop).await;
+        let installed = match instance.loader {
+            Loader::Fabric => fabric::install(id, loader, &tracker, &stop).await,
+            _ => forge::install(id, loader, &tracker, &stop).await,
+        };
         ticker.abort();
         installed?;
     }
@@ -234,7 +238,7 @@ async fn start(app: &AppHandle, instance_id: &str, stop: CancellationToken, serv
     emit(app, state(LaunchStage::Starting));
     instances::client::sync(app, &root, &instance)?;
     instances::companions::sync(&root, &instance).await?;
-    if instances::client::supported(&instance) && instance.client_mod {
+    if instances::client::legacy(&instance) && instance.client_mod {
         instances::splash::write(&instances::store::game_dir(&root, instance_id))?;
     }
     let game_dir = instances::store::game_dir(&root, instance_id);
@@ -479,6 +483,19 @@ mod tests {
         }
     }
 
+    fn copy_dir(src: &std::path::Path, dest: &std::path::Path) {
+        std::fs::create_dir_all(dest).unwrap();
+        for entry in std::fs::read_dir(src).unwrap() {
+            let entry = entry.unwrap();
+            let to = dest.join(entry.file_name());
+            if entry.file_type().unwrap().is_dir() {
+                copy_dir(&entry.path(), &to);
+            } else {
+                std::fs::copy(entry.path(), to).unwrap();
+            }
+        }
+    }
+
     /// Real launch: installs the version, resolves Java, starts the game and
     /// waits until it has loaded, then kills it. Opens a game window. Run with:
     /// `NOVOMC_DATA_DIR=<dir> NOVOMC_TEST_VERSION=1.21.4 cargo test launch_real -- --ignored --nocapture`
@@ -492,11 +509,14 @@ mod tests {
         let none = CancellationToken::new();
 
         install::install(&id, &Tracker::default(), &none).await.unwrap();
-        // NOVOMC_TEST_FORGE=1.8.9-11.15.1.2318-1.8.9 launches through Forge instead.
+        // NOVOMC_TEST_FORGE=1.8.9-11.15.1.2318-1.8.9 launches through Forge instead,
+        // NOVOMC_TEST_FABRIC=<loader version> through Fabric.
         let forge = std::env::var("NOVOMC_TEST_FORGE").ok();
-        let launch_id = match &forge {
-            Some(f) => forge::install(&id, f, &Tracker::default(), &none).await.unwrap(),
-            None => id.clone(),
+        let fabric = std::env::var("NOVOMC_TEST_FABRIC").ok();
+        let launch_id = match (&forge, &fabric) {
+            (Some(f), _) => forge::install(&id, f, &Tracker::default(), &none).await.unwrap(),
+            (None, Some(l)) => fabric::install(&id, l, &Tracker::default(), &none).await.unwrap(),
+            _ => id.clone(),
         };
         let version = load_resolved(&root, &launch_id).unwrap();
         let java = java::resolve(&version, &Settings::default(), &Progress::default(), &none).await.unwrap();
@@ -517,8 +537,11 @@ mod tests {
         if let Some(jar) = &test_mod {
             std::fs::create_dir_all(game_dir.join("mods")).unwrap();
             std::fs::copy(jar, game_dir.join("mods").join("novomc-client.jar")).unwrap();
-            if !bare {
-                crate::instances::companions::install(&root, &game_dir.join("mods"), true).await.unwrap();
+            // Fabric API is required by the modern client, so it goes in even in bare mode.
+            if !bare || fabric.is_some() {
+                crate::instances::companions::install_for(&root, &game_dir.join("mods"), fabric.is_some()).await.unwrap();
+            }
+            if !bare && fabric.is_none() {
                 crate::instances::splash::write(&game_dir).unwrap();
             }
             // NOVOMC_TEST_MODE=benchmark (FPS) or modcheck (mod behavior); default is the screenshot autotest.
@@ -545,6 +568,16 @@ mod tests {
             fullscreen: false,
             server: None,
         });
+        // NOVOMC_TEST_WORLD=<save folder> copies that world in and opens it straight away
+        // (newer versions upgrade old saves), for testing a client in game.
+        let mut args = args;
+        if let Ok(world) = std::env::var("NOVOMC_TEST_WORLD") {
+            let src = std::path::PathBuf::from(&world);
+            let name = src.file_name().unwrap().to_string_lossy().to_string();
+            copy_dir(&src, &game_dir.join("saves").join(&name));
+            args.push("--quickPlaySingleplayer".into());
+            args.push(name);
+        }
 
         let mut child = tokio::process::Command::new(&java)
             .args(&args)

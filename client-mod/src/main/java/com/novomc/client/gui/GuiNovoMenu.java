@@ -29,6 +29,7 @@ public class GuiNovoMenu extends GuiMainMenu {
     private static final ResourceLocation GRID = tex("icons/layout-grid");
     private static final ResourceLocation SWORDS = tex("icons/swords");
     private static final ResourceLocation LAYERS = tex("icons/layers");
+    private static final ResourceLocation TARGET = tex("icons/target");
 
     private static final int SINGLEPLAYER = 1;
     private static final int MULTIPLAYER = 2;
@@ -40,6 +41,7 @@ public class GuiNovoMenu extends GuiMainMenu {
     private static final int NOVO_MODS = 23;
     private static final int PACKS = 24;
     private static final int CARD = 30;
+    private static final int TRAINERS = 25;
 
     private final long openedAt = System.currentTimeMillis();
 
@@ -61,9 +63,9 @@ public class GuiNovoMenu extends GuiMainMenu {
         buttonList.add(new NovoButton(ACCOUNT, 8, 8, 18, 18, "").icon(USER).tooltip("Skin layers"));
         buttonList.add(new NovoButton(QUIT, width - 26, 8, 18, 18, "").icon(CLOSE).tooltip("Quit game"));
 
-        int[] ids = {OPTIONS, LANGUAGE, FORGE_MODS, NOVO_MODS, PACKS};
-        ResourceLocation[] icons = {SETTINGS, GLOBE, PUZZLE, GRID, LAYERS};
-        String[] tips = {"Options", "Language", "Forge mods", "Novo Client mods", "Resource packs"};
+        int[] ids = {OPTIONS, LANGUAGE, FORGE_MODS, NOVO_MODS, PACKS, TRAINERS};
+        ResourceLocation[] icons = {SETTINGS, GLOBE, PUZZLE, GRID, LAYERS, TARGET};
+        String[] tips = {"Options", "Language", "Forge mods", "Novo Client mods", "Resource packs", "Trainers"};
         int left = cx - (ids.length * 24 - 6) / 2;
         for (int i = 0; i < ids.length; i++) {
             buttonList.add(new NovoButton(ids[i], left + i * 24, height - 32, 18, 18, "").icon(icons[i]).tooltip(tips[i]));
@@ -147,6 +149,9 @@ public class GuiNovoMenu extends GuiMainMenu {
                 break;
             case PACKS:
                 mc.displayGuiScreen(new GuiResourcePacks(this));
+                break;
+            case TRAINERS:
+                mc.displayGuiScreen(new GuiTrainers(this));
                 break;
             default:
                 break;

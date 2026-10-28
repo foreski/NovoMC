@@ -15,7 +15,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::{Deserialize, Serialize};
 
-use crate::download::forge;
+use crate::download::{fabric, forge};
 use crate::error::{AppError, AppResult};
 
 const FILE: &str = "instance.json";
@@ -30,8 +30,10 @@ static LOCK: Mutex<()> = Mutex::new(());
 pub enum Loader {
     #[default]
     Vanilla,
-    /// Minecraft Forge; the NovoMC mods' loader on 1.8.9.
+    /// Minecraft Forge; the Novo Client mod's loader on 1.8.9.
     Forge,
+    /// Fabric; the Novo Client mod's loader on modern versions.
+    Fabric,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -70,15 +72,24 @@ impl Instance {
     pub fn launch_version(&self) -> String {
         match (self.loader, &self.loader_version) {
             (Loader::Forge, Some(forge)) => forge::version_id(&self.version, forge),
+            (Loader::Fabric, Some(loader)) => fabric::version_id(&self.version, loader),
             _ => self.version.clone(),
         }
     }
 }
 
-/// A Forge instance needs a supported Minecraft version and a matching build.
+/// A Forge instance needs a supported Minecraft version and a matching build;
+/// a Fabric instance needs a loader version.
 fn check_loader(version: &str, loader: Loader, loader_version: Option<&str>) -> AppResult<()> {
     if loader == Loader::Vanilla {
         return Ok(());
+    }
+    if loader == Loader::Fabric {
+        // Whether Fabric supports the version is checked when it installs.
+        return match loader_version {
+            Some(v) if !v.is_empty() => Ok(()),
+            _ => Err(AppError::Other("Pick a Fabric Loader version".into())),
+        };
     }
     if !forge::SUPPORTED.contains(&version) {
         return Err(AppError::Other(format!("Forge isn't available for Minecraft {version} in Novo Client yet")));

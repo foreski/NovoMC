@@ -143,6 +143,27 @@ public final class ModConfig {
         return def.defaults.get(key);
     }
 
+    /** A deep copy of the given modules' entries (enabled state, HUD position, settings). */
+    public JsonObject snapshot(Iterable<String> ids) {
+        JsonObject out = new JsonObject();
+        for (String id : ids) {
+            out.add(id, new JsonParser().parse(module(id).toString()));
+        }
+        return out;
+    }
+
+    /** Puts back entries from {@link #snapshot}; modules missing from it are left alone. */
+    public void restore(JsonObject snapshot) {
+        JsonObject modules = root.getAsJsonObject("modules");
+        if (modules == null) {
+            module("_");
+            modules = root.getAsJsonObject("modules");
+        }
+        for (java.util.Map.Entry<String, JsonElement> e : snapshot.entrySet()) {
+            modules.add(e.getKey(), new JsonParser().parse(e.getValue().toString()));
+        }
+    }
+
     private static void closeQuietly(java.io.Closeable c) {
         if (c != null) {
             try {

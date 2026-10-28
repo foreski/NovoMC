@@ -6,6 +6,7 @@ src-tauri/gen/
 .DS_Store
 # Built by `npm run mod`
 src-tauri/resources/novomc-client.jar
+src-tauri/resources/novomc-client-modern.jar
 # Local Azure client config (copy from novomc.config.example.json)
 novomc.config.json
 tsconfig.tsbuildinfo

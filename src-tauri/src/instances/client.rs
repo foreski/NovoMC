@@ -18,10 +18,23 @@ use crate::paths;
 
 pub const JAR_NAME: &str = "novomc-client.jar";
 const BUNDLED: &str = "resources/novomc-client.jar";
+const BUNDLED_MODERN: &str = "resources/novomc-client-modern.jar";
+/// The modern Novo Client's Minecraft version (on Fabric).
+pub const MODERN_VERSION: &str = "26.3";
 
-/// The mod targets Minecraft 1.8.9 on Forge.
-pub fn supported(inst: &Instance) -> bool {
+/// The original Novo Client: Minecraft 1.8.9 on Forge.
+pub fn legacy(inst: &Instance) -> bool {
     inst.loader == Loader::Forge && inst.version == "1.8.9"
+}
+
+/// The modern Novo Client: Fabric on the current release.
+pub fn modern(inst: &Instance) -> bool {
+    inst.loader == Loader::Fabric && inst.version == MODERN_VERSION
+}
+
+/// Whether a Novo Client build exists for this instance.
+pub fn supported(inst: &Instance) -> bool {
+    legacy(inst) || modern(inst)
 }
 
 fn config_path(root: &Path, id: &str) -> PathBuf {
@@ -40,7 +53,7 @@ pub fn sync(app: &AppHandle, root: &Path, inst: &Instance) -> AppResult<()> {
     }
     let src = app
         .path()
-        .resolve(BUNDLED, BaseDirectory::Resource)
+        .resolve(if modern(inst) { BUNDLED_MODERN } else { BUNDLED }, BaseDirectory::Resource)
         .map_err(|e| AppError::Other(e.to_string()))?;
     if !src.is_file() {
         return Err(AppError::Other("This Novo Client build is missing the Novo Client mod (run `npm run mod`)".into()));

@@ -20,6 +20,7 @@
   "modules": [
     {
       "id": "fps",
+      "modern": true,
       "name": "FPS",
       "category": "hud",
       "enabled": true,
@@ -46,6 +47,7 @@
     },
     {
       "id": "cps",
+      "modern": true,
       "name": "CPS",
       "category": "hud",
       "enabled": false,
@@ -78,6 +80,7 @@
     },
     {
       "id": "keystrokes",
+      "modern": true,
       "name": "Keystrokes",
       "category": "hud",
       "enabled": false,
@@ -122,6 +125,7 @@
     },
     {
       "id": "coordinates",
+      "modern": true,
       "name": "Coordinates",
       "category": "hud",
       "enabled": true,
@@ -169,6 +173,7 @@
     },
     {
       "id": "direction",
+      "modern": true,
       "name": "Direction HUD",
       "category": "hud",
       "enabled": true,
@@ -196,6 +201,7 @@
     },
     {
       "id": "armor_status",
+      "modern": true,
       "name": "Armor Status",
       "category": "hud",
       "enabled": true,
@@ -241,6 +247,7 @@
     },
     {
       "id": "potion_effects",
+      "modern": true,
       "name": "Potion Effects",
       "category": "hud",
       "enabled": true,
@@ -273,6 +280,7 @@
     },
     {
       "id": "ping",
+      "modern": true,
       "name": "Ping",
       "category": "hud",
       "enabled": false,
@@ -305,6 +313,7 @@
     },
     {
       "id": "memory",
+      "modern": true,
       "name": "Memory Usage",
       "category": "hud",
       "enabled": false,
@@ -331,6 +340,7 @@
     },
     {
       "id": "clock",
+      "modern": true,
       "name": "Clock",
       "category": "hud",
       "enabled": false,
@@ -369,6 +379,7 @@
     },
     {
       "id": "saturation",
+      "modern": true,
       "name": "Saturation",
       "category": "hud",
       "enabled": false,
@@ -395,15 +406,52 @@
     },
     {
       "id": "item_counter",
+      "modern": true,
       "name": "Item Counter",
       "category": "hud",
       "enabled": false,
-      "description": "Counts key PvP items in your inventory.",
+      "description": "Counts key PvP items in your inventory, plus totems and crystals on modern versions.",
       "hud": {
         "x": 0.75,
         "y": 0.82
       },
       "settings": [
+        {
+          "key": "totems",
+          "type": "toggle",
+          "label": "Totems (modern)",
+          "default": true
+        },
+        {
+          "key": "crystals",
+          "type": "toggle",
+          "label": "End crystals (modern)",
+          "default": true
+        },
+        {
+          "key": "windCharges",
+          "type": "toggle",
+          "label": "Wind charges (modern)",
+          "default": true
+        },
+        {
+          "key": "potions",
+          "type": "toggle",
+          "label": "Healing potions (modern)",
+          "default": true
+        },
+        {
+          "key": "enchantedApples",
+          "type": "toggle",
+          "label": "Enchanted apples (modern)",
+          "default": true
+        },
+        {
+          "key": "anchors",
+          "type": "toggle",
+          "label": "Anchors and glowstone (modern)",
+          "default": false
+        },
         {
           "key": "arrows",
           "type": "toggle",
@@ -438,6 +486,7 @@
     },
     {
       "id": "toggle_sprint",
+      "modern": true,
       "name": "Toggle Sprint",
       "category": "qol",
       "enabled": true,
@@ -469,6 +518,7 @@
     },
     {
       "id": "zoom",
+      "modern": true,
       "name": "Zoom",
       "category": "qol",
       "enabled": true,
@@ -505,6 +555,7 @@
     },
     {
       "id": "fullbright",
+      "modern": true,
       "name": "Fullbright",
       "category": "qol",
       "enabled": false,
@@ -513,6 +564,7 @@
     },
     {
       "id": "crosshair",
+      "modern": true,
       "name": "Crosshair",
       "category": "qol",
       "enabled": false,
@@ -647,6 +699,7 @@
     },
     {
       "id": "unfocused_fps",
+      "modern": true,
       "name": "Unfocused FPS Limit",
       "category": "performance",
       "enabled": true,
@@ -790,7 +843,24 @@
       "settings": []
     },
     {
+      "id": "auto_profiles",
+      "modern": true,
+      "name": "Auto Mode Profiles",
+      "category": "qol",
+      "enabled": true,
+      "description": "Detects what you're playing and keeps a separate setup for each mode: HUD layout, mods, their settings and your keybinds. 1.8.9: Sword, Pot, UHC, Bed Wars, SkyWars, The Bridge. 26.3: Crystal, Mace, Spear, Axe, Sword, NethPot, UHC.",
+      "settings": [
+        {
+          "key": "notify",
+          "type": "toggle",
+          "label": "Show a notice when the profile switches",
+          "default": true
+        }
+      ]
+    },
+    {
       "id": "custom_menus",
+      "modern": true,
       "name": "Custom Menus",
       "category": "qol",
       "enabled": true,
@@ -861,6 +931,7 @@
     },
     {
       "id": "hit_color",
+      "modern": true,
       "name": "Hit Color",
       "category": "visual",
       "enabled": false,
@@ -885,6 +956,7 @@
     },
     {
       "id": "block_outline",
+      "modern": true,
       "name": "Block Outline",
       "category": "visual",
       "enabled": false,
@@ -924,6 +996,7 @@
     },
     {
       "id": "hurt_cam",
+      "modern": true,
       "name": "Hurt Cam",
       "category": "visual",
       "enabled": false,
@@ -942,6 +1015,7 @@
     },
     {
       "id": "fov_changer",
+      "modern": true,
       "name": "FOV Changer",
       "category": "visual",
       "enabled": false,
@@ -963,6 +1037,7 @@
     },
     {
       "id": "particle_changer",
+      "modern": true,
       "name": "Particle Changer",
       "category": "visual",
       "enabled": false,
@@ -1011,6 +1086,7 @@
     },
     {
       "id": "weather_changer",
+      "modern": true,
       "name": "Weather Changer",
       "category": "visual",
       "enabled": false,
@@ -1123,6 +1199,7 @@
     },
     {
       "id": "loading_screen",
+      "modern": true,
       "name": "Loading Screen",
       "category": "visual",
       "enabled": true,
@@ -1168,6 +1245,7 @@
     },
     {
       "id": "hitbox",
+      "modern": true,
       "name": "Hitbox",
       "category": "visual",
       "enabled": false,
@@ -1195,6 +1273,7 @@
     },
     {
       "id": "chunk_borders",
+      "modern": true,
       "name": "Chunk Borders",
       "category": "visual",
       "enabled": false,
@@ -1210,6 +1289,7 @@
     },
     {
       "id": "nametags",
+      "modern": true,
       "name": "Nametags",
       "category": "visual",
       "enabled": true,
@@ -1255,6 +1335,7 @@
     },
     {
       "id": "freelook",
+      "modern": true,
       "name": "Freelook",
       "category": "qol",
       "enabled": true,
@@ -1278,6 +1359,7 @@
     },
     {
       "id": "main_menu",
+      "modern": true,
       "name": "Novo Client Menu",
       "category": "qol",
       "enabled": true,
@@ -1286,6 +1368,7 @@
     },
     {
       "id": "combo_counter",
+      "modern": true,
       "name": "Combo Counter",
       "category": "hud",
       "enabled": false,
@@ -1313,6 +1396,7 @@
     },
     {
       "id": "reach_display",
+      "modern": true,
       "name": "Reach Display",
       "category": "hud",
       "enabled": false,
@@ -1340,6 +1424,7 @@
     },
     {
       "id": "scoreboard",
+      "modern": true,
       "name": "Scoreboard",
       "category": "hud",
       "enabled": false,
@@ -1426,6 +1511,7 @@
     },
     {
       "id": "chat",
+      "modern": true,
       "name": "Chat",
       "category": "qol",
       "enabled": false,
@@ -1453,6 +1539,7 @@
     },
     {
       "id": "tab_editor",
+      "modern": true,
       "name": "Tab Editor",
       "category": "qol",
       "enabled": false,
@@ -1507,6 +1594,7 @@
     },
     {
       "id": "tnt_countdown",
+      "modern": true,
       "name": "TNT Countdown",
       "category": "visual",
       "enabled": false,
@@ -1515,6 +1603,7 @@
     },
     {
       "id": "cooldowns",
+      "modern": true,
       "name": "Cooldowns",
       "category": "hud",
       "enabled": false,
@@ -1553,6 +1642,7 @@
     },
     {
       "id": "stopwatch",
+      "modern": true,
       "name": "Stopwatch",
       "category": "hud",
       "enabled": false,
@@ -1579,6 +1669,7 @@
     },
     {
       "id": "server_address",
+      "modern": true,
       "name": "Server Address",
       "category": "hud",
       "enabled": false,
@@ -1611,6 +1702,7 @@
     },
     {
       "id": "pack_display",
+      "modern": true,
       "name": "Pack Display",
       "category": "hud",
       "enabled": false,
@@ -1637,6 +1729,7 @@
     },
     {
       "id": "playtime",
+      "modern": true,
       "name": "Playtime",
       "category": "hud",
       "enabled": false,
@@ -1663,6 +1756,7 @@
     },
     {
       "id": "day_counter",
+      "modern": true,
       "name": "Day Counter",
       "category": "hud",
       "enabled": false,
@@ -1794,6 +1888,7 @@
     },
     {
       "id": "hit_sounds",
+      "modern": true,
       "name": "Hit Sounds",
       "category": "visual",
       "enabled": false,
@@ -1842,6 +1937,7 @@
     },
     {
       "id": "low_health",
+      "modern": true,
       "name": "Low Health Warning",
       "category": "visual",
       "enabled": false,
@@ -1875,6 +1971,7 @@
     },
     {
       "id": "waypoints",
+      "modern": true,
       "name": "Waypoints",
       "category": "qol",
       "enabled": true,
@@ -1904,6 +2001,7 @@
     },
     {
       "id": "module_list",
+      "modern": true,
       "name": "Mod List",
       "category": "hud",
       "enabled": false,
@@ -1972,6 +2070,161 @@
           "key": "hideHud",
           "type": "toggle",
           "label": "Hide HUD mods (FPS, CPS...)",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "attack_cooldown",
+      "modern": true,
+      "legacy": false,
+      "name": "Attack Cooldown",
+      "category": "hud",
+      "enabled": false,
+      "description": "A charge bar under the crosshair that lights up at full charge, and shows when your next hit will crit.",
+      "hud": {
+        "x": 0.5,
+        "y": 0.54,
+        "center": true
+      },
+      "settings": [
+        {
+          "key": "hideWhenFull",
+          "type": "toggle",
+          "label": "Hide when charged",
+          "default": false
+        },
+        {
+          "key": "critIndicator",
+          "type": "toggle",
+          "label": "Crit ready",
+          "default": true
+        },
+        {
+          "key": "color",
+          "type": "color",
+          "label": "Bar color",
+          "default": "#5B8CFF"
+        }
+      ]
+    },
+    {
+      "id": "totem_pops",
+      "modern": true,
+      "legacy": false,
+      "name": "Totem Pop Counter",
+      "category": "qol",
+      "enabled": true,
+      "description": "Counts each player's totem pops: in chat and next to their nametag.",
+      "settings": [
+        {
+          "key": "chat",
+          "type": "toggle",
+          "label": "Chat message",
+          "default": true
+        },
+        {
+          "key": "nametag",
+          "type": "toggle",
+          "label": "Next to nametag",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "target_hud",
+      "modern": true,
+      "legacy": false,
+      "name": "Target HUD",
+      "category": "hud",
+      "enabled": false,
+      "description": "The player you're fighting: head, health, armor and distance.",
+      "hud": {
+        "x": 0.56,
+        "y": 0.56
+      },
+      "settings": [
+        {
+          "key": "armor",
+          "type": "toggle",
+          "label": "Show armor",
+          "default": true
+        },
+        {
+          "key": "timeout",
+          "type": "number",
+          "label": "Hide after (s)",
+          "default": 4,
+          "min": 1,
+          "max": 10,
+          "step": 1
+        },
+        {
+          "key": "background",
+          "type": "number",
+          "label": "Background",
+          "default": 50,
+          "min": 0,
+          "max": 100,
+          "step": 5
+        }
+      ]
+    },
+    {
+      "id": "armor_alert",
+      "modern": true,
+      "legacy": false,
+      "name": "Armor Durability Alert",
+      "category": "hud",
+      "enabled": true,
+      "description": "Warns when a piece of your armor or your elytra is about to break.",
+      "hud": {
+        "x": 0.5,
+        "y": 0.3,
+        "center": true
+      },
+      "settings": [
+        {
+          "key": "threshold",
+          "type": "number",
+          "label": "Warn below (%)",
+          "default": 15,
+          "min": 5,
+          "max": 50,
+          "step": 1
+        },
+        {
+          "key": "sound",
+          "type": "toggle",
+          "label": "Warning sound",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "mace_hud",
+      "modern": true,
+      "legacy": false,
+      "name": "Mace / Elytra HUD",
+      "category": "hud",
+      "enabled": false,
+      "description": "Fall distance and smash damage with a mace; speed, height, fireworks and durability while flying.",
+      "hud": {
+        "x": 0.5,
+        "y": 0.62,
+        "center": true
+      },
+      "settings": [
+        {
+          "key": "mace",
+          "type": "toggle",
+          "label": "Mace smash info",
+          "default": true
+        },
+        {
+          "key": "elytra",
+          "type": "toggle",
+          "label": "Elytra flight info",
           "default": true
         }
       ]
