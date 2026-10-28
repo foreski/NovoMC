@@ -45,6 +45,27 @@ public final class DevCheck {
             } else if (menuTicks == 160) {
                 shot(mc, "title");
                 mc.gui.setScreen(new OptionsScreen(mc.gui.screen(), mc.options));
+            } else if (menuTicks >= 164 && menuTicks <= 172) {
+                // Clicks on rows like a player: Options > Controls, Options > Video Settings > VSync.
+                var s = mc.gui.screen();
+                int pw = Math.min(s.width - 16, 540);
+                int r = (s.width - pw) / 2 + pw - 12;
+                if (menuTicks == 164) {
+                    click(s, s.width / 2.0, 170);
+                    System.out.println("[NovoMC] Click Controls row -> " + mc.gui.screen().getClass().getSimpleName());
+                } else if (menuTicks == 166) {
+                    mc.gui.setScreen(new OptionsScreen(new TitleScreen(), mc.options));
+                } else if (menuTicks == 167) {
+                    click(s, s.width / 2.0, 138);
+                    System.out.println("[NovoMC] Click Video Settings row -> " + mc.gui.screen().getClass().getSimpleName());
+                } else if (menuTicks == 170) {
+                    boolean before = mc.options.enableVsync().get();
+                    click(s, r - 79, 138);
+                    System.out.println("[NovoMC] Click VSync -> " + before + " to " + mc.options.enableVsync().get());
+                    click(s, r - 79, 138);
+                } else if (menuTicks == 172) {
+                    mc.gui.setScreen(new OptionsScreen(new TitleScreen(), mc.options));
+                }
             } else if (menuTicks == 175) {
                 shot(mc, "options");
                 mc.gui.setScreen(new com.novomc.modern.ui.NovoMods(new TitleScreen()));
@@ -93,6 +114,23 @@ public final class DevCheck {
             }
             mc.player.connection.sendCommand("give @s totem_of_undying 3");
             mc.player.connection.sendCommand("give @s end_crystal 32");
+        }
+        if (ticks >= 62 && ticks <= 70) {
+            // A real click through Minecraft's mouse handler, in a world: Pause > Options > Video Settings.
+            long win = mc.getWindow().handle();
+            int scale = mc.getWindow().getGuiScale();
+            if (ticks == 62) {
+                mc.gui.setScreen(new net.minecraft.client.gui.screens.options.OptionsScreen(mc.gui.screen(), mc.options));
+            } else if (ticks == 65) {
+                mc.mouseHandler.onMove(win, mc.gui.screen().width / 2.0 * scale, 138.0 * scale, 0, 0);
+            } else if (ticks == 66) {
+                mc.mouseHandler.onButton(win, new net.minecraft.client.input.MouseButtonInfo(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT, 0), 1);
+            } else if (ticks == 67) {
+                mc.mouseHandler.onButton(win, new net.minecraft.client.input.MouseButtonInfo(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT, 0), 0);
+            } else if (ticks == 70) {
+                System.out.println("[NovoMC] In-world Options click now " + mc.gui.screen().getClass().getSimpleName()
+                        + " (cursor " + mc.mouseHandler.xpos() + ", " + mc.mouseHandler.ypos() + ", scale " + scale + ")");
+            }
         }
         if (ticks == 92) {
             // A hit on the pig (Target HUD, Hit Sounds, particles) and a totem pop of our own.
@@ -165,6 +203,12 @@ public final class DevCheck {
             System.out.println("[NovoMC] Autotest finished");
             mc.stop();
         }
+    }
+
+    private static void click(net.minecraft.client.gui.screens.Screen s, double x, double y) {
+        var e = new net.minecraft.client.input.MouseButtonEvent(x, y, new net.minecraft.client.input.MouseButtonInfo(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT, 0));
+        s.mouseClicked(e, false);
+        s.mouseReleased(e);
     }
 
     private static void shot(Minecraft mc, String name) {

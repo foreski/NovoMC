@@ -1,5 +1,6 @@
 package com.novomc.modern;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
@@ -11,9 +12,10 @@ public final class Clicks {
     private Clicks() {}
 
     public static void press(int button) {
-        if (button == 0) {
+        // 26.3 numbers mouse buttons the SDL way: left 1, right 3.
+        if (button == InputConstants.MOUSE_BUTTON_LEFT) {
             LEFT.addLast(System.currentTimeMillis());
-        } else if (button == 1) {
+        } else if (button == InputConstants.MOUSE_BUTTON_RIGHT) {
             RIGHT.addLast(System.currentTimeMillis());
         }
     }

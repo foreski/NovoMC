@@ -113,7 +113,12 @@ fn instance_info(instance_id: Option<&str>) -> (String, String, Option<std::path
     };
     match instance_id.and_then(|id| crate::instances::store::load(&root, id).ok()) {
         Some(inst) => {
-            let loader = inst.loader_version.clone().map(|v| format!("Forge {v}")).unwrap_or_else(|| "Vanilla".into());
+            use crate::instances::store::Loader;
+            let loader = match (&inst.loader, &inst.loader_version) {
+                (Loader::Forge, Some(v)) => format!("Forge {v}"),
+                (Loader::Fabric, Some(v)) => format!("Fabric {v}"),
+                _ => "Vanilla".into(),
+            };
             let dir = crate::instances::store::game_dir(&root, &inst.id);
             (inst.version, loader, Some(dir))
         }

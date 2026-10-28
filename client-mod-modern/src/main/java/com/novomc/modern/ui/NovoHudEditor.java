@@ -1,5 +1,6 @@
 package com.novomc.modern.ui;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.novomc.modern.HudModule;
 import com.novomc.modern.NovoModern;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -94,7 +95,7 @@ public class NovoHudEditor extends Screen {
         int cy = height / 2;
         double x = event.x();
         double y = event.y();
-        if (event.button() == 0 && y >= cy - 6 && y < cy + 12) {
+        if (event.button() == InputConstants.MOUSE_BUTTON_LEFT && y >= cy - 6 && y < cy + 12) {
             if (x >= cx - 82 && x < cx - 2) {
                 minecraft.gui.setScreen(new NovoMods(this));
                 return true;
@@ -108,12 +109,12 @@ public class NovoHudEditor extends Screen {
         if (h == null) {
             return super.mouseClicked(event, doubleClick);
         }
-        if (event.button() == 1) {
+        if (event.button() == InputConstants.MOUSE_BUTTON_RIGHT) {
             NovoModern.config().remove(h.id(), "x");
             NovoModern.config().remove(h.id(), "y");
             NovoModern.config().remove(h.id(), "scale");
             NovoModern.config().save();
-        } else if (event.button() == 0) {
+        } else if (event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
             int[] b = NovoModern.bounds(h, width, height);
             dragging = h;
             grabX = x - b[0];

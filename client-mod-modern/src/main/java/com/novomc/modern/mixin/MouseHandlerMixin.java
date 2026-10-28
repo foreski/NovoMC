@@ -1,5 +1,6 @@
 package com.novomc.modern.mixin;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.novomc.modern.Clicks;
 import com.novomc.modern.Tweaks;
 import com.novomc.modern.Visuals;
@@ -18,8 +19,8 @@ public abstract class MouseHandlerMixin {
     @Inject(method = "onButton", at = @At("HEAD"))
     private void novomc$click(long window, MouseButtonInfo info, int action, CallbackInfo ci) {
         // Only clicks while playing (mouse captured), not in menus.
-        if (action == 1 && ((MouseHandler) (Object) this).isMouseGrabbed()) {
-            Clicks.press(info.input());
+        if (action == InputConstants.PRESS && ((MouseHandler) (Object) this).isMouseGrabbed()) {
+            Clicks.press(info.button());
         }
     }
 
