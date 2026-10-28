@@ -638,6 +638,24 @@
       ]
     },
     {
+      "id": "lobby_player_hider",
+      "name": "Lobby Player Hider",
+      "category": "performance",
+      "enabled": false,
+      "description": "Hides other player models only in crowded lobbies identified by the server scoreboard. Tab list and server interactions stay unchanged.",
+      "settings": [
+        {
+          "key": "minimumPlayers",
+          "type": "number",
+          "label": "Minimum players in lobby",
+          "default": 12,
+          "min": 2,
+          "max": 80,
+          "step": 2
+        }
+      ]
+    },
+    {
       "id": "entity_culling",
       "name": "Entity Culling",
       "category": "performance",

@@ -96,7 +96,7 @@ public final class NovoClient {
                 new DirectionModule(), new ArmorStatusModule(), new PotionEffectsModule(), new PingModule(),
                 new MemoryModule(), new ClockModule(), new SaturationModule(), new ItemCounterModule(),
                 new ToggleSprintModule(), new ZoomModule(), new FullbrightModule(), new CrosshairModule(),
-                new EntityCullingModule(), new ParticleLimiterModule(), new UnfocusedFpsModule(),
+                new EntityCullingModule(), new LobbyPlayerHiderModule(), new ParticleLimiterModule(), new UnfocusedFpsModule(),
                 new PerformanceTweaksModule(), new SodiumModule(),
                 // Batch 2
                 new ComboCounterModule(), new ReachDisplayModule(), new OldAnimationsModule(), new HitColorModule(),
