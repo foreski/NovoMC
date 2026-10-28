@@ -32,7 +32,7 @@ binding = "NEWS"
 id = "aa4d09f390fa4f338294021dee086bb8"
 
 # Novo Client accounts (account.js): Discord sign-in, capes, settings sync.
-#   npx wrangler d1 create novo-accounts   (put the id it prints below)
+#   npx wrangler d1 create novo-accounts   (done; its id is below)
 #   npx wrangler d1 execute novo-accounts --remote --file schema.sql
 #   npx wrangler secret put DISCORD_CLIENT_SECRET
 # The Discord application also needs the redirect
@@ -40,4 +40,4 @@ id = "aa4d09f390fa4f338294021dee086bb8"
 [[d1_databases]]
 binding = "NOVO_DB"
 database_name = "novo-accounts"
-database_id = "REPLACE_WITH_D1_ID"
+database_id = "fc333929-eed8-46ae-bcf7-6c3a61982493"
