@@ -48,11 +48,13 @@ function InstanceMenu({ instances, value, onChange, onClose }: {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 8, scale: 0.97 }}
       transition={{ duration: 0.15 }}
+      role="menu"
       className="absolute right-0 bottom-full z-20 mb-2 max-h-72 w-72 overflow-auto rounded-2xl border border-novo-border-strong bg-novo-panel/95 p-1.5 shadow-2xl backdrop-blur-xl"
     >
       {instances.map((i) => (
         <button
           key={i.id}
+          role="menuitem"
           onClick={() => {
             onChange(i.id);
             onClose();
@@ -91,8 +93,13 @@ function PlayCluster({ selected, instances, onSelect, onPlay }: {
   useEffect(() => {
     if (!open) return;
     const close = (e: MouseEvent) => !ref.current?.contains(e.target as Node) && setOpen(false);
+    const onKeyDown = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
     window.addEventListener('mousedown', close);
-    return () => window.removeEventListener('mousedown', close);
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('mousedown', close);
+      window.removeEventListener('keydown', onKeyDown);
+    };
   }, [open]);
 
   if (launch?.stage === 'running') {
@@ -128,6 +135,8 @@ function PlayCluster({ selected, instances, onSelect, onPlay }: {
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label={t('home.switchInstance')}
+        aria-haspopup="menu"
+        aria-expanded={open}
         title={t('home.switchInstance')}
         className="grid w-14 place-items-center rounded-r-2xl border-l border-white/20 bg-brand-b text-white transition-[filter] hover:brightness-110"
       >
