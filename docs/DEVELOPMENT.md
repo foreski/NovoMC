@@ -280,6 +280,8 @@ with Discord and holds a Novo name, the linked Minecraft accounts, a cape and th
   `render/WingModel.java`, so a worn pair costs two draw calls a frame; each side turns around the shoulder
   hinge the meshes were authored around. `users.wing`/`users.hat` and the shop rows come from
   `relay/migrations/0004-wings-hats.sql` and `0005-wing-models.sql`.
+
+  ![Violet wings and the wizard hat on the paper doll](img/wings.png)
 - **The paper doll on the title screen** (`gui/PaperDoll.java`, drawn by `GuiNovoMenu`) shows the player wearing
   their Novo cape, wings and hat, with a row per slot that cycles through the cosmetics the account owns
   (left arrow or right-click goes back, and `None` removes one). It needs a GUI at least 400 wide and 200 tall
