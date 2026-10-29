@@ -46,9 +46,19 @@ ready. At your DNS provider point the record at GitHub Pages:
 - apex domain (`example.com`): four `A` records to `185.199.108.153`, `.109.153`, `.110.153`, `.111.153`
 - `www` (or any subdomain): `CNAME` to `<user>.github.io`
 
-If you later publish to a custom domain, the `github.io/<repo>/` URL keeps working with a redirect. Links in
-`index.html` are all either absolute (GitHub, releases) or relative to this directory, so both URLs work
-without changes.
+If you later publish to a custom domain, the `github.io/<repo>/` URL keeps working with a redirect. Every asset
+reference in `index.html` is relative to this directory, so both URLs work without changes.
+
+## The download buttons
+
+The three Download buttons point straight at the installer asset rather than at the releases page, so a click
+starts the download. The asset name contains the version, so bump it with each release:
+
+```
+releases/download/v0.4.1/NovoMC_0.4.1_x64-setup.exe
+```
+
+Grep `index.html` for `x64-setup.exe` to find all three.
 
 ## Keeping the screenshots current
 
