@@ -6,6 +6,7 @@
 
 pub mod client;
 pub mod companions;
+pub mod mods;
 pub mod splash;
 pub mod store;
 

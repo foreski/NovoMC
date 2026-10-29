@@ -2,18 +2,26 @@ package com.novomc.client.mixin;
 
 import com.novomc.client.modules.HitColorModule;
 import com.novomc.client.modules.NametagsModule;
+import com.novomc.client.render.NovoCosmetics;
 import java.nio.FloatBuffer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(RendererLivingEntity.class)
 public abstract class MixinRendererLivingEntity {
+    @Shadow
+    protected ModelBase mainModel;
+
     private int novomc$puts;
     private boolean novomc$hurt;
 
@@ -31,6 +39,15 @@ public abstract class MixinRendererLivingEntity {
             value = HitColorModule.component(i);
         }
         return buffer.put(value);
+    }
+
+    /** Wings and hats: drawn after the player model, while its pose is still bound. */
+    @Inject(method = "renderLayers", at = @At("HEAD"))
+    private void novomc$cosmetics(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float partialTicks,
+                                  float ageInTicks, float netHeadYaw, float headPitch, float scale, CallbackInfo ci) {
+        if (entity instanceof EntityPlayer) {
+            NovoCosmetics.render((EntityPlayer) entity, mainModel, scale);
+        }
     }
 
     /** Nametags: your own nametag in third person. */

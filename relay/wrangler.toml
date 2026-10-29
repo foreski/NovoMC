@@ -31,10 +31,17 @@ new_sqlite_classes = ["Presence"]
 binding = "NEWS"
 id = "aa4d09f390fa4f338294021dee086bb8"
 
-# Novo Client accounts (account.js): Discord sign-in, capes, settings sync.
+# Novo Client accounts and Marketplace.
 #   npx wrangler d1 create novo-accounts   (done; its id is below)
 #   npx wrangler d1 execute novo-accounts --remote --file schema.sql
 #   npx wrangler secret put DISCORD_CLIENT_SECRET
+#   npx wrangler secret put STRIPE_SECRET_KEY
+#   npx wrangler secret put STRIPE_WEBHOOK_SECRET
+#   npx wrangler secret put SHOP_TOKEN      (lets the Discord bot edit shop items)
+# Apply relay/migrations/0002-marketplace.sql and 0003-shop-items.sql before deploying.
+# Stripe webhook endpoint: https://<this worker>/stripe/webhook
+# Subscribe to checkout.session.completed. Checkout stays disabled until both
+# Stripe secrets are configured.
 # The Discord application also needs the redirect
 #   https://<this worker>/account/discord/callback
 [[d1_databases]]

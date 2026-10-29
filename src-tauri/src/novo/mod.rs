@@ -11,6 +11,7 @@
 //!   it trusts the launcher; no Minecraft token is involved.
 //! - `sync`: `config/novomc/modules.json` per Minecraft version.
 
+pub mod cosmetics;
 pub mod sync;
 
 use serde::{Deserialize, Serialize};
@@ -23,7 +24,16 @@ use crate::download::http;
 use crate::error::{AppError, AppResult};
 
 const LOGIN_WINDOW: &str = "novo-login";
+const CHECKOUT_WINDOW: &str = "novo-checkout";
 const DISCORD_AUTHORIZE: &str = "https://discord.com/oauth2/authorize";
+
+/// Frames an animated cosmetic plays (see `scripts/make-capes.mjs`).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CapeAnimation {
+    pub frames: u32,
+    pub fps: u32,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -31,11 +41,23 @@ pub struct Cape {
     pub id: String,
     pub name: String,
     pub owned: bool,
+    /// Present only for animated capes; the launcher animates the preview.
+    #[serde(default)]
+    pub animated: Option<CapeAnimation>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Banner {
+    pub id: String,
+    pub name: String,
+    pub owned: bool,
+}
+
+/// A wing or hat the relay lists for the account.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Cosmetic {
     pub id: String,
     pub name: String,
     pub owned: bool,
@@ -53,6 +75,8 @@ pub struct LinkedPlayer {
 #[serde(rename_all = "camelCase")]
 pub struct NovoAccount {
     pub id: String,
+    #[serde(default)]
+    pub coins: u64,
     pub display_name: String,
     pub discord_name: Option<String>,
     pub avatar_url: Option<String>,
@@ -60,6 +84,14 @@ pub struct NovoAccount {
     pub capes: Vec<Cape>,
     pub banner: Option<String>,
     pub banners: Vec<Banner>,
+    #[serde(default)]
+    pub wing: Option<String>,
+    #[serde(default)]
+    pub wings: Vec<Cosmetic>,
+    #[serde(default)]
+    pub hat: Option<String>,
+    #[serde(default)]
+    pub hats: Vec<Cosmetic>,
     pub minecraft: Vec<LinkedPlayer>,
 }
 
@@ -238,6 +270,76 @@ pub async fn novo_set_cape(app: AppHandle, cape: Option<String>) -> AppResult<No
 #[tauri::command]
 pub async fn novo_set_banner(app: AppHandle, banner: Option<String>) -> AppResult<NovoAccount> {
     account_from(call(&app, reqwest::Method::PATCH, "/account/me", Some(json!({ "banner": banner }))).await?)
+}
+
+#[tauri::command]
+pub async fn novo_set_wing(app: AppHandle, wing: Option<String>) -> AppResult<NovoAccount> {
+    account_from(call(&app, reqwest::Method::PATCH, "/account/me", Some(json!({ "wing": wing }))).await?)
+}
+
+#[tauri::command]
+pub async fn novo_set_hat(app: AppHandle, hat: Option<String>) -> AppResult<NovoAccount> {
+    account_from(call(&app, reqwest::Method::PATCH, "/account/me", Some(json!({ "hat": hat }))).await?)
+}
+
+#[tauri::command]
+pub async fn novo_shop(app: AppHandle) -> AppResult<Value> {
+    call(&app, reqwest::Method::GET, "/account/shop", None).await?
+        .ok_or_else(|| AppError::Other("Marketplace is unavailable".into()))
+}
+
+#[tauri::command]
+pub async fn novo_purchase_item(app: AppHandle, id: String) -> AppResult<NovoAccount> {
+    account_from(call(&app, reqwest::Method::POST, "/account/shop/purchase", Some(json!({ "id": id }))).await?)
+}
+
+#[tauri::command]
+pub async fn novo_redeem_gift(app: AppHandle, code: String) -> AppResult<NovoAccount> {
+    account_from(call(&app, reqwest::Method::POST, "/account/shop/redeem", Some(json!({ "code": code }))).await?)
+}
+
+/// Starts a Stripe Checkout session and shows it in a small window of its own.
+///
+/// The session link must be used exactly as Stripe sends it: it carries an
+/// encrypted fragment after the session id, and handing it to a browser (or
+/// through Explorer) drops that fragment, which makes Stripe answer "This link
+/// is incomplete". The window is closed once Stripe redirects to the relay's
+/// return page; the main window refreshes the wallet when it gets focus back.
+#[tauri::command]
+pub async fn novo_checkout(app: AppHandle, bundle_id: String) -> AppResult<()> {
+    use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
+
+    let value = call(&app, reqwest::Method::POST, "/account/checkout", Some(json!({ "bundleId": bundle_id }))).await?;
+    let link = value
+        .and_then(|value| value["url"].as_str().map(String::from))
+        .ok_or_else(|| AppError::Other("Checkout did not return a secure payment link".into()))?;
+    let url = link.parse().map_err(|e| AppError::Other(format!("{e}")))?;
+    if let Some(old) = app.get_webview_window(CHECKOUT_WINDOW) {
+        let _ = old.close();
+    }
+
+    let done_app = app.clone();
+    WebviewWindowBuilder::new(&app, CHECKOUT_WINDOW, WebviewUrl::External(url))
+        .title("Novo Coins checkout")
+        .inner_size(480.0, 720.0)
+        .center()
+        .on_navigation(move |url| {
+            // Stripe sends the player here once the payment succeeds or is cancelled.
+            if url.path().starts_with("/account/checkout/return") {
+                let app = done_app.clone();
+                tauri::async_runtime::spawn(async move {
+                    // Let the return page render before the window disappears.
+                    tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
+                    if let Some(w) = app.get_webview_window(CHECKOUT_WINDOW) {
+                        let _ = w.close();
+                    }
+                });
+            }
+            true
+        })
+        .build()
+        .map_err(|e| AppError::Other(format!("Couldn't open the checkout window: {e}")))?;
+    Ok(())
 }
 
 #[tauri::command]

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Check, Cloud, Link2, Loader2, Lock, LogOut, Pencil, Sparkles, Unlink, X } from 'lucide-react';
-import { api, type NovoAccount, type Settings } from '../lib/api';
+import { api, type CosmeticAnimation, type NovoAccount, type Settings } from '../lib/api';
 import { useAccounts } from '../lib/accounts';
 import { useNovo } from '../lib/novo';
 import { useT } from '../lib/i18n';
@@ -17,16 +17,37 @@ const CAPE_URLS = import.meta.glob('../../client-mod/src/main/resources/assets/n
 }) as Record<string, string>;
 const BANNER_URLS = import.meta.glob('../../client-mod/src/main/resources/assets/novomc/textures/banners/*.png', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 
-function capeUrl(id: string): string | undefined {
-  return Object.entries(CAPE_URLS).find(([path]) => path.endsWith(`/${id}.png`))?.[1];
+/** `<id>.png` for still capes, or `<id>_<frame>.png` for one animation frame. */
+function capeUrl(id: string, frame: number | null = null): string | undefined {
+  const file = frame === null ? id : `${id}_${frame}`;
+  return Object.entries(CAPE_URLS).find(([path]) => path.endsWith(`/${file}.png`))?.[1];
 }
+
+/**
+ * Steps through an animated cape's frames while its preview is mounted. Each
+ * preview owns its timer, so leaving the page or closing the collection stops
+ * the work; capes nobody is looking at never animate.
+ */
+function useCapeFrame(animated: CosmeticAnimation | null | undefined): number {
+  const [frame, setFrame] = useState(0);
+  const frames = animated?.frames ?? 0;
+  const fps = animated?.fps ?? 0;
+  useEffect(() => {
+    if (frames < 2 || fps < 1) return;
+    const timer = window.setInterval(() => setFrame((value) => (value + 1) % frames), 1000 / fps);
+    return () => window.clearInterval(timer);
+  }, [frames, fps]);
+  return frames < 2 ? 0 : frame % frames;
+}
+
 function bannerUrl(id: string | null): string | undefined {
   return id ? Object.entries(BANNER_URLS).find(([path]) => path.endsWith(`/${id}.png`))?.[1] : undefined;
 }
 
 /** The outer side of a cape texture (10x16 at 1,1 of 64x32), scaled up crisp. */
-export function CapePreview({ id, scale = 5 }: { id: string; scale?: number }) {
-  const url = capeUrl(id);
+export function CapePreview({ id, scale = 5, animated = null }: { id: string; scale?: number; animated?: CosmeticAnimation | null }) {
+  const frame = useCapeFrame(animated);
+  const url = (animated ? capeUrl(id, frame) : undefined) ?? capeUrl(id);
   return (
     <div
       className="rounded-sm shadow-lg shadow-black/40"

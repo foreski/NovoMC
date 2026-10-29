@@ -21,6 +21,15 @@ npm run tauri dev
 
 `npm run mod` builds the NovoMC Client Forge mod (`client-mod/`) and copies it to
 `src-tauri/resources/novomc-client.jar`, which the launcher bundles. Run it again after changing the mod.
+The modern build (`client-mod-modern/`) becomes `src-tauri/resources/novomc-client-modern.jar` at the same time.
+
+Novo Client runs with its own mods only. Before every launch, `instances/mods.rs` moves any `.jar`/`.zip` in the
+instance's `mods/` folder that is not `novomc-client.jar` or a pinned companion (`instances/companions.rs`:
+MemoryFix on 1.8.9, Fabric API on 26.3) into the instance's `mods-blocked/` folder, keeping the path and adding
+` (2)`, ` (3)` on name clashes. The launch console prints each moved file. This only applies to instances that
+run the client (`client_mod` on a supported loader); other instances keep their mods. Enforcement happens at
+launch, so a jar added while the game is running is moved on the next start. Someone launching the profile
+outside Novo Client bypasses the check, since Forge/Fabric have no allowlist of their own.
 
 Build the installer (NSIS, written to `src-tauri/target/release/bundle/nsis/`):
 
@@ -238,8 +247,16 @@ with Discord and holds a Novo name, the linked Minecraft accounts, a cape and th
   Novo account that linked it last, with up to 10 per account.
 - **Capes:** the textures are 64x32 in the vanilla cape layout, with the elytra area painted for modern. They are
   drawn by `node scripts/make-capes.mjs` into `client-mod/src/main/resources/assets/novomc/textures/capes/` and
-  ship in both jars. The launcher's picker reads the same files. The ids live in `relay/src/capes.js`. Free capes
-  belong to everyone, and the others are granted per account:
+  ship in both jars. The launcher's picker reads the same files. The shop capes (`arctic_cipher` ...
+  `solar_eclipse`) are hand-drawn art dropped in as files; `node scripts/make-capes.mjs` only draws the brand
+  cape, the two grant-only capes and the 2 animated ones (`aurora_flow`, `ember_flow`, 24 frames at 12 fps).
+  Animated capes ship one PNG per frame (`<id>_<frame>.png`) and carry
+  `animated: {frames, fps}` in `relay/src/capes.js`; the account and shop responses pass that through so the
+  launcher can animate a preview. In game the frame comes from the wall clock inside `getLocationCape`/`getSkin`,
+  which run only while a cape is drawn: no per-tick work, no state per player, and every viewer sees the same
+  frame. Adding an animated cape also means adding its `{frames, ms}` to `NovoCapesModule.ANIMATED` (1.8.9) and
+  `Cosmetics.ANIMATED` (modern); `scripts/make-capes.mjs` writes the frame files. The ids live in
+  `relay/src/capes.js`. Free capes belong to everyone, and the others are granted per account:
   `INSERT INTO grants (user_id, cape) VALUES ('<users.id>', 'developer')` in the D1 console.
   `/presence/sync` returns `capes: {uuid: id}` for the online players it was asked about. The clients' shared
   `com.novomc.client.net.NovoPresence` (the old badge networking, moved out of `NovoBadgeModule`) keeps that
@@ -247,6 +264,39 @@ with Discord and holds a Novo name, the linked Minecraft accounts, a cape and th
   `AbstractClientPlayerMixin.getSkin` on 26.3. Only players online on Novo show capes, and the badge's
   "shareMine" setting hides your badge and your cape alike. On 26.3 there is no badge yet, so presence runs
   while Novo Capes is on.
+- **Wings and hats** are 1.8.9-only (the modern client has no model renderer to hook, so it shows capes only).
+  They are equipped per account in the Marketplace (`users.wing`, `users.hat`) and shared through the same
+  `/presence/sync` reply as `wings: {uuid: id}` and `hats: {uuid: id}`; the ids and their flap settings live in
+  `relay/src/capes.js` (`WINGS`, `HATS`). Wings are boxes built in `render/WingModel` — three hinges per wing
+  (root, mid, tip) so the outer feathers lag the shoulder — and hats are the OBJ meshes in
+  `client-mod/src/main/resources/assets/novomc/models/hats/` (materials in `materials.mtl`), parsed and
+  flat-shaded once per id by `render/HatMesh`. `render/NovoCosmetics` draws both from
+  `RendererLivingEntity.renderLayers`, after the player model and before the armor/cape layers, reusing the
+  model's pose for that frame so they follow the body and head through sneaking, riding and head turns. No
+  textures or atlases are involved: both are untextured triangles/quads with baked shading. The wing flap runs
+  off `System.nanoTime()`, so it costs nothing when nobody with wings is on screen. Both are gated by the same
+  `novo_capes` module ("Novo Cosmetics") and its `showOthers` setting. `users.wing`/`users.hat` and the eight
+  shop rows come from `relay/migrations/0004-wings-hats.sql`.
+- **The paper doll on the title screen** (`gui/PaperDoll.java`, drawn by `GuiNovoMenu`) shows the player wearing
+  their Novo cape, wings and hat, with a row per slot that cycles through the cosmetics the account owns
+  (left arrow or right-click goes back, and `None` removes one). It needs a GUI at least 400 wide and 200 tall
+  and hides itself when the window is too small, since it lives in the left gutter beside the menu buttons; its
+  scale comes from the room left between those buttons and the version line, so it is 2-4 model units per dot
+  and the wings (22 units each side, the widest cosmetic) stay clear of the buttons. It draws the vanilla player
+  model with the game's own skin, flat-on and back to front — wings, cape, body, hat — with depth testing off,
+  reusing `NovoCosmetics.renderWings`/`renderHat`, so the doll matches what other players see. The cape is drawn
+  flared (6 units at the shoulders to 8.5 at the hem) rather than at its worn 5: from the front a worn cape hides
+  completely behind the body and legs, and the flare is what lets the player tell which one they are wearing.
+
+  ![The paper doll on the title screen](img/paper-doll.png)
+  The game has no account token and must not get one, so it never writes to the relay: before each launch
+  `novo/cosmetics.rs` writes `config/novomc/cosmetics.json` (the worn ids plus the owned capes, wings and hats
+  with their names) from `/account/me`, and after the game exits it PATCHes whatever the doll changed and
+  updates `cosmetics-synced.json`, the copy it last wrote, so an untouched file costs no request. It then emits
+  `novo-account`, which makes the launcher reload the account so the Marketplace shows the new look. 1.8.9 only,
+  like the wings and hats themselves; the modern client ignores the file.
+  To see the doll without the relay, write that file by hand:
+  `{"cape":"aurora_flow","wing":"angel_wings","hat":"wizard_hat","items":{"capes":[{"id":"aurora_flow","name":"Aurora Flow"}],"wings":[{"id":"angel_wings","name":"Celestial Wings"}],"hats":[{"id":"wizard_hat","name":"Wizard Hat"}]}}`.
 - **Settings sync** (`src-tauri/src/novo/sync.rs`): an instance's `config/novomc/modules.json` is saved under the
   slot of its Minecraft version (`/account/settings/1.8.9`, `/account/settings/26.3`, up to 256 KB). `cloud-sync.json`
   next to it records the file's hash and the cloud copy's time from the last sync, which shows which side changed.
@@ -264,11 +314,15 @@ with Discord and holds a Novo name, the linked Minecraft accounts, a cape and th
   `wrangler.toml` lists the same bindings, with a placeholder D1 id.
 - **Tests:** `node relay/test/account.test.mjs` mocks Discord and uses `node:sqlite` as D1, and
   `cargo test novo` covers the sync plan, the authorize URL and the callback. For the in-game checks, run the local
-  relay with `node relay/test/local-relay.mjs 8787 ember`. It is the real Worker with presence in memory and
-  SQLite as D1. It links everyone who says hello to a test account that wears `ember`. Then run
-  the 1.8.9 mod check with `NOVOMC_TEST_RELAY=http://127.0.0.1:8787 NOVOMC_TEST_MODE=modcheck`, which checks
-  `novo_capes.worn` and `novo_capes.drawn` and takes the `cape` screenshot. The modern autotest with the same
-  relay prints `Modern cape: ember drawn novomc:textures/capes/ember.png` and takes a `cape` screenshot.
+  relay with `node relay/test/local-relay.mjs 8787 tidal angel_wings wizard_hat` (the arguments are port, cape,
+  wing and hat; the defaults are those). It is the real Worker with presence in memory and SQLite as D1. It
+  links everyone who says hello to a test account that wears them. Then run the 1.8.9 mod check with
+  `NOVOMC_TEST_RELAY=http://127.0.0.1:8787 NOVOMC_TEST_MODE=modcheck`, which checks `novo_capes.worn`,
+  `novo_capes.drawn`, `novo_capes.wing` and `novo_capes.hat` and takes the `cape` and `wings-hat` screenshots.
+  The modern autotest with the same relay prints `Modern cape: tidal drawn novomc:textures/capes/tidal.png` and
+  takes a `cape` screenshot. `NOVOMC_TEST_MODE=menu cargo test launch_real_version -- --ignored` stops at the title
+  screen instead of joining a world and takes `menu`/`menu-wide` screenshots of the paper doll; it writes
+  `config/novomc/cosmetics.json` itself, standing in for `novo/cosmetics.rs` (which needs a signed-in account).
 
 ## First-run login and Marketplace
 
@@ -285,3 +339,29 @@ with Discord and holds a Novo name, the linked Minecraft accounts, a cape and th
 - D1 needs the `users.banner` column (`ALTER TABLE users ADD COLUMN banner TEXT;` for an existing database).
   The account API returns owned banners and accepts `PATCH /account/me {banner: id|null}`. Do not redeploy after
   changing this schema until the migration has succeeded.
+- The Marketplace adds a Novo Coin wallet, cosmetic purchases, developer gift codes, and Stripe Checkout.
+  Apply `relay/migrations/0002-marketplace.sql`, `relay/migrations/0003-shop-items.sql` and
+  `relay/migrations/0004-wings-hats.sql` to the existing D1 database before deploying `relay/src/`.
+  Purchases and webhook credits use an idempotent ledger; Stripe's `checkout.session.completed` event is verified
+  against the raw request body and `STRIPE_WEBHOOK_SECRET` before any coins are credited.
+- The cosmetic catalog lives in the D1 `shop_items` table (seeded by `0003-shop-items.sql`), not in code, so it
+  can change without a deploy. `GET/POST/PATCH/DELETE /admin/shop/items` edit it with the `SHOP_TOKEN` secret,
+  including price, name, description, `active` (hide) and `position` (display order); see [SHOP_BOT.md](SHOP_BOT.md)
+  for the API and a Discord bot that wraps it. `shopFor` and `purchase` read prices from D1 per request, so a bot
+  edit applies on the next launcher refresh. Capes and banners must reference a paid id from `relay/src/capes.js`,
+  which keeps unwearable or already-free cosmetics off sale. Approved coin bundles stay in `relay/src/shop.js`
+  ($1.99/200, $4.99/550, $9.99/1,200): Stripe sessions pin an amount at checkout, so bundle prices are code.
+  `node relay/test/shop-admin.test.mjs` covers the admin API and D1-priced purchases, and
+  `node relay/test/stripe.test.mjs` covers gift codes, purchases, equipping, and Stripe fulfillment: a signed
+  `checkout.session.completed` credits the bundle, a redelivered event credits nothing more, and forged, stale,
+  unpaid or amount-mismatched events are refused.
+- Configure the Worker secrets `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`, and create a Stripe webhook at
+  `https://<worker-host>/stripe/webhook` subscribed to `checkout.session.completed`. Checkout remains disabled
+  until both secrets exist. Start with Stripe test-mode credentials and a test-mode webhook before switching to
+  live-mode credentials. Never put either secret in the repository or launcher.
+- Generate developer gift codes with `node relay/scripts/generate-gift-codes.mjs <count> <coins> [uses-per-code]`.
+  The script inserts only SHA-256 hashes into D1 and prints the raw codes once after insertion. Keep and share that
+  output privately; it cannot be recovered from the database.
+- Current purchasable cosmetics are capes, profile banners, wings and hats: 11 capes (two of them animated),
+  2 banners, 3 wing sets and 5 hats. Wings and hats render on 1.8.9 only, so say so on the card rather than
+  selling them to someone who only plays the modern client.

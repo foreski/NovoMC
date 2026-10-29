@@ -7,7 +7,8 @@
 //          client secret, then forget Discord's token.
 //   GET    /account/discord/callback          a page saying the window can close
 //   GET    /account/me                        -> account
-//   PATCH  /account/me     {displayName?, cape?}  -> account   (cape: an owned id or null)
+//   PATCH  /account/me     {displayName?, cape?, banner?, wing?, hat?}  -> account
+//          (each cosmetic is an owned id or null)
 //   POST   /account/link   {name, uuid}       -> account
 //          Not checked with Mojang, exactly like /presence/hello.
 //   DELETE /account/link/<uuid>               -> account
@@ -24,7 +25,8 @@
 //   DISCORD_CLIENT_SECRET  (secret)
 
 import { verify, normalizeUuid } from './presence.js';
-import { BANNERS, CAPES, ownedBanners, ownedCapes } from './capes.js';
+import { BANNERS, CAPES, HATS, WINGS, ownedBanners, ownedCapes, ownedHats, ownedWings } from './capes.js';
+import { checkoutReturn, createCheckout, ensureWallet, purchase, redeemGift, shopFor } from './shop.js';
 
 const MAX_BODY = 8 * 1024;
 const MAX_SETTINGS = 256 * 1024;
@@ -40,6 +42,7 @@ const DISCORD_UA = 'DiscordBot (https://github.com/foreski/NovoMC, 1)';
 
 export async function handleAccount(request, env, path) {
   if (request.method === 'GET' && path === '/account/discord/callback') return closePage();
+  if (request.method === 'GET' && path === '/account/checkout/return') return checkoutReturn();
   if (!env.NOVO_DB) return json({ error: 'Accounts not configured' }, 500);
   const db = env.NOVO_DB;
 
@@ -54,6 +57,27 @@ export async function handleAccount(request, env, path) {
 
   const user = await authenticate(db, request);
   if (!user) return json({ error: 'Signed out' }, 401);
+
+  if (path === '/account/shop' && request.method === 'GET') return json(await shopFor(db, user, !!(env.STRIPE_SECRET_KEY && env.STRIPE_WEBHOOK_SECRET)));
+  if (path === '/account/shop/purchase' && request.method === 'POST') {
+    const body = await readSmall(request);
+    if (!body || typeof body.id !== 'string') return json({ error: 'Choose a shop item' }, 400);
+    const result = await purchase(db, user, body.id);
+    if (result.status !== 200) return result;
+    return json({ ...(await account(db, user)), ...(await result.json()) });
+  }
+  if (path === '/account/shop/redeem' && request.method === 'POST') {
+    const body = await readSmall(request);
+    if (!body || typeof body.code !== 'string') return json({ error: 'Enter a gift code' }, 400);
+    const result = await redeemGift(db, user, body.code);
+    if (result.status !== 200) return result;
+    return json({ ...(await account(db, user)), ...(await result.json()) });
+  }
+  if (path === '/account/checkout' && request.method === 'POST') {
+    const body = await readSmall(request);
+    if (!body) return json({ error: 'Choose a coin bundle' }, 400);
+    return createCheckout(request, env, user, body);
+  }
 
   if (path === '/account/me') {
     if (request.method === 'GET') return json(await account(db, user));
@@ -77,6 +101,16 @@ export async function handleAccount(request, env, path) {
       if (banner !== null && !(await ownedBanners(db, user.id)).includes(banner)) return json({ error: "You don't own that banner" }, 403);
       await db.prepare('UPDATE users SET banner = ? WHERE id = ?').bind(banner, user.id).run();
       user.banner = banner;
+    }
+    for (const [slot, catalog, owned] of [
+      ['wing', WINGS, ownedWings],
+      ['hat', HATS, ownedHats],
+    ]) {
+      if (!(slot in body)) continue;
+      const id = body[slot] === null ? null : String(body[slot]);
+      if (id !== null && !(await owned(db, user.id)).includes(id)) return json({ error: `You don't own those ${slot}s` }, 403);
+      await db.prepare(`UPDATE users SET ${slot} = ? WHERE id = ?`).bind(id, user.id).run();
+      user[slot] = id;
     }
     return json(await account(db, user));
   }
@@ -198,41 +232,70 @@ async function authenticate(db, request) {
 }
 
 async function account(db, user) {
+  await ensureWallet(db, user.id);
+  const wallet = await db.prepare('SELECT balance FROM wallets WHERE user_id = ?').bind(user.id).first();
   const { results: links } = await db.prepare('SELECT uuid, name FROM links WHERE user_id = ? ORDER BY linked_at').bind(user.id).all();
   const owned = await ownedCapes(db, user.id);
   const ownedBannerIds = await ownedBanners(db, user.id);
+  const ownedWingIds = await ownedWings(db, user.id);
+  const ownedHatIds = await ownedHats(db, user.id);
   return {
     id: user.id,
+    coins: Number(wallet?.balance || 0),
     displayName: user.display_name,
     discordName: user.discord_name,
     avatarUrl: user.avatar ? `https://cdn.discordapp.com/avatars/${user.discord_id}/${user.avatar}.png?size=128` : null,
     cape: user.cape && owned.includes(user.cape) ? user.cape : null,
-    capes: CAPES.map((c) => ({ id: c.id, name: c.name, owned: owned.includes(c.id) })),
+    capes: CAPES.map((c) => ({ id: c.id, name: c.name, owned: owned.includes(c.id), animated: c.animated ?? null })),
     banner: user.banner && ownedBannerIds.includes(user.banner) ? user.banner : null,
     banners: BANNERS.map((b) => ({ id: b.id, name: b.name, owned: ownedBannerIds.includes(b.id) })),
+    wing: user.wing && ownedWingIds.includes(user.wing) ? user.wing : null,
+    wings: WINGS.map((w) => ({ id: w.id, name: w.name, owned: ownedWingIds.includes(w.id), flap: w.flap ?? null })),
+    hat: user.hat && ownedHatIds.includes(user.hat) ? user.hat : null,
+    hats: HATS.map((h) => ({ id: h.id, name: h.name, owned: ownedHatIds.includes(h.id) })),
     minecraft: links.map((l) => ({ uuid: l.uuid, name: l.name })),
   };
 }
 
 /** Equipped capes of the given (normalized) UUIDs, as {uuid: capeId}. */
 export async function capesOf(db, uuids) {
+  return equippedOf(db, uuids, 'cape');
+}
+
+/** Equipped wings or hats, as {uuid: id}. */
+export async function wingsOf(db, uuids) {
+  return equippedOf(db, uuids, 'wing');
+}
+
+export async function hatsOf(db, uuids) {
+  return equippedOf(db, uuids, 'hat');
+}
+
+const EQUIPPED = {
+  cape: { column: 'cape', catalog: CAPES, owned: ownedCapes },
+  wing: { column: 'wing', catalog: WINGS, owned: ownedWings },
+  hat: { column: 'hat', catalog: HATS, owned: ownedHats },
+};
+
+async function equippedOf(db, uuids, kind) {
   const out = {};
   if (!db || uuids.length === 0) return out;
+  const { column, catalog, owned } = EQUIPPED[kind];
   const marks = uuids.map(() => '?').join(',');
   const { results } = await db
-    .prepare(`SELECT l.uuid, u.id AS user_id, u.cape FROM links l JOIN users u ON u.id = l.user_id WHERE u.cape IS NOT NULL AND l.uuid IN (${marks})`)
+    .prepare(`SELECT l.uuid, u.id AS user_id, u.${column} AS worn FROM links l JOIN users u ON u.id = l.user_id WHERE u.${column} IS NOT NULL AND l.uuid IN (${marks})`)
     .bind(...uuids)
     .all();
   const grants = new Map();
   for (const r of results) {
-    const cape = CAPES.find((c) => c.id === r.cape);
-    if (!cape) continue;
-    if (!cape.free) {
-      // Someone could lose a grant after equipping it; check exclusive capes are still theirs.
-      if (!grants.has(r.user_id)) grants.set(r.user_id, await ownedCapes(db, r.user_id));
-      if (!grants.get(r.user_id).includes(cape.id)) continue;
+    const item = catalog.find((c) => c.id === r.worn);
+    if (!item) continue;
+    if (!item.free) {
+      // Someone could lose a grant after equipping it; check exclusive items are still theirs.
+      if (!grants.has(r.user_id)) grants.set(r.user_id, await owned(db, r.user_id));
+      if (!grants.get(r.user_id).includes(item.id)) continue;
     }
-    out[r.uuid] = cape.id;
+    out[r.uuid] = item.id;
   }
   return out;
 }

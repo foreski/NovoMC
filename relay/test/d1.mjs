@@ -8,9 +8,21 @@ export function d1() {
   sqlite.exec(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8'));
   const statement = (sql, args = []) => ({
     bind: (...a) => statement(sql, a),
-    run: async () => (sqlite.prepare(sql).run(...args), { success: true }),
+    run: async () => {
+      const result = sqlite.prepare(sql).run(...args);
+      return { success: true, meta: { changes: Number(result.changes) } };
+    },
     first: async () => sqlite.prepare(sql).get(...args) ?? null,
     all: async () => ({ results: sqlite.prepare(sql).all(...args) }),
   });
-  return { prepare: (sql) => statement(sql), sqlite };
+  return {
+    prepare: (sql) => statement(sql),
+    // D1 runs a batch in order on one connection and reports each statement.
+    batch: async (statements) => {
+      const results = [];
+      for (const s of statements) results.push(await s.run());
+      return results;
+    },
+    sqlite,
+  };
 }

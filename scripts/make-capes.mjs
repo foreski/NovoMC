@@ -1,6 +1,14 @@
-// Draws the Novo cape textures (64x32, the vanilla cape layout) into
-// client-mod/src/main/resources/assets/novomc/textures/capes/. Both clients
-// and the launcher's cape picker use these files. Run: node scripts/make-capes.mjs
+// Draws the procedural Novo cape textures (64x32, the vanilla cape layout) into
+// client-mod/src/main/resources/assets/novomc/textures/capes/. Both clients and
+// the launcher read these files. Run: node scripts/make-capes.mjs
+//
+// The 15 shop capes (arctic_cipher ... solar_eclipse) are hand-drawn art and are
+// not generated here; this covers the brand cape, the two grant-only capes and
+// the two animated capes.
+//
+// Static capes are `<id>.png`. Animated capes are one PNG per frame,
+// `<id>_<frame>.png` from 0, plus `frames`/`fps` in relay/src/capes.js; the
+// clients swap frames by wall clock only while the cape is being drawn.
 //
 // Ids must match relay/src/capes.js.
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -31,38 +39,12 @@ const ramp = (stops, t) => {
 const GLYPHS = {
   N: ['X...X', 'XX..X', 'X.X.X', 'X..XX', 'X...X'],
   star: ['..X..', '.XXX.', 'XXXXX', '.XXX.', '.X.X.'],
-  flake: ['X.X.X', '.XXX.', 'XX.XX', '.XXX.', 'X.X.X'],
-  leaf: ['...XX', '..XXX', '.XXX.', 'XXX..', 'X....'],
-  flame: ['..X..', '.XX..', '.XXX.', 'XXXXX', '.XXX.'],
-  prompt: ['X....', '.X...', '..X..', '.X...', 'X.XXX'],
+  prompt: ['X....', '.X...', '..X...', '.X...', 'X.XXX'],
 };
 
 /** Each design gives the outer side's color at (x, y) in 0..9, 0..15. */
 const CAPES = {
   novo: { paint: (x, y) => ramp(['#5b8cff', '#7a6cff', '#b45bff'], y / 15), glyph: 'N', ink: '#ffffff' },
-  aurora: {
-    paint: (x, y) => ramp(['#0b1a2e', '#22d3ee', '#34d399', '#b45bff', '#0b1a2e'], (y + Math.sin(x / 1.6) * 1.6) / 16),
-    glyph: null,
-  },
-  ember: {
-    paint: (x, y) => {
-      const c = ramp(['#1a0505', '#7f1d1d', '#ea580c', '#fbbf24'], y / 15);
-      return (x * 7 + y * 13) % 11 === 0 ? shade(c, 1.35) : c;
-    },
-    glyph: 'flame',
-    ink: '#fde68a',
-  },
-  frost: {
-    paint: (x, y) => ((x * 3 + y * 7) % 13 === 0 ? hex('#ffffff') : ramp(['#e0f2fe', '#7dd3fc', '#0369a1'], y / 15)),
-    glyph: 'flake',
-    ink: '#ffffff',
-  },
-  verdant: { paint: (x, y) => shade(ramp(['#14532d', '#16a34a', '#4ade80'], y / 15), (x + Math.floor(y / 2)) % 3 === 0 ? 0.85 : 1), glyph: 'leaf', ink: '#dcfce7' },
-  midnight: {
-    paint: (x, y) => ((x * 5 + y * 3) % 17 === 0 ? hex('#e0e7ff') : ramp(['#020617', '#1e1b4b', '#312e81'], y / 15)),
-    glyph: 'star',
-    ink: '#fde68a',
-  },
   early_supporter: {
     paint: (x, y) => (x === 0 || x === 9 || y === 0 || y === 15 ? hex('#fbbf24') : ramp(['#3b0764', '#581c87'], y / 15)),
     glyph: 'star',
@@ -73,13 +55,43 @@ const CAPES = {
     glyph: 'prompt',
     ink: '#4ade80',
   },
+  // Animated: paint gets t (0..1) through the loop and the cape ships `frames` PNGs.
+  // Smooth 24-frame loops: a cyan ribbon climbing the cape, and a living flame.
+  aurora_flow: {
+    frames: 24,
+    fps: 12,
+    paint: (x, y, t) => {
+      const phase = t * Math.PI * 2;
+      const centre = 4.5 + Math.sin(phase + y / 3.2) * 2.6;
+      const width = 2.4 + Math.sin(phase * 2 + y / 2) * 0.7;
+      const glow = Math.pow(Math.max(0, 1 - Math.abs(x - centre) / width), 1.4);
+      const base = ramp(['#050b1c', '#0b1733', '#14264d'], y / 15);
+      return mix(mix(base, hex('#22d3ee'), glow), hex('#e0fbff'), Math.pow(glow, 5) * 0.9);
+    },
+    glyph: null,
+  },
+  ember_flow: {
+    frames: 24,
+    fps: 12,
+    paint: (x, y, t) => {
+      const phase = t * Math.PI * 2;
+      const flicker = 0.5 + 0.5 * Math.sin(phase + x * 1.7 + y * 0.35);
+      const rise = 1 - y / 15;
+      const heat = Math.max(0, rise * 1.15 - Math.abs(x - 4.5) / 12 + flicker * 0.25 - 0.15);
+      const base = ramp(['#0a0503', '#1c0a06', '#33120a'], y / 15);
+      const cool = mix(base, hex('#7f1d1d'), Math.min(1, heat * 1.6));
+      const hot = mix(cool, hex('#f97316'), Math.max(0, Math.min(1, heat - 0.25) * 2));
+      return mix(hot, hex('#fde68a'), Math.max(0, Math.min(1, heat - 0.7)) * 2.4);
+    },
+    glyph: null,
+  },
 };
 
-function draw({ paint, glyph, ink }) {
+function draw({ paint, glyph, ink }, t = 0) {
   const px = new Uint8Array(W * H * 4);
   const set = (x, y, [r, g, b], a = 255) => px.set([r, g, b, a], (y * W + x) * 4);
   const outer = (x, y) => {
-    let c = paint(x, y);
+    let c = paint(x, y, t);
     const g = glyph && GLYPHS[glyph];
     if (g && x >= 2 && x < 7 && y >= 3 && y < 8) {
       const row = g[y - 3];
@@ -92,17 +104,17 @@ function draw({ paint, glyph, ink }) {
       const c = outer(x, y);
       set(OUTER.x + x, OUTER.y + y, c);
       // The inner side is a darker mirror; the edges take the nearest color.
-      set(INNER.x + (OUTER.w - 1 - x), INNER.y + y, shade(paint(x, y), 0.6));
+      set(INNER.x + (OUTER.w - 1 - x), INNER.y + y, shade(paint(x, y, t), 0.6));
     }
-    set(0, OUTER.y + y, shade(paint(0, y), 0.8)); // left edge
-    set(11, OUTER.y + y, shade(paint(9, y), 0.8)); // right edge
+    set(0, OUTER.y + y, shade(paint(0, y, t), 0.8)); // left edge
+    set(11, OUTER.y + y, shade(paint(9, y, t), 0.8)); // right edge
   }
   for (let x = 0; x < OUTER.w; x++) {
-    set(1 + x, 0, shade(paint(x, 0), 0.9)); // top
-    set(11 + x, 0, shade(paint(x, 15), 0.7)); // bottom
+    set(1 + x, 0, shade(paint(x, 0, t), 0.9)); // top
+    set(11 + x, 0, shade(paint(x, 15, t), 0.7)); // bottom
   }
   for (let y = 0; y < 22; y++) {
-    for (let x = 22; x < 46; x++) set(x, y, shade(paint((x - 22) % 10, Math.min(15, Math.floor(y * 0.75))), y < 2 || x < 24 ? 0.8 : 1));
+    for (let x = 22; x < 46; x++) set(x, y, shade(paint((x - 22) % 10, Math.min(15, Math.floor(y * 0.75)), t), y < 2 || x < 24 ? 0.8 : 1));
   }
   return png(px);
 }
@@ -135,7 +147,13 @@ function crc32(buf) {
 }
 
 mkdirSync(OUT, { recursive: true });
+let files = 0;
 for (const [id, design] of Object.entries(CAPES)) {
-  writeFileSync(new URL(`${id}.png`, OUT), draw(design));
+  const frames = design.frames || 1;
+  for (let frame = 0; frame < frames; frame++) {
+    const file = frames > 1 ? `${id}_${frame}` : id;
+    writeFileSync(new URL(`${file}.png`, OUT), draw(design, frame / frames));
+    files++;
+  }
 }
-console.log(`Wrote ${Object.keys(CAPES).length} capes`);
+console.log(`Wrote ${Object.keys(CAPES).length} procedural capes (${files} files)`);

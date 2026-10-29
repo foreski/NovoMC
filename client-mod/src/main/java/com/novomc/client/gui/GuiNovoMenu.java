@@ -44,6 +44,8 @@ public class GuiNovoMenu extends GuiMainMenu {
     private static final int TRAINERS = 25;
 
     private final long openedAt = System.currentTimeMillis();
+    /** The cosmetics doll in the left gutter, or null when the account has none. */
+    private PaperDoll doll;
 
     private static ResourceLocation tex(String name) {
         return new ResourceLocation(NovoMC.MODID, "textures/gui/" + name + ".png");
@@ -72,6 +74,7 @@ public class GuiNovoMenu extends GuiMainMenu {
         }
 
         buttonList.add(new MenuCard(CARD, width - 128, height - 66, 120, 44));
+        doll = PaperDoll.load();
     }
 
     @Override
@@ -102,6 +105,10 @@ public class GuiNovoMenu extends GuiMainMenu {
         String legal = "Copyright Mojang AB. Do not distribute!";
         Draw.text(legal, width - Draw.width(legal) - 4, height - 10, 0xFF8A94A6);
 
+        if (doll != null) {
+            doll.draw(mouseX, mouseY, width, height);
+        }
+
         String tip = null;
         for (GuiButton b : buttonList) {
             b.drawButton(mc, mouseX, mouseY);
@@ -117,6 +124,14 @@ public class GuiNovoMenu extends GuiMainMenu {
             Draw.outline(tx, ty, tx + w, ty + 13, NovoButton.ACCENT);
             Draw.text(tip, tx + 4, ty + 3, 0xFFFFFFFF);
         }
+    }
+
+    @Override
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws java.io.IOException {
+        if (doll != null && doll.click(mouseX, mouseY, mouseButton, width, height)) {
+            return;
+        }
+        super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
     @Override

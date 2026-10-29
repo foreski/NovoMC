@@ -6,7 +6,9 @@
 //   POST /report  {kind, title, description, version, os, java, minecraft, loader, log, crash, signature}
 //   POST /presence/...  who's on NovoMC, for the in-game badge (see presence.js)
 //   GET|POST|DELETE /news  launcher news, published by the Discord bot (see news.js)
-//   /account/...  Novo Client accounts: Discord sign-in, capes, settings sync (see account.js)
+//   /account/...  Novo Client accounts, coin wallet, shop, gift codes, and Stripe Checkout
+//   /admin/shop/items  shop catalog management for the Discord bot (SHOP_TOKEN)
+//   POST /stripe/webhook  verified Stripe Checkout payment fulfillment
 //
 // Environment:
 //   GITHUB_TOKEN  (secret) fine-grained token with Issues: read & write on the repo
@@ -14,7 +16,9 @@
 //   RATE          (optional KV namespace) for rate limits shared across instances
 //   PRESENCE      Durable Object namespace (class Presence)
 //   NEWS          KV namespace for news; NEWS_TOKEN (secret) lets the bot publish
-//   NOVO_DB       D1 database for accounts; DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET (secret)
+//   NOVO_DB       D1 database for accounts and store
+//   SHOP_TOKEN    (secret) lets the Discord bot edit the shop catalog (see docs/SHOP_BOT.md)
+//   STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET are secrets; both are required to enable checkout
 //
 // Abuse limits: 64 KB per report, 5 reports per IP per hour, and repeats of
 // the same crash (same `signature`) become a comment on the existing issue.
@@ -22,6 +26,7 @@
 import { handleAccount } from './account.js';
 import { handleNews } from './news.js';
 import { handlePresence } from './presence.js';
+import { handleShopAdmin, stripeWebhook } from './shop.js';
 
 export { Presence } from './presence.js';
 
@@ -33,6 +38,8 @@ const memoryHits = new Map();
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname === '/stripe/webhook') return stripeWebhook(request, env);
+    if (url.pathname.startsWith('/admin/shop/')) return handleShopAdmin(request, env, url.pathname);
     if (url.pathname.startsWith('/account/')) return handleAccount(request, env, url.pathname);
     if (url.pathname.startsWith('/presence/')) return handlePresence(request, env, url.pathname);
     if (url.pathname === '/news' || url.pathname.startsWith('/news/')) return handleNews(request, env, url.pathname);

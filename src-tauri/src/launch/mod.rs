@@ -237,7 +237,13 @@ async fn start(app: &AppHandle, instance_id: &str, stop: CancellationToken, serv
 
     emit(app, state(LaunchStage::Starting));
     instances::client::sync(app, &root, &instance)?;
+    // The title screen's paper doll shows the account's cape, wings and hat.
+    crate::novo::cosmetics::prepare(app, instance_id).await;
     instances::companions::sync(&root, &instance).await?;
+    // Novo Client runs with its own mods only; anything else was moved aside.
+    for blocked in instances::mods::enforce(&root, &instance)? {
+        println!("blocked mod {} (moved to {})", blocked.from, blocked.to);
+    }
     if instances::client::legacy(&instance) && instance.client_mod {
         instances::splash::write(&instances::store::game_dir(&root, instance_id))?;
     }
@@ -437,6 +443,7 @@ async fn monitor(app: AppHandle, mut child: Child, exited: LaunchState, game_dir
     *app.state::<Games>().lock() = None;
     crate::discord::set(crate::discord::Presence::Launcher);
     crate::novo::sync::after_game(&app, exited.instance_id.clone());
+    crate::novo::cosmetics::after_game(app.clone(), exited.instance_id.clone());
     if crashed && settings::load().map(|s| s.auto_report_crashes).unwrap_or(false) {
         let content = crash_report.as_ref().map(|c| c.content.clone()).unwrap_or_else(|| format!("Exit code {}", exit_code.unwrap_or(-1)));
         crate::report::report_crash(app.clone(), exited.instance_id.clone(), content, recent.iter().cloned().collect());

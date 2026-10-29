@@ -8,6 +8,7 @@ import com.novomc.client.modules.HitSoundsModule;
 import com.novomc.client.modules.HypixelToolsModule;
 import com.novomc.client.modules.NovoBadgeModule;
 import com.novomc.client.modules.PatcherFixesModule;
+import com.novomc.client.gui.GuiNovoMenu;
 import com.novomc.client.gui.GuiQuickplay;
 import com.novomc.client.modules.LowHealthModule;
 import com.novomc.client.modules.WaypointsModule;
@@ -19,7 +20,11 @@ import com.novomc.client.gui.GuiHudEditor;
 import com.novomc.client.module.HudModule;
 import java.awt.Robot;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
@@ -73,7 +78,12 @@ public final class DevModuleCheck {
     }
 
     public static boolean active() {
-        return Boolean.getBoolean("novomc.modcheck");
+        return Boolean.getBoolean("novomc.modcheck") || menuOnly();
+    }
+
+    /** `-Dnovomc.menu=true`: the title screen alone, to look at the cosmetics doll. */
+    private static boolean menuOnly() {
+        return Boolean.getBoolean("novomc.menu");
     }
 
     public DevModuleCheck() {
@@ -139,6 +149,49 @@ public final class DevModuleCheck {
 
     private void shot(String name) {
         ScreenShotHelper.saveScreenshot(mc.mcDataDir, "check-" + name + ".png", mc.displayWidth, mc.displayHeight, mc.getFramebuffer());
+    }
+
+    /**
+     * The title screen only: writes the file the launcher would have written,
+     * opens the Novo menu so the doll reads it, and screenshots it.
+     */
+    private boolean menuStep() {
+        if (!(mc.currentScreen instanceof GuiMainMenu)) {
+            return true;
+        }
+        menuTicks++;
+        if (menuTicks == 20) {
+            menuFixture();
+            only("main_menu");
+            mc.displayGuiScreen(new GuiNovoMenu());
+        } else if (menuTicks == 45) {
+            check("menu.novo", mc.currentScreen instanceof GuiNovoMenu, "title screen is the Novo menu");
+            shot("menu");
+            // The doll picks its size from the window, so look at a big one too.
+            mc.resize(1600, 900);
+        } else if (menuTicks == 70) {
+            // The GUI scale decides the numbers here, so this shot is only there to be looked at.
+            shot("menu-wide");
+            System.out.println("[NovoMC] Mod check: " + passed + " passed, " + failed + " failed");
+            System.out.println("[NovoMC] Autotest finished");
+            mc.shutdown();
+        }
+        return true;
+    }
+
+    /** `config/novomc/cosmetics.json`, as `novo/cosmetics.rs` writes it before a launch. */
+    private void menuFixture() {
+        String json = "{\"version\":1,\"cape\":\"tidal\",\"wing\":\"angel_wings\",\"hat\":\"wizard_hat\",\"items\":{"
+                + "\"capes\":[{\"id\":\"tidal\",\"name\":\"Tidal\",\"owned\":true},{\"id\":\"aurora_flow\",\"name\":\"Aurora Flow\",\"owned\":true}],"
+                + "\"wings\":[{\"id\":\"angel_wings\",\"name\":\"Celestial Wings\",\"owned\":true},{\"id\":\"demon_wings\",\"name\":\"Infernal Wings\",\"owned\":true}],"
+                + "\"hats\":[{\"id\":\"wizard_hat\",\"name\":\"Wizard Hat\",\"owned\":true},{\"id\":\"royal_crown\",\"name\":\"Royal Crown\",\"owned\":true}]}}";
+        try {
+            File dir = new File(mc.mcDataDir, "config/novomc");
+            dir.mkdirs();
+            Files.write(new File(dir, "cosmetics.json").toPath(), json.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            System.out.println("[NovoMC] menu fixture failed: " + e);
+        }
     }
 
     private void script() {
@@ -698,7 +751,7 @@ public final class DevModuleCheck {
                     shot("badge-tab");
                     drawTab = false;
                     // Novo Capes: the relay says which cape our Novo account wears (the local
-                    // test relay links us to one wearing "ember"); seen from behind.
+                    // test relay links us to one wearing "tidal"); seen from behind.
                     only("novo_badge", "novo_capes");
                     mc.gameSettings.thirdPersonView = 1;
                     // Facing the wall the badge shot looked away from, so the camera behind has room.
@@ -711,8 +764,27 @@ public final class DevModuleCheck {
                     String cape = com.novomc.client.net.NovoPresence.INSTANCE.cape(me);
                     check("novo_capes.worn", cape != null, "relay says we wear a Novo cape (" + cape + ")");
                     net.minecraft.util.ResourceLocation tex = mc.thePlayer.getLocationCape();
-                    check("novo_capes.drawn", tex != null && tex.getResourcePath().equals("textures/capes/" + cape + ".png"), "our cape texture is " + tex);
+                    // Animated capes draw a numbered frame (`textures/capes/pulse_3.png`).
+                    String drawn = tex == null ? "" : tex.getResourcePath();
+                    check("novo_capes.drawn", drawn.equals("textures/capes/" + cape + ".png") || drawn.startsWith("textures/capes/" + cape + "_"), "our cape texture is " + tex);
                     shot("cape");
+                    mc.gameSettings.thirdPersonView = 0;
+                    set("novo_badge", "shareMine", false);
+                }
+            });
+            then(40, new Runnable() {
+                public void run() {
+                    mc.gameSettings.thirdPersonView = 1;
+                }
+            });
+            then(20, new Runnable() {
+                public void run() {
+                    java.util.UUID me = mc.getSession().getProfile().getId();
+                    String wing = com.novomc.client.net.NovoPresence.INSTANCE.wing(me);
+                    String hat = com.novomc.client.net.NovoPresence.INSTANCE.hat(me);
+                    check("novo_capes.wing", wing != null, "relay says we wear wings (" + wing + ")");
+                    check("novo_capes.hat", hat != null, "relay says we wear a hat (" + hat + ")");
+                    shot("wings-hat");
                     mc.gameSettings.thirdPersonView = 0;
                     set("novo_badge", "shareMine", false);
                 }
@@ -768,6 +840,9 @@ public final class DevModuleCheck {
             return;
         }
         if (!started) {
+            if (menuOnly() && menuStep()) {
+                return;
+            }
             if (mc.currentScreen instanceof GuiMainMenu && ++menuTicks > 40) {
                 started = true;
                 WorldSettings ws = new WorldSettings(7L, WorldSettings.GameType.SURVIVAL, false, false, WorldType.FLAT);

@@ -27,3 +27,8 @@ modid-*-sources.jar
 
 # The Discord bot's news token (NEWS_TOKEN secret on the relay)
 relay/.news-token
+
+# The Discord bot local secrets (never commit)
+bot/.env
+bot/.venv/
+__pycache__/

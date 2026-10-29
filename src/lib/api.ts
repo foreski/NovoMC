@@ -69,10 +69,17 @@ export interface Settings {
   cloudSync: boolean;
 }
 
+/** Frames an animated cosmetic plays (`scripts/make-capes.mjs`); null/absent = still. */
+export interface CosmeticAnimation {
+  frames: number;
+  fps: number;
+}
+
 export interface NovoCape {
   id: string;
   name: string;
   owned: boolean;
+  animated?: CosmeticAnimation | null;
 }
 
 export interface NovoBanner {
@@ -81,17 +88,62 @@ export interface NovoBanner {
   owned: boolean;
 }
 
+/** A 3D wing style; `flap` is the animation the client plays. */
+export interface NovoWing {
+  id: string;
+  name: string;
+  owned: boolean;
+  flap?: { rate: number; amplitude: number } | null;
+}
+
+/** A 3D hat mesh mounted on the player's head. */
+export interface NovoHat {
+  id: string;
+  name: string;
+  owned: boolean;
+}
+
 /** The Novo account (Discord sign-in), separate from the Minecraft accounts. */
 export interface NovoAccount {
   id: string;
+  coins: number;
   displayName: string;
   discordName: string | null;
   avatarUrl: string | null;
   cape: string | null;
   banner: string | null;
+  wing: string | null;
+  hat: string | null;
   capes: NovoCape[];
   banners: NovoBanner[];
+  wings: NovoWing[];
+  hats: NovoHat[];
   minecraft: { uuid: string; name: string }[];
+}
+
+export type StoreCosmeticKind = 'cape' | 'banner' | 'wings' | 'hat';
+export interface StoreItem {
+  id: string;
+  kind: StoreCosmeticKind;
+  name: string;
+  description: string;
+  price: number;
+  owned: boolean;
+  animated?: CosmeticAnimation | null;
+}
+export interface CoinBundle {
+  id: string;
+  name: string;
+  coins: number;
+  price: number;
+  currency: 'USD';
+  badge?: string;
+}
+export interface StoreState {
+  balance: number;
+  paymentReady: boolean;
+  items: StoreItem[];
+  bundles: CoinBundle[];
 }
 
 export interface SyncResult {
@@ -183,6 +235,11 @@ export function onLaunchState(cb: (e: LaunchState) => void): Promise<UnlistenFn>
   return listen<LaunchState>('launch-state', (e) => cb(e.payload));
 }
 
+/** The Novo account changed outside the UI, e.g. cosmetics picked in game. */
+export function onNovoAccount(cb: () => void): Promise<UnlistenFn> {
+  return listen('novo-account', () => cb());
+}
+
 export interface UpdateInfo {
   version: string;
   currentVersion: string;
@@ -256,7 +313,14 @@ export const api = {
   novoLogout: () => invoke<void>('novo_logout'),
   novoSetDisplayName: (name: string) => invoke<NovoAccount>('novo_set_display_name', { name }),
   novoSetCape: (cape: string | null) => invoke<NovoAccount>('novo_set_cape', { cape }),
+  novoSetWing: (wing: string | null) => invoke<NovoAccount>('novo_set_wing', { wing }),
+  novoSetHat: (hat: string | null) => invoke<NovoAccount>('novo_set_hat', { hat }),
   novoSetBanner: (banner: string | null) => invoke<NovoAccount>('novo_set_banner', { banner }),
+  novoShop: () => invoke<StoreState>('novo_shop'),
+  novoPurchaseItem: (id: string) => invoke<NovoAccount>('novo_purchase_item', { id }),
+  novoRedeemGift: (code: string) => invoke<NovoAccount>('novo_redeem_gift', { code }),
+  /** Opens Stripe Checkout in its own small window; the wallet refreshes on focus. */
+  novoCheckout: (bundleId: string) => invoke<void>('novo_checkout', { bundleId }),
   novoLink: (uuid: string) => invoke<NovoAccount>('novo_link', { uuid }),
   novoUnlink: (uuid: string) => invoke<NovoAccount>('novo_unlink', { uuid }),
   /** resolve: which side wins ('local' uploads, 'cloud' downloads). */

@@ -9,6 +9,8 @@ const designs = {
   nebula: { stops: [[25, 8, 54], [130, 54, 210], [35, 75, 170]], seed: 3 },
   sunset: { stops: [[75, 20, 50], [240, 106, 73], [255, 195, 98]], seed: 7 },
   forest: { stops: [[5, 42, 35], [22, 125, 82], [145, 191, 107]], seed: 11 },
+  circuit: { stops: [[3, 18, 42], [8, 145, 178], [74, 222, 128]], seed: 23 },
+  starfield: { stops: [[5, 8, 28], [48, 45, 112], [160, 104, 214]], seed: 31 },
   developer: { stops: [[10, 24, 22], [20, 100, 68], [30, 212, 130]], seed: 17 },
 };
 const crc32 = (buf) => { let c = ~0; for (const b of buf) { c ^= b; for (let k = 0; k < 8; k++) c = c & 1 ? (c >>> 1) ^ 0xedb88320 : c >>> 1; } return ~c >>> 0; };

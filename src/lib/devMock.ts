@@ -35,14 +35,25 @@ const settings = {
   autoReportCrashes: true, discordPresence: true, uiLanguage: null, gameLanguage: null, lastVersion: '1.8.9', lastInstance: 'pvp', cloudSync: true,
 } as unknown as Settings;
 
-// Signed in once the mock sign-in runs.
+// Signed in once the mock sign-in runs. Ids and ownership loosely follow
+// relay/src/capes.js so the browser preview matches a real account.
 let novo: Record<string, unknown> | null = null;
-const CAPES = [['novo', 'Novo'], ['aurora', 'Aurora'], ['ember', 'Ember'], ['frost', 'Frost'], ['verdant', 'Verdant'], ['midnight', 'Midnight'], ['early_supporter', 'Early Supporter'], ['developer', 'Developer']];
-const BANNERS = [['aurora', 'Aurora'], ['nebula', 'Nebula'], ['sunset', 'Sunset'], ['forest', 'Forest'], ['developer', 'Developer']];
+const CAPES: [string, string, { frames: number; fps: number } | null][] = [
+  ['novo', 'Novo', null], ['arctic_cipher', 'Arctic Cipher', null], ['frostpeak', 'Frostpeak', null], ['tidal', 'Tidal', null],
+  ['compass', 'Compass', null], ['astral', 'Astral', null], ['wolfshade', 'Wolfshade', null], ['inferno', 'Inferno', null],
+  ['venom', 'Venom', null], ['lunar_rose', 'Lunar Rose', null], ['drake', 'Drake', null], ['aurora_flow', 'Aurora Flow', { frames: 24, fps: 12 }],
+  ['ember_flow', 'Ember Flow', { frames: 24, fps: 12 }], ['solar_eclipse', 'Solar Eclipse', null],
+];
+const BANNERS = [['aurora', 'Aurora'], ['nebula', 'Nebula'], ['sunset', 'Sunset'], ['forest', 'Forest'], ['circuit', 'Circuit'], ['developer', 'Developer']];
+const WINGS = [['angel_wings', 'Celestial Wings'], ['demon_wings', 'Infernal Wings'], ['crystal_wings', 'Prism Wings']];
+const HATS = [['wizard_hat', 'Wizard Hat'], ['demon_horns', 'Demon Horns'], ['angel_halo', 'Angel Halo'], ['royal_crown', 'Royal Crown'], ['crystal_antlers', 'Crystal Antlers']];
 const novoAccount = () => ({
-  id: 'mock', displayName: 'Steve', discordName: 'steve', avatarUrl: null, cape: 'ember', banner: 'aurora', minecraft: [],
-  capes: CAPES.map(([id, name], i) => ({ id, name, owned: i < 6 })),
+  id: 'mock', displayName: 'Steve', discordName: 'steve', avatarUrl: null, cape: 'aurora_flow', banner: 'aurora',
+  wing: 'angel_wings', hat: 'wizard_hat', minecraft: [],
+  capes: CAPES.map(([id, name, animated], i) => ({ id, name, owned: i < 8 || id === 'aurora_flow', animated })),
   banners: BANNERS.map(([id, name], i) => ({ id, name, owned: i < 4 })),
+  wings: WINGS.map(([id, name], i) => ({ id, name, owned: i !== 1, flap: null })),
+  hats: HATS.map(([id, name], i) => ({ id, name, owned: i !== 4 })),
 });
 
 const info: AppInfo = { name: 'NovoMC', version: '0.1.8', dataDir: 'C:\\NovoMC (mock)', totalMemoryMb: 16384 };
@@ -63,6 +74,8 @@ const replies: Record<string, (args: Record<string, unknown>) => unknown> = {
   novo_logout: () => (novo = null),
   novo_set_cape: (a) => (novo = { ...novo, cape: a.cape }),
   novo_set_banner: (a) => (novo = { ...novo, banner: a.banner }),
+  novo_set_wing: (a) => (novo = { ...novo, wing: a.wing }),
+  novo_set_hat: (a) => (novo = { ...novo, hat: a.hat }),
   novo_set_display_name: (a) => (novo = { ...novo, displayName: a.name }),
   novo_sync_settings: () => ({ action: 'off', localModified: null, cloudModified: null }),
   check_update: () => null,

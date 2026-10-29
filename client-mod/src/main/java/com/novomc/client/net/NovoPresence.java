@@ -64,6 +64,8 @@ public final class NovoPresence {
     private final SecureRandom random = new SecureRandom();
     private volatile Set<UUID> online = Collections.emptySet();
     private volatile Map<UUID, String> capes = Collections.emptyMap();
+    private volatile Map<UUID, String> wings = Collections.emptyMap();
+    private volatile Map<UUID, String> hats = Collections.emptyMap();
     private volatile String session;
     private volatile long helloAfter;
     private Set<UUID> asked = new HashSet<UUID>();
@@ -86,6 +88,16 @@ public final class NovoPresence {
         return id == null ? null : capes.get(id);
     }
 
+    /** The Novo wings id this player wears, or null. */
+    public String wing(UUID id) {
+        return id == null ? null : wings.get(id);
+    }
+
+    /** The Novo hat id this player wears, or null. */
+    public String hat(UUID id) {
+        return id == null ? null : hats.get(id);
+    }
+
     /** Asks again soon (after a settings change). */
     public void refresh() {
         ticks = 0;
@@ -105,6 +117,8 @@ public final class NovoPresence {
         if (wasActive && !active) {
             online = Collections.emptySet();
             capes = Collections.emptyMap();
+            wings = Collections.emptyMap();
+            hats = Collections.emptyMap();
         }
         if (active != wasActive || share != wasSharing) {
             refresh();
@@ -185,24 +199,32 @@ public final class NovoPresence {
         for (JsonElement e : res.getAsJsonArray("online")) {
             found.add(UUID.fromString(e.getAsString()));
         }
-        Map<UUID, String> worn = new HashMap<UUID, String>();
-        if (res.has("capes") && res.get("capes").isJsonObject()) {
-            for (Map.Entry<String, JsonElement> e : res.getAsJsonObject("capes").entrySet()) {
-                String cape = e.getValue().getAsString();
-                // Only ids we ship a texture for (lowercase, no paths).
-                if (cape.matches("[a-z0-9_]{1,32}")) {
-                    worn.put(UUID.fromString(e.getKey()), cape);
-                }
-            }
-        }
         online = found;
-        capes = worn;
+        capes = wornFrom(res, "capes");
+        wings = wornFrom(res, "wings");
+        hats = wornFrom(res, "hats");
         if (share && session != null && !res.get("session").getAsBoolean()) {
             // The relay restarted or our session lapsed: say hello again next time.
             session = null;
             helloAfter = 0;
             ticks = 1;
         }
+    }
+
+    /** A `{uuid: id}` map from a sync response, keeping only ids we could draw. */
+    private static Map<UUID, String> wornFrom(JsonObject res, String key) {
+        Map<UUID, String> worn = new HashMap<UUID, String>();
+        if (!res.has(key) || !res.get(key).isJsonObject()) {
+            return worn;
+        }
+        for (Map.Entry<String, JsonElement> e : res.getAsJsonObject(key).entrySet()) {
+            String id = e.getValue().getAsString();
+            // Only ids we ship (lowercase, no paths).
+            if (id.matches("[a-z0-9_]{1,32}")) {
+                worn.put(UUID.fromString(e.getKey()), id);
+            }
+        }
+        return worn;
     }
 
     /** Proves who we are through Mojang's session server; returns a relay session or null. */

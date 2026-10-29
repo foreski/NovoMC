@@ -6,16 +6,17 @@
 //     Mojang refuses every request from Cloudflare Workers (HTTP 403), so the
 //     old hasJoined check can't run here, and the owner chose to trust the
 //     client's word rather than collect Minecraft tokens.
-//   POST /presence/sync  {session?, uuids: [...]} -> {online: [...], session: bool, capes: {uuid: id}}
+//   POST /presence/sync  {session?, uuids: [...]}
+//     -> {online: [...], session: bool, capes: {uuid: id}, wings: {...}, hats: {...}}
 //     Keeps the caller's own session alive (if it has one) and says which of
-//     the given players are on NovoMC, and the Novo capes they wear (from
-//     accounts, see account.js; only online players' capes are shown).
+//     the given players are on NovoMC, and the Novo cosmetics they wear (from
+//     accounts, see account.js; only online players' cosmetics are shown).
 //   POST /presence/bye   {session}
 //
 // State lives in memory in one Durable Object; if it restarts, clients see
 // session:false and say hello again.
 
-import { capesOf } from './account.js';
+import { capesOf, hatsOf, wingsOf } from './account.js';
 
 const NAME = /^[A-Za-z0-9_]{1,16}$/;
 const UUID = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$/i;
@@ -63,9 +64,13 @@ export async function handlePresence(request, env, path) {
     const out = await res.json();
     try {
       out.capes = await capesOf(env.NOVO_DB, out.online);
+      out.wings = await wingsOf(env.NOVO_DB, out.online);
+      out.hats = await hatsOf(env.NOVO_DB, out.online);
     } catch (e) {
       // Accounts being down never hides badges.
       out.capes = {};
+      out.wings = {};
+      out.hats = {};
     }
     return json(out);
   }

@@ -37,6 +37,13 @@ const MODERN_COMPANIONS: &[Companion] = &[
     },
 ];
 
+/// The companion jar names the launcher installs for this instance, which
+/// `mods::enforce` lets stay in its `mods/` folder.
+pub fn files(inst: &Instance) -> Vec<&'static str> {
+    let set = if modern(inst) { MODERN_COMPANIONS } else { COMPANIONS };
+    set.iter().map(|c| c.file).collect()
+}
+
 /// Installs (or removes, when the client is off) the companion mods for an instance.
 pub async fn sync(root: &Path, inst: &Instance) -> AppResult<()> {
     let mods = store::game_dir(root, &inst.id).join("mods");

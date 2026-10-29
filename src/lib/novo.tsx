@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { api, type NovoAccount } from './api';
+import { isTauri } from '@tauri-apps/api/core';
+import { api, onNovoAccount, type NovoAccount } from './api';
 
 interface NovoContext {
   account: NovoAccount | null;
@@ -63,6 +64,15 @@ export function NovoProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => { void refresh(); }, [refresh]);
+
+  // Cosmetics picked on the game's title screen are saved after the game exits.
+  useEffect(() => {
+    if (!isTauri()) return;
+    const off = onNovoAccount(() => void refresh());
+    return () => {
+      off.then((f) => f());
+    };
+  }, [refresh]);
 
   const signIn = useCallback(async () => {
     update(await api.novoLogin());

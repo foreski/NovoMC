@@ -84,6 +84,9 @@ client.login(process.env.DISCORD_TOKEN);
 Note: Discord attachment URLs expire after a while; for pictures that should stay up, upload
 them somewhere permanent and pass that link as `image`.
 
+The same bot can also run the Marketplace: see [SHOP_BOT.md](SHOP_BOT.md) for the shop
+item API and its slash commands.
+
 Test it by hand:
 
 ```bash

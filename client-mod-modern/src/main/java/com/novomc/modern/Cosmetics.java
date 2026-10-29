@@ -51,6 +51,13 @@ public final class Cosmetics {
 
     private static final Map<String, ClientAsset.Texture> TEXTURES = new HashMap<String, ClientAsset.Texture>();
     private static final Map<UUID, PlayerSkin[]> SKINS = new HashMap<UUID, PlayerSkin[]>();
+    /** Animated capes: id -> {frames, frame duration in ms}. Keep in step with relay/src/capes.js. */
+    private static final Map<String, int[]> ANIMATED = new HashMap<String, int[]>();
+
+    static {
+        ANIMATED.put("aurora_flow", new int[] {24, 83});
+        ANIMATED.put("ember_flow", new int[] {24, 83});
+    }
 
     /** The player's skin with their Novo cape, or {@code skin} as it is (render thread). */
     public static PlayerSkin withCape(UUID id, PlayerSkin skin) {
@@ -61,11 +68,14 @@ public final class Cosmetics {
         if (cape == null || !(NovoCapes.showOthers || id.equals(Minecraft.getInstance().getUser().getProfileId()))) {
             return skin;
         }
-        ClientAsset.Texture tex = TEXTURES.get(cape);
+        // Animated capes swap frame files from the wall clock, only while this is drawn.
+        int[] animation = ANIMATED.get(cape);
+        String file = animation == null ? cape : cape + "_" + ((int) ((System.currentTimeMillis() / animation[1]) % animation[0]));
+        ClientAsset.Texture tex = TEXTURES.get(file);
         if (tex == null) {
-            Identifier path = Identifier.fromNamespaceAndPath("novomc", "textures/capes/" + cape + ".png");
-            tex = new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("novomc", "capes/" + cape), path);
-            TEXTURES.put(cape, tex);
+            Identifier path = Identifier.fromNamespaceAndPath("novomc", "textures/capes/" + file + ".png");
+            tex = new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath("novomc", "capes/" + file), path);
+            TEXTURES.put(file, tex);
         }
         // getSkin() runs every frame; reuse the patched record while nothing changes.
         PlayerSkin[] cached = SKINS.get(id);
