@@ -279,6 +279,13 @@ export function HomePage({ onNavigate }: { onNavigate: (p: PageId) => void }) {
             {(news ?? []).slice(0, 3).map((item, i) => (
               <NewsCard key={item.id} item={item} index={i} />
             ))}
+            {news !== null && news.length === 0 && (
+              <div className="glass rounded-2xl border border-dashed border-novo-border-strong p-6 text-novo-muted">
+                <Newspaper size={20} className="text-brand-c" />
+                <p className="mt-2 font-bold text-novo-text">{t('home.noNews')}</p>
+                <p className="mt-1 text-sm">{t('home.noNewsHint')}</p>
+              </div>
+            )}
           </div>
         </section>
         <motion.div {...rise(0.4)}>

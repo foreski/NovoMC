@@ -84,6 +84,16 @@ public abstract class NovoPanelScreen extends GuiScreen {
     /** Which header tab this screen is: "mods" or "packs". */
     protected abstract String tab();
 
+    /** The header's tab switch, as {id, label} pairs. */
+    protected String[][] headerTabs() {
+        return new String[][] {{"mods", "Mods"}, {"packs", "Resource Packs"}};
+    }
+
+    /** A header tab was clicked; the default swaps between the two panel screens. */
+    protected void headerTabSelected(String id) {
+        mc.displayGuiScreen("mods".equals(id) ? new GuiModules(parent) : new GuiResourcePacks(parent));
+    }
+
     /** Typing goes into the search box unless a subclass has another field focused. */
     protected boolean searchFocused() {
         return true;
@@ -156,8 +166,7 @@ public abstract class NovoPanelScreen extends GuiScreen {
             }
         });
 
-        // Tabs: Mods | Resource Packs.
-        String[][] tabs = {{"mods", "Mods"}, {"packs", "Resource Packs"}};
+        String[][] tabs = headerTabs();
         float total = 2;
         for (String[] t : tabs) {
             total += Draw.width(t[1]) + 14;
@@ -177,7 +186,7 @@ public abstract class NovoPanelScreen extends GuiScreen {
             if (!active) {
                 hit(tx, cy, tx + w, cy + cs, new Runnable() {
                     public void run() {
-                        mc.displayGuiScreen("mods".equals(t[0]) ? new GuiModules(parent) : new GuiResourcePacks(parent));
+                        headerTabSelected(t[0]);
                     }
                 });
             }

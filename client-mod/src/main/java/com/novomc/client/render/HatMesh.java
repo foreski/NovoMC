@@ -32,7 +32,8 @@ import org.lwjgl.opengl.GL11;
  */
 final class HatMesh {
     private static final Set<String> KNOWN = new HashSet<String>(Arrays.asList(
-            "wizard_hat", "demon_horns", "angel_halo", "royal_crown", "crystal_antlers"));
+            "wizard_hat", "demon_horns", "angel_halo", "royal_crown", "crystal_antlers",
+            "ender_crown", "phantom_hood", "miner_helmet", "golden_laurel"));
     private static final Map<String, HatMesh> CACHE = new HashMap<String, HatMesh>();
     private static Map<String, float[]> materials;
 

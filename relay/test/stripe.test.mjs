@@ -37,7 +37,7 @@ let r = await call('GET', '/account/shop');
 assert.equal(r.status, 200);
 assert.equal(r.body.paymentReady, false);
 assert.equal(r.body.balance, 0);
-assert.equal(r.body.items.length, 22);
+assert.equal(r.body.items.length, 28);
 assert.equal((await call('POST', '/account/checkout', { bundleId: 'boost' })).status, 503);
 
 // A developer gift code (as relay/scripts/generate-gift-codes.mjs writes it) credits coins once.

@@ -1,8 +1,9 @@
 package com.novomc.client.gui;
 
 import com.novomc.client.NovoMC;
-import com.novomc.client.mixin.accessor.GuiMainMenuAccessor;
 import com.novomc.client.util.Draw;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiCustomizeSkin;
 import net.minecraft.client.gui.GuiLanguage;
@@ -13,14 +14,25 @@ import net.minecraft.client.gui.GuiSelectWorld;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.GuiModList;
+import org.lwjgl.opengl.GL11;
 
 /**
- * NovoMC's main menu: vanilla's blurred panorama under a dark overlay, the
- * NovoMC logo and wordmark, glass buttons, and quick icons at the bottom.
+ * NovoMC's main menu: the client's own night-sky backdrop instead of vanilla's
+ * blurred panorama, the NovoMC logo and wordmark, glass buttons, and quick
+ * icons at the bottom.
+ *
+ * Cosmetics are no longer previewed here: the in-game Cosmetics screen (the
+ * shirt icon in the Novo menu) is the one place a cape, wings or hat is picked
+ * and worn, so the title screen stays a menu.
+ *
  * Extends GuiMainMenu so code checking for the title screen still works.
  */
 public class GuiNovoMenu extends GuiMainMenu {
     private static final ResourceLocation LOGO = tex("logo");
+    private static final ResourceLocation BACKGROUND = tex("menu_background");
+    /** Pixel size of the backdrop, used to crop it to the window. */
+    private static final float BG_W = 1600f;
+    private static final float BG_H = 900f;
     private static final ResourceLocation USER = tex("icons/user");
     private static final ResourceLocation CLOSE = tex("icons/x");
     private static final ResourceLocation SETTINGS = tex("icons/settings");
@@ -44,8 +56,6 @@ public class GuiNovoMenu extends GuiMainMenu {
     private static final int TRAINERS = 25;
 
     private final long openedAt = System.currentTimeMillis();
-    /** The cosmetics doll in the left gutter, or null when the account has none. */
-    private PaperDoll doll;
 
     private static ResourceLocation tex(String name) {
         return new ResourceLocation(NovoMC.MODID, "textures/gui/" + name + ".png");
@@ -74,15 +84,15 @@ public class GuiNovoMenu extends GuiMainMenu {
         }
 
         buttonList.add(new MenuCard(CARD, width - 128, height - 66, 120, 44));
-        doll = PaperDoll.load();
     }
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        GlStateManager.disableAlpha();
-        ((GuiMainMenuAccessor) this).novomc$renderSkybox(mouseX, mouseY, partialTicks);
+        drawBackdrop();
         GlStateManager.enableAlpha();
-        drawGradientRect(0, 0, width, height, 0xA0070A12, 0xD0070A12);
+        // A light veil over the sky, heavier behind the buttons, so the labels
+        // read on any monitor without hiding the artwork.
+        drawGradientRect(0, 0, width, height, 0x38070A12, 0x6A070A12);
         drawGradientRect(0, height / 2, width, height, 0x00000000, 0x305B8CFF);
 
         float fade = Math.min(1f, (System.currentTimeMillis() - openedAt) / 500f);
@@ -105,10 +115,6 @@ public class GuiNovoMenu extends GuiMainMenu {
         String legal = "Copyright Mojang AB. Do not distribute!";
         Draw.text(legal, width - Draw.width(legal) - 4, height - 10, 0xFF8A94A6);
 
-        if (doll != null) {
-            doll.draw(mouseX, mouseY, width, height);
-        }
-
         String tip = null;
         for (GuiButton b : buttonList) {
             b.drawButton(mc, mouseX, mouseY);
@@ -126,13 +132,6 @@ public class GuiNovoMenu extends GuiMainMenu {
         }
     }
 
-    @Override
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws java.io.IOException {
-        if (doll != null && doll.click(mouseX, mouseY, mouseButton, width, height)) {
-            return;
-        }
-        super.mouseClicked(mouseX, mouseY, mouseButton);
-    }
 
     @Override
     protected void actionPerformed(GuiButton button) {
@@ -171,6 +170,36 @@ public class GuiNovoMenu extends GuiMainMenu {
             default:
                 break;
         }
+    }
+
+    /**
+     * The title screen backdrop, cropped to the window (never squashed) and
+     * drifting slowly inside the crop so the sky is not a frozen image.
+     */
+    private void drawBackdrop() {
+        Minecraft.getMinecraft().getTextureManager().bindTexture(BACKGROUND);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+        GlStateManager.enableTexture2D();
+        GlStateManager.color(1f, 1f, 1f, 1f);
+
+        float screenAspect = width / (float) Math.max(1, height);
+        float textureAspect = BG_W / BG_H;
+        float cropW = BG_W;
+        float cropH = BG_H;
+        if (screenAspect > textureAspect) {
+            cropH = BG_W / screenAspect;
+        } else {
+            cropW = BG_H * screenAspect;
+        }
+        double seconds = (System.currentTimeMillis() - openedAt) / 1000.0;
+        float u = (BG_W - cropW) / 2f + (float) Math.sin(seconds / 14.0) * (BG_W - cropW) * 0.35f;
+        float v = (BG_H - cropH) / 2f + (float) Math.cos(seconds / 19.0) * (BG_H - cropH) * 0.30f;
+
+        GlStateManager.pushMatrix();
+        GlStateManager.scale(width / cropW, height / cropH, 1f);
+        Gui.drawModalRectWithCustomSizedTexture(0, 0, u, v, Math.round(cropW), Math.round(cropH), BG_W, BG_H);
+        GlStateManager.popMatrix();
     }
 
     /** Bottom-right branded card that opens the NovoMC mods list. */

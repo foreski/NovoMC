@@ -1,8 +1,9 @@
 //! Home page news: Novo Client's announcements plus the latest Minecraft
 //! release and snapshot from the version manifest. Announcements come from the
-//! relay (`GET /news`, posted there by the Discord bot); when it can't be
-//! reached, the bundled `news.json` is shown instead. The UI draws its own
-//! artwork unless an announcement brings an image.
+//! relay (`GET /news`, posted there by the Discord bot); the bundled
+//! `news.json` is the offline fallback and ships empty, so a fresh install shows
+//! no invented posts. The UI draws its own artwork unless an announcement
+//! brings an image.
 
 use std::time::Duration;
 
@@ -138,8 +139,18 @@ mod tests {
 
     #[test]
     fn builtin_news_parses_and_sorts() {
+        // The shipped file is empty by design: announcements come from the relay.
         let mut items = builtin();
-        assert!(!items.is_empty());
+        assert!(items.is_empty());
+        items.push(NewsItem {
+            id: "posted".into(),
+            title: "t".into(),
+            body: "b".into(),
+            date: "2026-10-27".into(),
+            tag: "novomc".into(),
+            url: None,
+            image: None,
+        });
         items.push(version_item("1.21.10", "2099-01-01T00:00:00+00:00", false));
         let s = sorted(items);
         assert_eq!(s[0].id, "mc-1.21.10");

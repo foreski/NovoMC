@@ -1396,6 +1396,12 @@
           "type": "toggle",
           "label": "Show other players' cosmetics",
           "default": true
+        },
+        {
+          "key": "capePhysics",
+          "type": "toggle",
+          "label": "Cape physics",
+          "default": true
         }
       ]
     },

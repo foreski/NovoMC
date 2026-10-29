@@ -6,6 +6,7 @@ import com.novomc.client.NovoClient;
 import com.novomc.client.config.Catalog;
 import com.novomc.client.module.HudModule;
 import com.novomc.client.module.Module;
+import com.novomc.client.profiles.Presets;
 import com.novomc.client.util.Draw;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,6 +57,17 @@ public class GuiModules extends NovoPanelScreen {
     private float dragRight;
     private long savedAt;
 
+    /** Width of the preset column, when the window is wide enough for one. */
+    private static final int SIDEBAR = 128;
+    private static final int PRESET_ROW = 20;
+    private static final ResourceLocation TRASH = icon("x");
+    private boolean naming;
+    private final StringBuilder presetName = new StringBuilder();
+    private String toast;
+    private long toastAt;
+    /** Preset ids drawn this frame, so a click lands on the row it came from. */
+    private final List<String> drawnPresets = new ArrayList<String>();
+
     public GuiModules(GuiScreen parent) {
         super(parent);
     }
@@ -100,14 +112,130 @@ public class GuiModules extends NovoPanelScreen {
             drawEditHud(r - searchWidth(l, r) - 4, top + 31);
         }
 
+        // A column of saved presets on the left, as in the reference screens; the
+        // mod list keeps the rest.
+        float contentLeft = l;
+        boolean sidebar = r - l >= 560;
+        if (sidebar) {
+            drawPresets(l, top + 58, p[3] - PAD);
+            contentLeft = l + SIDEBAR + 10;
+        }
+
         List<String[]> chips = new ArrayList<String[]>();
         chips.add(new String[] {"all", "All"});
         for (Map.Entry<String, String> c : Catalog.categories().entrySet()) {
             chips.add(new String[] {c.getKey(), c.getValue()});
         }
-        int toolbarBottom = drawChips("category", chips, category, l, r, top + 58);
-        drawGrid(l, r, toolbarBottom + 8, p[3] - PAD);
+        int toolbarBottom = drawChips("category", chips, category, Math.round(contentLeft), r, top + 58);
+        drawGrid(Math.round(contentLeft), r, toolbarBottom + 8, p[3] - PAD);
+        drawToast();
         super.drawScreen(mouseX, mouseY, partialTicks);
+    }
+
+    // ---- Presets ----
+
+    /**
+     * The preset column: one row per saved setup, a save button under it, and
+     * an inline field while a new preset is being named.
+     */
+    private void drawPresets(float l, float top, float bottom) {
+        float right = l + SIDEBAR;
+        Draw.round(l, top, right, bottom, 6, 0x99080C14);
+        Draw.roundOutline(l, top, right, bottom, 6, 0x22FFFFFF);
+        Draw.text("PRESETS", l + 8, top + 6, MUTED);
+
+        drawnPresets.clear();
+        List<Presets.Preset> presets = Presets.list();
+        float saveY = bottom - 24;
+        float y = top + 20;
+        for (Presets.Preset preset : presets) {
+            if (y + PRESET_ROW > saveY - 4) {
+                break;
+            }
+            boolean hover = in(l + 4, y, right - 4, y + PRESET_ROW - 2);
+            Draw.round(l + 4, y, right - 4, y + PRESET_ROW - 2, 4, hover ? 0x2E5B8CFF : 0x14FFFFFF);
+            String name = Draw.trim(preset.name, SIDEBAR - 26);
+            Draw.text(name, l + 10, y + 5, hover ? TEXT : 0xFFC7CEDC);
+            if (hover) {
+                Draw.icon(TRASH, right - 18, y + 5, 8, 0xFFF87171);
+            }
+            final String id = preset.id;
+            final String applied = preset.name;
+            hit(right - 22, y, right - 6, y + PRESET_ROW - 2, new Runnable() {
+                public void run() {
+                    Presets.remove(id);
+                    toast = "Preset deleted";
+                    toastAt = System.currentTimeMillis();
+                }
+            });
+            hit(l + 4, y, right - 22, y + PRESET_ROW - 2, new Runnable() {
+                public void run() {
+                    if (Presets.apply(id) != null) {
+                        toast = applied + " applied";
+                        toastAt = System.currentTimeMillis();
+                        savedAt = System.currentTimeMillis();
+                    }
+                }
+            });
+            drawnPresets.add(preset.id);
+            y += PRESET_ROW;
+        }
+        if (presets.isEmpty()) {
+            Draw.text("No presets yet.", l + 8, y + 2, MUTED);
+            Draw.text("Save this setup", l + 8, y + 12, MUTED);
+        }
+
+        // Save row: a button, or the name field once it is pressed.
+        if (naming) {
+            Draw.round(l + 4, saveY, right - 4, saveY + 18, 4, 0xFF0A0E16);
+            Draw.outline(Math.round(l + 4), Math.round(saveY), Math.round(right - 4), Math.round(saveY + 18), ACCENT);
+            String typed = presetName.length() == 0 ? "Preset name" : presetName.toString();
+            Draw.text(Draw.trim(typed, SIDEBAR - 20), l + 9, saveY + 5,
+                    presetName.length() == 0 ? MUTED : TEXT);
+            if ((System.currentTimeMillis() / 500) % 2 == 0) {
+                Draw.rect(Math.round(l + 9 + Draw.width(Draw.trim(typed, SIDEBAR - 20))), Math.round(saveY + 5),
+                        Math.round(l + 10 + Draw.width(Draw.trim(typed, SIDEBAR - 20))), Math.round(saveY + 14), ACCENT);
+            }
+        } else {
+            boolean hover = in(l + 4, saveY, right - 4, saveY + 18);
+            Draw.round(l + 4, saveY, right - 4, saveY + 18, 4, hover ? 0xFF6C9BFF : ACCENT);
+            String label = "+ Save as new preset";
+            Draw.text(Draw.trim(label, SIDEBAR - 12), l + 9, saveY + 5, 0xFFFFFFFF);
+            hit(l + 4, saveY, right - 4, saveY + 18, new Runnable() {
+                public void run() {
+                    naming = true;
+                    presetName.setLength(0);
+                }
+            });
+        }
+    }
+
+    /** The short "... applied" message after a preset is used. */
+    private void drawToast() {
+        if (toast == null) {
+            return;
+        }
+        long age = System.currentTimeMillis() - toastAt;
+        if (age > 2000) {
+            toast = null;
+            return;
+        }
+        int alpha = age > 1600 ? Math.round((2000 - age) / 400f * 255) : 255;
+        int w = Draw.width(toast) + 16;
+        float x = width / 2f - w / 2f;
+        Draw.round(x, height - 44, x + w, height - 28, 8, Draw.withAlpha(0xFF0C1019, Math.round(alpha * 0.9f)));
+        Draw.text(toast, x + 8, height - 40, Draw.withAlpha(0xFFE8ECF4, alpha));
+    }
+
+    /** Saves the typed name as a preset and leaves naming mode. */
+    private void commitPreset() {
+        String name = presetName.toString().trim();
+        naming = false;
+        presetName.setLength(0);
+        Presets.save(name);
+        toast = "Preset saved";
+        toastAt = System.currentTimeMillis();
+        savedAt = System.currentTimeMillis();
     }
 
     /** "Edit HUD Layout": opens the drag-and-drop HUD editor. Ends at `right`. */
@@ -521,6 +649,24 @@ public class GuiModules extends NovoPanelScreen {
 
     @Override
     protected void keyTyped(char c, int keyCode) throws IOException {
+        if (naming) {
+            if (keyCode == Keyboard.KEY_RETURN) {
+                commitPreset();
+            } else if (keyCode == Keyboard.KEY_ESCAPE) {
+                naming = false;
+                presetName.setLength(0);
+            } else if (keyCode == Keyboard.KEY_BACK) {
+                if (presetName.length() > 0) {
+                    presetName.deleteCharAt(presetName.length() - 1);
+                }
+            } else {
+                String allowed = ChatAllowedCharacters.filterAllowedCharacters(String.valueOf(c));
+                if (allowed.length() == 1 && allowed.charAt(0) >= ' ' && presetName.length() < 24) {
+                    presetName.append(allowed);
+                }
+            }
+            return;
+        }
         if (focus != null) {
             if (keyCode == Keyboard.KEY_ESCAPE || keyCode == Keyboard.KEY_RETURN || keyCode == Keyboard.KEY_TAB) {
                 commitFocus();

@@ -32,6 +32,7 @@
     "MixinInventoryEffectRenderer",
     "MixinItemRenderer",
     "MixinLayerArmorBase",
+    "MixinLayerCape",
     "MixinLoadingScreenRenderer",
     "MixinMathHelper",
     "MixinMinecraft",

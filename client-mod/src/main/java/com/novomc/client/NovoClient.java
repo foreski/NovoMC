@@ -220,8 +220,13 @@ public final class NovoClient {
             }
         }
         NovoBadgeModule.tickPresence(mc);
-        if (MENU_KEY.isPressed() && mc.currentScreen == null && mc.theWorld != null) {
-            mc.displayGuiScreen(new GuiHudEditor());
+        // RightShift opens the client menu; pressing it again closes it.
+        if (MENU_KEY.isPressed() && mc.theWorld != null) {
+            if (mc.currentScreen instanceof com.novomc.client.gui.GuiClientMenu) {
+                mc.displayGuiScreen(null);
+            } else if (mc.currentScreen == null) {
+                mc.displayGuiScreen(new com.novomc.client.gui.GuiClientMenu());
+            }
         }
     }
 

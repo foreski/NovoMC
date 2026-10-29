@@ -114,8 +114,12 @@ public class AutoProfilesModule extends Module {
         }
     }
 
-    /** Mods that belong to a profile: HUD, PvP visuals and quality of life, minus the global ones. */
-    private static List<String> profiled() {
+    /**
+     * Mods that belong to a profile: HUD, PvP visuals and quality of life,
+     * minus the global ones. Hand-saved {@link com.novomc.client.profiles.Presets}
+     * use the same set, so the two features can't disagree about what a setup is.
+     */
+    public static List<String> profiled() {
         List<String> ids = new ArrayList<String>();
         for (Catalog.Def def : Catalog.all()) {
             if (!def.category.equals("performance") && !GLOBAL.contains(def.id)) {

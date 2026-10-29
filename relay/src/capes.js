@@ -45,6 +45,10 @@ export const WINGS = [
   { id: 'verdant_wings', name: 'Verdant Wings', free: false, flap: { rate: 1.6, amplitude: 0.66 } },
   { id: 'monochrome_wings', name: 'Monochrome Wings', free: false, flap: { rate: 1.3, amplitude: 0.54 } },
   { id: 'azure_wings', name: 'Azure Wings', free: false, flap: { rate: 1.75, amplitude: 0.72 } },
+  // Minecraft mob wings: the dragon's heavy, cracked hide and the phantom's
+  // shredded teal. Same meshes, different palettes and textures.
+  { id: 'ender_dragon_wings', name: 'Ender Dragon Wings', free: false, flap: { rate: 1.15, amplitude: 0.7 } },
+  { id: 'phantom_wings', name: 'Phantom Wings', free: false, flap: { rate: 2.4, amplitude: 0.82 } },
 ];
 
 // Hats: OBJ meshes mounted on the head (assets/novomc/models/hats/<id>.obj).
@@ -54,6 +58,12 @@ export const HATS = [
   { id: 'angel_halo', name: 'Angel Halo', free: false },
   { id: 'royal_crown', name: 'Royal Crown', free: false },
   { id: 'crystal_antlers', name: 'Crystal Antlers', free: false },
+  // Built from Minecraft's own furniture: the end's obsidian and crystal, the
+  // phantom's torn hood, a miner's lamp helmet and a laurel of gold leaves.
+  { id: 'ender_crown', name: 'Ender Crown', free: false },
+  { id: 'phantom_hood', name: 'Phantom Hood', free: false },
+  { id: 'miner_helmet', name: "Miner's Helmet", free: false },
+  { id: 'golden_laurel', name: 'Golden Laurel', free: false },
 ];
 
 export const BANNERS = [

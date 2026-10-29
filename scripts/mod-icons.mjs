@@ -18,6 +18,8 @@ const icons = [
   'layers', 'download', 'folder-open', 'check', 'arrow-up-down', 'image',
   // Trainers
   'target', 'timer', 'mouse-pointer-click', 'flask-conical', 'trophy',
+  // The RightShift menu: cosmetics gets its own shirt icon, beside Mods
+  'shirt', 'palette', 'panel-left',
 ];
 const work = join(tmpdir(), `novomc-icons-${Date.now()}`);
 mkdirSync(join(out, 'icons'), { recursive: true });

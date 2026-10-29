@@ -2,6 +2,7 @@ package com.novomc.client.render;
 
 import java.util.UUID;
 
+import com.novomc.client.gui.Cosmetics;
 import com.novomc.client.modules.NovoCapesModule;
 import com.novomc.client.net.NovoPresence;
 import net.minecraft.client.Minecraft;
@@ -52,7 +53,7 @@ public final class NovoCosmetics {
         }
         ModelBiped biped = (ModelBiped) model;
 
-        String wing = NovoPresence.INSTANCE.wing(id);
+        String wing = wingOf(player);
         if (wing != null) {
             GlStateManager.pushMatrix();
             transform(biped.bipedBody, scale);
@@ -60,7 +61,7 @@ public final class NovoCosmetics {
             GlStateManager.popMatrix();
         }
 
-        String hat = NovoPresence.INSTANCE.hat(id);
+        String hat = hatOf(player);
         if (hat != null) {
             GlStateManager.pushMatrix();
             transform(biped.bipedHead, scale);
@@ -69,10 +70,39 @@ public final class NovoCosmetics {
         }
     }
 
+    /** The wings this player is drawn with, or null. */
+    public static String wingOf(EntityPlayer player) {
+        return worn(player, Cosmetics.WING);
+    }
+
+    /** The hat this player is drawn with, or null. */
+    public static String hatOf(EntityPlayer player) {
+        return worn(player, Cosmetics.HAT);
+    }
+
+    /**
+     * The id a player wears in a slot, or null.
+     *
+     * Our own look comes from `cosmetics.json`, which the launcher writes and
+     * the wardrobe edits: it stays on us when we don't share and when the relay
+     * can't be reached. Presence only lists players who share, so it is the
+     * source for everyone else.
+     */
+    private static String worn(EntityPlayer player, String kind) {
+        UUID id = player.getUniqueID();
+        if (player == Minecraft.getMinecraft().thePlayer) {
+            Cosmetics local = Cosmetics.current();
+            if (local != null) {
+                return local.worn(kind);
+            }
+        }
+        return Cosmetics.WING.equals(kind) ? NovoPresence.INSTANCE.wing(id) : NovoPresence.INSTANCE.hat(id);
+    }
+
     /**
      * Draws a pair of wings at the origin: the caller supplies the matrix, so
-     * this works both on a player (body transform applied) and on the title
-     * screen's paper doll.
+     * this works both on a player (body transform applied) and on the model the
+     * cosmetics screen previews.
      */
     public static void renderWings(String id, float scale) {
         WingModel wings = WingModel.get(id);

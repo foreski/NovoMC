@@ -104,7 +104,13 @@ INSERT OR IGNORE INTO shop_items (id, kind, name, description, price, active, po
   ('angel_halo', 'hat', 'Angel Halo', 'A floating ring of gold above the head.', 450, 1, 16, 0),
   ('royal_crown', 'hat', 'Royal Crown', 'A jewelled gold crown for the rightful ruler.', 600, 1, 17, 0),
   ('crystal_antlers', 'hat', 'Crystal Antlers', 'Branching ice crystals that catch the light.', 700, 1, 18, 0),
+  ('ender_crown', 'hat', 'Ender Crown', 'Obsidian spikes crowned with floating end crystal shards.', 900, 1, 25, 0),
+  ('phantom_hood', 'hat', 'Phantom Hood', 'The tattered hood of a phantom, torn along the back.', 750, 1, 26, 0),
+  ('miner_helmet', 'hat', 'Miner''s Helmet', 'A battered iron helmet with a lamp that never goes out.', 500, 1, 27, 0),
+  ('golden_laurel', 'hat', 'Golden Laurel', 'A wreath of gilded leaves for the champion of the arena.', 650, 1, 28, 0),
   ('violet_wings', 'wings', 'Violet Wings', 'Deep violet membrane on a bright lavender frame.', 900, 1, 19, 0),
   ('verdant_wings', 'wings', 'Verdant Wings', 'Mossy green membrane with glowing leaf-green ribs.', 900, 1, 20, 0),
   ('monochrome_wings', 'wings', 'Monochrome Wings', 'Bone-white membrane on gunmetal ribs.', 1200, 1, 21, 0),
-  ('azure_wings', 'wings', 'Azure Wings', 'Ocean-blue membrane on steel-blue spars.', 1000, 1, 22, 0);
+  ('azure_wings', 'wings', 'Azure Wings', 'Ocean-blue membrane on steel-blue spars.', 1000, 1, 22, 0),
+  ('ender_dragon_wings', 'wings', 'Ender Dragon Wings', 'Black dragon hide webbed with glowing magenta cracks.', 2000, 1, 23, 0),
+  ('phantom_wings', 'wings', 'Phantom Wings', 'Tattered teal membrane that never quite holds together.', 1400, 1, 24, 0);

@@ -65,13 +65,20 @@ pub fn redact(text: &str, names: &[String]) -> String {
 
 /// A short id for "the same crash": the crash description, exception and top frames.
 pub fn signature(crash: &str) -> String {
-    let key: Vec<&str> = crash
+    let mut key: Vec<&str> = crash
         .lines()
         .map(str::trim)
         .filter(|l| l.starts_with("Description:") || l.contains("Exception") || l.contains("Error") || l.starts_with("at "))
         .take(5)
         .collect();
-    let digest = Sha1::digest(key.join("\n").as_bytes());
+    // A native crash leaves no Java stack: the launcher has only the exit code to send. Hashing
+    // that empty selection gave every such crash the same id (sha1 of ""), so unrelated crashes
+    // were folded into one issue as comments. Fall back to the report text, which carries the code.
+    if key.is_empty() {
+        key = crash.lines().map(str::trim).filter(|l| !l.is_empty()).take(5).collect();
+    }
+    let key = if key.is_empty() { "unknown crash".to_string() } else { key.join("\n") };
+    let digest = Sha1::digest(key.as_bytes());
     digest.iter().take(8).map(|b| format!("{b:02x}")).collect()
 }
 
@@ -159,10 +166,14 @@ pub fn report_crash(app: AppHandle, instance_id: String, crash: String, log_line
         let crash = redact(&crash, &names);
         let headline = crash
             .lines()
-            .map(str::trim)
-            .find(|l| l.starts_with("Description:"))
-            .map(|l| l.trim_start_matches("Description:").trim().to_string())
+            .find_map(|l| {
+                let l = l.trim();
+                l.starts_with("Description:").then(|| l.trim_start_matches("Description:").trim().to_string())
+            })
             .filter(|d| !d.is_empty())
+            // No crash report at all: the exit code line is the only thing worth putting in the
+            // title, and it beats every native crash arriving as "Game crashed".
+            .or_else(|| crash.lines().map(str::trim).find(|l| !l.is_empty()).map(|l| l.chars().take(90).collect()))
             .unwrap_or_else(|| "Game crashed".into());
         let exception = crash.lines().find(|l| l.contains("Exception") || l.contains("Error")).unwrap_or("").trim();
         let title = if exception.is_empty() { headline } else { format!("{headline}: {exception}") };
@@ -203,5 +214,16 @@ mod tests {
         let b = "Description: Ticking entity\njava.lang.NullPointerException\n\tat a.b(C.java:1)\n\tat d.e(F.java:2)\nTime: 11:30";
         assert_eq!(signature(a), signature(b));
         assert_eq!(signature(a).len(), 16);
+    }
+
+    #[test]
+    fn native_crashes_are_not_all_the_same_crash() {
+        // What the launcher sends when the JVM died without writing a report.
+        let access = "Exit code -1073741819 (0xC0000005): access violation in native code";
+        let stack = "Exit code -1073741571 (0xC00000FD): stack overflow";
+        assert_ne!(signature(access), signature(stack));
+        // The empty-selection digest that filed them all under one issue.
+        assert_ne!(signature(access), "da39a3ee5e6b4b0d");
+        assert_eq!(signature("").len(), 16);
     }
 }

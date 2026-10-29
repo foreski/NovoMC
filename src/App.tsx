@@ -20,6 +20,7 @@ import { HomePage } from './pages/Home';
 import { InstancesPage } from './pages/Instances';
 import { SettingsPage } from './pages/Settings';
 import { MarketplacePage } from './pages/Marketplace';
+import { SkinsPage } from './pages/Skins';
 import { LoginScreen } from './components/LoginScreen';
 import { useT } from './lib/i18n';
 
@@ -37,6 +38,8 @@ function Page({
       return <InstancesPage onNavigate={onNavigate} />;
     case 'marketplace':
       return <MarketplacePage />;
+    case 'skins':
+      return <SkinsPage />;
     case 'settings':
       return <SettingsPage onNavigate={onNavigate} />;
   }

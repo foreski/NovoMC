@@ -1,0 +1,24 @@
+# Fixed-color materials for Novo Client wing cosmetics
+newmtl membrane
+Ka 0.0616 0.1452 0.1496
+Kd 0.2800 0.6600 0.6800
+Ks 0.12 0.12 0.12
+Ns 18.0
+d 1.0
+illum 2
+
+newmtl frame
+Ka 0.1804 0.2112 0.2068
+Kd 0.8200 0.9600 0.9400
+Ks 0.2 0.2 0.2
+Ns 30.0
+d 1.0
+illum 2
+
+newmtl accent
+Ka 0.1210 0.2156 0.2090
+Kd 0.5500 0.9800 0.9500
+Ks 0.26 0.26 0.26
+Ns 48.0
+d 1.0
+illum 2

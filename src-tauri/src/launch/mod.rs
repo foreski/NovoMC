@@ -350,6 +350,20 @@ async fn read_lines(reader: impl AsyncRead + Unpin, is_err: bool, tx: mpsc::Unbo
     }
 }
 
+/// What a Windows exit code means when the JVM died without writing a report. A negative
+/// `Exit code -1073741819` in a crash issue tells nobody anything; `0xC0000005` is the value
+/// Windows developers recognise.
+fn describe_exit(code: i32) -> Option<&'static str> {
+    match code as u32 {
+        0xC000_0005 => Some("access violation in native code, usually a graphics driver or a native library"),
+        0xC000_001D => Some("illegal instruction"),
+        0xC000_00FD => Some("stack overflow in native code"),
+        0xC000_013A => Some("the process was terminated"),
+        0xC000_0409 => Some("stack buffer overrun in native code"),
+        _ => None,
+    }
+}
+
 /// Newest crash report or JVM error log written since `since`.
 fn find_crash_report(logged_path: Option<String>, game_dir: &Path, since: SystemTime) -> Option<CrashReport> {
     let newer = |p: &Path| std::fs::metadata(p).and_then(|m| m.modified()).is_ok_and(|t| t >= since);
@@ -445,7 +459,16 @@ async fn monitor(app: AppHandle, mut child: Child, exited: LaunchState, game_dir
     crate::novo::sync::after_game(&app, exited.instance_id.clone());
     crate::novo::cosmetics::after_game(app.clone(), exited.instance_id.clone());
     if crashed && settings::load().map(|s| s.auto_report_crashes).unwrap_or(false) {
-        let content = crash_report.as_ref().map(|c| c.content.clone()).unwrap_or_else(|| format!("Exit code {}", exit_code.unwrap_or(-1)));
+        let content = crash_report.as_ref().map(|c| c.content.clone()).unwrap_or_else(|| {
+            let code = exit_code.unwrap_or(-1);
+            match describe_exit(code) {
+                Some(why) => format!(
+                    "Exit code {code} (0x{:08X}): {why}.\nThe JVM wrote no error log, so there is no stack to read.",
+                    code as u32
+                ),
+                None => format!("Exit code {code}"),
+            }
+        });
         crate::report::report_crash(app.clone(), exited.instance_id.clone(), content, recent.iter().cloned().collect());
     }
     let stage = if crashed { LaunchStage::Crashed } else { LaunchStage::Exited };
@@ -465,6 +488,14 @@ async fn monitor(app: AppHandle, mut child: Child, exited: LaunchState, game_dir
 mod tests {
     use super::*;
     use crate::auth::offline;
+
+    #[test]
+    fn native_crash_codes_are_explained() {
+        // The AMD/native-driver crash from issue #3: no crash report, only this number.
+        assert!(describe_exit(-1073741819).unwrap().contains("access violation"));
+        assert!(describe_exit(-1073741571).unwrap().contains("stack overflow"));
+        assert_eq!(describe_exit(0), None, "a clean exit is not a crash");
+    }
 
     /// Every Mojang Java runtime must accept the performance flags, or the
     /// game won't start. Downloads Java 8, 17 and 21. Run with:

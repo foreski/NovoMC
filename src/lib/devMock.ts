@@ -1,7 +1,6 @@
 // Development only: when the UI runs in a plain browser (`npm run dev` without
 // Tauri), answer the Rust commands with sample data so pages can be designed
 // and previewed there. Never part of a release build (see main.tsx).
-import hero from '../../assets/home/hero.jpg';
 import type { AccountStore, AppInfo, Instance, NewsItem, Server, Settings } from './api';
 
 const now = Date.now();
@@ -18,12 +17,8 @@ const accounts: AccountStore = {
   accounts: [{ uuid: '069a79f4-44e9-4726-a5be-fca90e38aaf5', username: 'NovoPlayer', kind: 'microsoft' }],
 };
 
-const news: NewsItem[] = [
-  { id: 'n1', title: 'Sodium Renderer arrives', body: 'Terrain now draws region by region: a big FPS boost on 1.8.9.', date: '2026-10-27', tag: 'novomc', url: null,
-    image: hero },
-  { id: 'n2', title: 'Every menu, restyled', body: 'New Options and Video Settings screens and smooth menu animations.', date: '2026-10-27', tag: 'novomc', url: null },
-  { id: 'n3', title: 'Minecraft 1.21.4', body: 'The Garden Awakens drop is out.', date: '2026-10-20', tag: 'release', url: null },
-];
+// Empty like the real bundled fallback: announcements are posted by the bot.
+const news: NewsItem[] = [];
 
 const servers: Server[] = [
   { name: 'Hypixel', address: 'mc.hypixel.net' },
@@ -45,16 +40,47 @@ const CAPES: [string, string, { frames: number; fps: number } | null][] = [
   ['ember_flow', 'Ember Flow', { frames: 24, fps: 12 }], ['solar_eclipse', 'Solar Eclipse', null],
 ];
 const BANNERS = [['aurora', 'Aurora'], ['nebula', 'Nebula'], ['sunset', 'Sunset'], ['forest', 'Forest'], ['circuit', 'Circuit'], ['developer', 'Developer']];
-const WINGS = [['angel_wings', 'Celestial Wings'], ['demon_wings', 'Infernal Wings'], ['crystal_wings', 'Prism Wings']];
-const HATS = [['wizard_hat', 'Wizard Hat'], ['demon_horns', 'Demon Horns'], ['angel_halo', 'Angel Halo'], ['royal_crown', 'Royal Crown'], ['crystal_antlers', 'Crystal Antlers']];
+const WINGS = [
+  ['azure_wings', 'Azure Wings'], ['verdant_wings', 'Verdant Wings'], ['violet_wings', 'Violet Wings'],
+  ['ender_dragon_wings', 'Ender Dragon Wings'], ['phantom_wings', 'Phantom Wings'], ['monochrome_wings', 'Monochrome Wings'],
+];
+const HATS = [
+  ['wizard_hat', 'Wizard Hat'], ['demon_horns', 'Demon Horns'], ['angel_halo', 'Angel Halo'],
+  ['royal_crown', 'Royal Crown'], ['crystal_antlers', 'Crystal Antlers'], ['ender_crown', 'Ender Crown'],
+  ['phantom_hood', 'Phantom Hood'], ['miner_helmet', "Miner's Helmet"], ['golden_laurel', 'Golden Laurel'],
+];
 const novoAccount = () => ({
   id: 'mock', displayName: 'Steve', discordName: 'steve', avatarUrl: null, cape: 'aurora_flow', banner: 'aurora',
-  wing: 'angel_wings', hat: 'wizard_hat', minecraft: [],
+  wing: 'ender_dragon_wings', hat: 'wizard_hat', minecraft: [],
+  coins: 2400,
   capes: CAPES.map(([id, name, animated], i) => ({ id, name, owned: i < 8 || id === 'aurora_flow', animated })),
   banners: BANNERS.map(([id, name], i) => ({ id, name, owned: i < 4 })),
   wings: WINGS.map(([id, name], i) => ({ id, name, owned: i !== 1, flap: null })),
   hats: HATS.map(([id, name], i) => ({ id, name, owned: i !== 4 })),
 });
+
+/** A crude 64x64 skin, so the changer has something to preview in the browser. */
+let mockSkinPng: string | null = null;
+function mockSkin(): string {
+  if (mockSkinPng) return mockSkinPng;
+  const canvas = document.createElement('canvas');
+  canvas.width = 64;
+  canvas.height = 64;
+  const c = canvas.getContext('2d')!;
+  c.fillStyle = '#5b8cff';
+  c.fillRect(0, 0, 64, 64);
+  c.fillStyle = '#e6b98f';
+  c.fillRect(8, 8, 8, 8);
+  c.fillRect(16, 20, 24, 12);
+  c.fillStyle = '#243a6b';
+  c.fillRect(20, 20, 24, 12);
+  c.fillRect(0, 20, 16, 12);
+  c.fillStyle = '#1b2440';
+  c.fillRect(0, 16, 16, 4);
+  c.fillRect(40, 16, 16, 4);
+  mockSkinPng = canvas.toDataURL('image/png');
+  return mockSkinPng;
+}
 
 const info: AppInfo = { name: 'NovoMC', version: '0.1.8', dataDir: 'C:\\NovoMC (mock)', totalMemoryMb: 16384 };
 
@@ -77,7 +103,33 @@ const replies: Record<string, (args: Record<string, unknown>) => unknown> = {
   novo_set_wing: (a) => (novo = { ...novo, wing: a.wing }),
   novo_set_hat: (a) => (novo = { ...novo, hat: a.hat }),
   novo_set_display_name: (a) => (novo = { ...novo, displayName: a.name }),
+  get_skin_png: () => mockSkin(),
+  lookup_skin: (a) => ({ uuid: 'mock', name: a.name, model: 'classic', png: mockSkin() }),
+  apply_skin: () => null,
+  reset_skin: () => null,
   novo_sync_settings: () => ({ action: 'off', localModified: null, cloudModified: null }),
+  novo_shop: () => {
+    const account = (novo ?? novoAccount()) as ReturnType<typeof novoAccount>;
+    const price = (id: string) => 120 + (id.length % 7) * 60;
+    return {
+      balance: account.coins,
+      paymentReady: true,
+      items: [
+        ...CAPES.map(([id, name, animated]) => ({
+          id, kind: 'cape' as const, name, description: animated ? 'A cape that moves on its own loop.' : 'A still cape, cut from one sheet.',
+          price: price(id), owned: account.capes.some((c: { id: string; owned: boolean }) => c.id === id && c.owned), animated,
+        })),
+        ...BANNERS.map(([id, name]) => ({ id, kind: 'banner' as const, name, description: 'A banner for your profile card.', price: price(id), owned: false })),
+        ...WINGS.map(([id, name]) => ({ id, kind: 'wings' as const, name, description: 'A pair of wings, 1.8.9 only.', price: price(id), owned: account.wings.some((w: { id: string; owned: boolean }) => w.id === id && w.owned) })),
+        ...HATS.map(([id, name]) => ({ id, kind: 'hat' as const, name, description: 'A hat, 1.8.9 only.', price: price(id), owned: account.hats.some((h: { id: string; owned: boolean }) => h.id === id && h.owned) })),
+      ],
+      bundles: [
+        { id: 'small', name: 'Pocket change', coins: 500, price: 4.99, currency: 'USD' as const },
+        { id: 'medium', name: 'Collector', coins: 1200, price: 9.99, currency: 'USD' as const, badge: 'POPULAR' },
+        { id: 'large', name: 'Whole wardrobe', coins: 3000, price: 19.99, currency: 'USD' as const },
+      ],
+    };
+  },
   check_update: () => null,
   list_java: () => [],
   list_versions: () => [],

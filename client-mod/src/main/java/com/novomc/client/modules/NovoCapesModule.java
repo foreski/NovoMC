@@ -1,5 +1,6 @@
 package com.novomc.client.modules;
 
+import com.novomc.client.gui.Cosmetics;
 import com.novomc.client.module.Module;
 import com.novomc.client.net.NovoPresence;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import net.minecraft.util.ResourceLocation;
 public class NovoCapesModule extends Module {
     private static volatile boolean on;
     private static volatile boolean showOthers;
+    private static volatile boolean physics;
     private static final Map<String, ResourceLocation> TEXTURES = new HashMap<String, ResourceLocation>();
     /** Animated capes: id -> {frames, frame duration in ms}. Keep in step with relay/src/capes.js. */
     private static final Map<String, int[]> ANIMATED = new HashMap<String, int[]>();
@@ -38,6 +40,11 @@ public class NovoCapesModule extends Module {
         return on;
     }
 
+    /** Whether capes hang as cloth instead of as vanilla's flat slab. */
+    public static boolean physics() {
+        return on && physics;
+    }
+
     /** Whether other players' Novo cosmetics are shown, or only our own. */
     public static boolean showsOthers() {
         return showOthers;
@@ -48,11 +55,15 @@ public class NovoCapesModule extends Module {
         if (!on || id == null) {
             return null;
         }
-        String cape = NovoPresence.INSTANCE.cape(id);
-        if (cape == null || !(showOthers || id.equals(Minecraft.getMinecraft().getSession().getProfile().getId()))) {
+        boolean self = id.equals(Minecraft.getMinecraft().getSession().getProfile().getId());
+        if (!showOthers && !self) {
             return null;
         }
-        return capeTexture(cape);
+        // Our own cape comes from `cosmetics.json`, like our wings and hat, so it
+        // stays on us when we don't share and when the relay is unreachable.
+        Cosmetics local = self ? Cosmetics.current() : null;
+        String cape = local != null ? local.worn(Cosmetics.CAPE) : NovoPresence.INSTANCE.cape(id);
+        return cape == null ? null : capeTexture(cape);
     }
 
     /** The texture for a cape id, on the current frame for animated capes. */
@@ -78,6 +89,7 @@ public class NovoCapesModule extends Module {
     @Override
     public void onSettingsChanged() {
         showOthers = bool("showOthers");
+        physics = bool("capePhysics");
     }
 
     @Override
@@ -89,5 +101,6 @@ public class NovoCapesModule extends Module {
     @Override
     protected void onDisable() {
         on = false;
+        physics = false;
     }
 }

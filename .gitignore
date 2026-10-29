@@ -24,6 +24,8 @@ client-mod/.vscode/
 .vscode/
 # Third-party reference jars (never publish)
 modid-*-sources.jar
+# Previews the asset scripts write so art can be looked at without the game
+.preview/
 
 # The Discord bot's news token (NEWS_TOKEN secret on the relay)
 relay/.news-token

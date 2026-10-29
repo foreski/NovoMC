@@ -8,6 +8,7 @@ import com.novomc.client.modules.HitSoundsModule;
 import com.novomc.client.modules.HypixelToolsModule;
 import com.novomc.client.modules.NovoBadgeModule;
 import com.novomc.client.modules.PatcherFixesModule;
+import com.novomc.client.gui.GuiEditAvatar;
 import com.novomc.client.gui.GuiNovoMenu;
 import com.novomc.client.gui.GuiQuickplay;
 import com.novomc.client.modules.LowHealthModule;
@@ -66,6 +67,7 @@ public final class DevModuleCheck {
     private Robot robot;
     private int windowW;
     private boolean drawTab;
+    private boolean seenMenu;
 
     /** Dev (named) or production (SRG) method name. */
     private static String name(String named, String srg) {
@@ -81,7 +83,7 @@ public final class DevModuleCheck {
         return Boolean.getBoolean("novomc.modcheck") || menuOnly();
     }
 
-    /** `-Dnovomc.menu=true`: the title screen alone, to look at the cosmetics doll. */
+    /** `-Dnovomc.menu=true`: the title screen alone, to look at the menu and its backdrop. */
     private static boolean menuOnly() {
         return Boolean.getBoolean("novomc.menu");
     }
@@ -153,11 +155,18 @@ public final class DevModuleCheck {
 
     /**
      * The title screen only: writes the file the launcher would have written,
-     * opens the Novo menu so the doll reads it, and screenshots it.
+     * opens the Novo menu and screenshots it, then the cosmetics screen it
+     * links to.
      */
     private boolean menuStep() {
-        if (!(mc.currentScreen instanceof GuiMainMenu)) {
-            return true;
+        // Wait for the title screen once, then count every tick: the wardrobe
+        // this check opens is not a GuiMainMenu, and waiting on the class would
+        // stall the whole run on it.
+        if (!seenMenu) {
+            if (!(mc.currentScreen instanceof GuiMainMenu)) {
+                return true;
+            }
+            seenMenu = true;
         }
         menuTicks++;
         if (menuTicks == 20) {
@@ -167,10 +176,19 @@ public final class DevModuleCheck {
         } else if (menuTicks == 45) {
             check("menu.novo", mc.currentScreen instanceof GuiNovoMenu, "title screen is the Novo menu");
             shot("menu");
-            // The doll picks its size from the window, so look at a big one too.
+            // The wardrobe the costumes tile opens.
+            mc.displayGuiScreen(new GuiEditAvatar(mc.currentScreen));
+        } else if (menuTicks == 55) {
+            check("menu.avatar", mc.currentScreen instanceof GuiEditAvatar,
+                    "Edit Avatar opens from the Cosmetics tile; screen=" + (mc.currentScreen == null ? "null" : mc.currentScreen.getClass().getName()));
+            shot("avatar");
+            // The wardrobe picks its size from the window, so look at a big one too.
             mc.resize(1600, 900);
         } else if (menuTicks == 70) {
-            // The GUI scale decides the numbers here, so this shot is only there to be looked at.
+            // The GUI scale decides the numbers here, so these shots are only there to be looked at.
+            shot("avatar-wide");
+            mc.displayGuiScreen(new GuiNovoMenu());
+        } else if (menuTicks == 80) {
             shot("menu-wide");
             System.out.println("[NovoMC] Mod check: " + passed + " passed, " + failed + " failed");
             System.out.println("[NovoMC] Autotest finished");
@@ -779,11 +797,12 @@ public final class DevModuleCheck {
             });
             then(20, new Runnable() {
                 public void run() {
-                    java.util.UUID me = mc.getSession().getProfile().getId();
-                    String wing = com.novomc.client.net.NovoPresence.INSTANCE.wing(me);
-                    String hat = com.novomc.client.net.NovoPresence.INSTANCE.hat(me);
-                    check("novo_capes.wing", wing != null, "relay says we wear wings (" + wing + ")");
-                    check("novo_capes.hat", hat != null, "relay says we wear a hat (" + hat + ")");
+                    // Sharing was just turned off: our own cosmetics come from
+                    // cosmetics.json, so they must still be there to draw.
+                    String wing = com.novomc.client.render.NovoCosmetics.wingOf(mc.thePlayer);
+                    String hat = com.novomc.client.render.NovoCosmetics.hatOf(mc.thePlayer);
+                    check("novo_capes.wing", wing != null, "we still wear wings without sharing (" + wing + ")");
+                    check("novo_capes.hat", hat != null, "we still wear a hat without sharing (" + hat + ")");
                     shot("wings-hat");
                     mc.gameSettings.thirdPersonView = 0;
                     set("novo_badge", "shareMine", false);

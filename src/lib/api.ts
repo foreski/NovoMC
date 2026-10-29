@@ -291,6 +291,16 @@ export function onGameLog(cb: (lines: LogLine[]) => void): Promise<UnlistenFn> {
   return listen<LogLine[]>('game-log', (e) => cb(e.payload));
 }
 
+/** A player's skin, for the launcher's skin changer. */
+export interface SkinProfile {
+  uuid: string;
+  name: string;
+  /** "classic" or "slim", as the skin declares. */
+  model: string;
+  /** The whole 64x64 sheet as a data URL, or null for an account on a default skin. */
+  png: string | null;
+}
+
 export const api = {
   appInfo: () => invoke<AppInfo>('app_info'),
   openDataFolder: () => invoke<void>('open_data_folder'),
@@ -308,6 +318,14 @@ export const api = {
   microsoftLogin: () => invoke<AccountStore>('microsoft_login'),
   /** The player's skin head as a data URL (null for default skins). */
   getSkinHead: (uuid: string) => invoke<string | null>('get_skin_head', { uuid }),
+  /** A player's skin sheet by username, or null when no such player exists. */
+  lookupSkin: (name: string) => invoke<SkinProfile | null>('lookup_skin', { name }),
+  /** A player's skin sheet by UUID. */
+  getSkinPng: (uuid: string) => invoke<string | null>('get_skin_png', { uuid }),
+  /** Uploads a skin to the signed-in Microsoft account. */
+  applySkin: (png: string, model: string) => invoke<void>('apply_skin', { png, model }),
+  /** Drops the signed-in account's custom skin. */
+  resetSkin: () => invoke<void>('reset_skin'),
   novoAccount: () => invoke<NovoAccount | null>('novo_account'),
   novoLogin: () => invoke<NovoAccount>('novo_login'),
   novoLogout: () => invoke<void>('novo_logout'),

@@ -32,6 +32,8 @@ assert.deepEqual(
     'circuit', 'starfield', 'inferno', 'venom', 'lunar_rose', 'blazeborn', 'amethyst_core', 'gilded_crown', 'drake', 'skywing',
     'solar_eclipse', 'aurora_flow', 'ember_flow', 'wizard_hat', 'demon_horns', 'angel_halo', 'royal_crown', 'crystal_antlers',
     'violet_wings', 'verdant_wings', 'monochrome_wings', 'azure_wings',
+    'ender_dragon_wings', 'phantom_wings',
+    'ender_crown', 'phantom_hood', 'miner_helmet', 'golden_laurel',
   ],
 );
 assert.deepEqual(r.body.items.find((item) => item.id === 'ember_flow'), {
@@ -56,7 +58,7 @@ r = await call('POST', '/admin/shop/items', {
   price: 900,
 });
 assert.equal(r.status, 201);
-assert.equal(r.body.item.position, 23);
+assert.equal(r.body.item.position, 29);
 assert.equal(
   (await call('POST', '/admin/shop/items', { id: 'ember_flow', kind: 'cape', name: 'Ember Flow', description: 'Again', price: 900 })).status,
   409,
