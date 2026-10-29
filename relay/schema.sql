@@ -104,6 +104,7 @@ INSERT OR IGNORE INTO shop_items (id, kind, name, description, price, active, po
   ('angel_halo', 'hat', 'Angel Halo', 'A floating ring of gold above the head.', 450, 1, 16, 0),
   ('royal_crown', 'hat', 'Royal Crown', 'A jewelled gold crown for the rightful ruler.', 600, 1, 17, 0),
   ('crystal_antlers', 'hat', 'Crystal Antlers', 'Branching ice crystals that catch the light.', 700, 1, 18, 0),
-  ('angel_wings', 'wings', 'Celestial Wings', 'Layered ivory feathers that beat slowly.', 900, 1, 19, 0),
-  ('demon_wings', 'wings', 'Infernal Wings', 'Broad obsidian wings with crimson edges.', 1000, 1, 20, 0),
-  ('crystal_wings', 'wings', 'Prism Wings', 'Angular ice shards that fan out and snap.', 1200, 1, 21, 0);
+  ('violet_wings', 'wings', 'Violet Wings', 'Deep violet membrane on a bright lavender frame.', 900, 1, 19, 0),
+  ('verdant_wings', 'wings', 'Verdant Wings', 'Mossy green membrane with glowing leaf-green ribs.', 900, 1, 20, 0),
+  ('monochrome_wings', 'wings', 'Monochrome Wings', 'Bone-white membrane on gunmetal ribs.', 1200, 1, 21, 0),
+  ('azure_wings', 'wings', 'Azure Wings', 'Ocean-blue membrane on steel-blue spars.', 1000, 1, 22, 0);

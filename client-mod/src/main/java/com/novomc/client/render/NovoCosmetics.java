@@ -21,8 +21,9 @@ import net.minecraft.entity.player.EntityPlayer;
  * of the vanilla pose maths.
  *
  * Both are untextured flat-shaded geometry, so they need no atlas: wings are
- * built from boxes in {@link WingModel}, hats are the OBJ meshes in
- * {@code assets/novomc/models/hats} baked by {@link HatMesh}.
+ * the OBJ meshes in {@code assets/novomc/models/wings} baked by
+ * {@link WingModel}, hats the ones in {@code models/hats} baked by
+ * {@link HatMesh}.
  *
  * 1.8.9 only: the modern client has no model renderer to hook, so it shows
  * capes only even when a player wears wings or a hat.

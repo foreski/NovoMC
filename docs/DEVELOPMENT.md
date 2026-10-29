@@ -275,8 +275,11 @@ with Discord and holds a Novo name, the linked Minecraft accounts, a cape and th
   model's pose for that frame so they follow the body and head through sneaking, riding and head turns. No
   textures or atlases are involved: both are untextured triangles/quads with baked shading. The wing flap runs
   off `System.nanoTime()`, so it costs nothing when nobody with wings is on screen. Both are gated by the same
-  `novo_capes` module ("Novo Cosmetics") and its `showOthers` setting. `users.wing`/`users.hat` and the eight
-  shop rows come from `relay/migrations/0004-wings-hats.sql`.
+  `novo_capes` module ("Novo Cosmetics") and its `showOthers` setting. The wings are OBJ meshes
+  (`assets/novomc/models/wings/<id>.obj` plus its `.mtl`), baked into one display list per side by
+  `render/WingModel.java`, so a worn pair costs two draw calls a frame; each side turns around the shoulder
+  hinge the meshes were authored around. `users.wing`/`users.hat` and the shop rows come from
+  `relay/migrations/0004-wings-hats.sql` and `0005-wing-models.sql`.
 - **The paper doll on the title screen** (`gui/PaperDoll.java`, drawn by `GuiNovoMenu`) shows the player wearing
   their Novo cape, wings and hat, with a row per slot that cycles through the cosmetics the account owns
   (left arrow or right-click goes back, and `None` removes one). It needs a GUI at least 400 wide and 200 tall
@@ -296,7 +299,7 @@ with Discord and holds a Novo name, the linked Minecraft accounts, a cape and th
   `novo-account`, which makes the launcher reload the account so the Marketplace shows the new look. 1.8.9 only,
   like the wings and hats themselves; the modern client ignores the file.
   To see the doll without the relay, write that file by hand:
-  `{"cape":"aurora_flow","wing":"angel_wings","hat":"wizard_hat","items":{"capes":[{"id":"aurora_flow","name":"Aurora Flow"}],"wings":[{"id":"angel_wings","name":"Celestial Wings"}],"hats":[{"id":"wizard_hat","name":"Wizard Hat"}]}}`.
+  `{"cape":"aurora_flow","wing":"violet_wings","hat":"wizard_hat","items":{"capes":[{"id":"aurora_flow","name":"Aurora Flow"}],"wings":[{"id":"violet_wings","name":"Violet Wings"}],"hats":[{"id":"wizard_hat","name":"Wizard Hat"}]}}`.
 - **Settings sync** (`src-tauri/src/novo/sync.rs`): an instance's `config/novomc/modules.json` is saved under the
   slot of its Minecraft version (`/account/settings/1.8.9`, `/account/settings/26.3`, up to 256 KB). `cloud-sync.json`
   next to it records the file's hash and the cloud copy's time from the last sync, which shows which side changed.
@@ -314,7 +317,7 @@ with Discord and holds a Novo name, the linked Minecraft accounts, a cape and th
   `wrangler.toml` lists the same bindings, with a placeholder D1 id.
 - **Tests:** `node relay/test/account.test.mjs` mocks Discord and uses `node:sqlite` as D1, and
   `cargo test novo` covers the sync plan, the authorize URL and the callback. For the in-game checks, run the local
-  relay with `node relay/test/local-relay.mjs 8787 tidal angel_wings wizard_hat` (the arguments are port, cape,
+  relay with `node relay/test/local-relay.mjs 8787 tidal violet_wings wizard_hat` (the arguments are port, cape,
   wing and hat; the defaults are those). It is the real Worker with presence in memory and SQLite as D1. It
   links everyone who says hello to a test account that wears them. Then run the 1.8.9 mod check with
   `NOVOMC_TEST_RELAY=http://127.0.0.1:8787 NOVOMC_TEST_MODE=modcheck`, which checks `novo_capes.worn`,

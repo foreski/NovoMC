@@ -1,64 +1,78 @@
 package com.novomc.client.render;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.IResource;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
 
 /**
- * The 3D wings drawn behind a player's torso.
+ * The 3D wings drawn behind a player's torso: the OBJ meshes in
+ * `assets/novomc/models/wings/<id>.obj`, colored by the materials in
+ * `<id>.mtl`.
  *
- * Geometry is a small tree of untextured boxes: three hinges per wing (root,
- * mid, tip) so the outer feathers follow the shoulder with a delay. Each wing
- * is about 20 boxes, drawn with one {@code glBegin} in flat colors: cheap
- * enough to draw only for the players who are on screen, and no texture atlas
- * or animation ticks are involved. Flap time comes from a monotonic clock, so
- * the motion looks the same at any frame rate.
+ * The meshes come in LeftWing and RightWing objects and are baked once into a
+ * display list per side, so a worn pair costs two {@code glCallList} calls a
+ * frame instead of several thousand vertices. Each side pivots around the
+ * shoulder hinge the mesh was authored around (x = +-0.13, y = 0.10, z = 0.05
+ * in OBJ space), which is why the flap is a matrix rotation and needs no
+ * per-vertex animation. Flap time comes from a monotonic clock, so the motion
+ * looks the same at any frame rate.
  */
 final class WingModel {
+    private static final Set<String> KNOWN = new HashSet<String>(Arrays.asList(
+            "violet_wings", "verdant_wings", "monochrome_wings", "azure_wings"));
     private static final Map<String, WingModel> CACHE = new HashMap<String, WingModel>();
 
-    private final Part left;
-    private final Part right;
+    /** OBJ units to player-model units: the mesh spans 2.67 units, about 27 of the model's 16-per-block. */
+    private static final float SCALE = 10.0F;
+    /** The hinge's place on the torso, in model units (y points down, z points back). */
+    private static final float BODY_Y = 1.2F;
+    private static final float BODY_Z = 2.0F;
+    /** The shoulder hinge the meshes were authored around. */
+    private static final float HINGE_X = 0.13F;
+    private static final float HINGE_Y = 0.10F;
+    private static final float HINGE_Z = 0.05F;
+    /** Wings rest swept back a little, the way they sit against a back. */
+    private static final float REST_SWEEP = 0.16F;
+    private static final float RAD_TO_DEG = 57.29578F;
+
+    private final int leftList;
+    private final int rightList;
     private final float rate;
     private final float amplitude;
 
-    private WingModel(float[][] colors, float rate, float amplitude) {
+    private WingModel(int leftList, int rightList, float rate, float amplitude) {
+        this.leftList = leftList;
+        this.rightList = rightList;
         this.rate = rate;
         this.amplitude = amplitude;
-        this.left = wing(1.0F, colors);
-        this.right = wing(-1.0F, colors);
     }
 
     /** The model for a wing id from the relay, or null if we don't ship it. */
     static WingModel get(String id) {
-        WingModel model = CACHE.get(id);
-        if (model != null) {
-            return model;
-        }
-        float[][] colors;
-        float rate;
-        float amplitude;
-        if ("angel_wings".equals(id)) {
-            colors = Palette.ANGEL;
-            rate = 1.45F;
-            amplitude = 0.62F;
-        } else if ("demon_wings".equals(id)) {
-            colors = Palette.DEMON;
-            rate = 1.65F;
-            amplitude = 0.72F;
-        } else if ("crystal_wings".equals(id)) {
-            colors = Palette.CRYSTAL;
-            rate = 1.35F;
-            amplitude = 0.58F;
-        } else {
+        if (id == null || !KNOWN.contains(id)) {
             return null;
         }
-        model = new WingModel(colors, rate, amplitude);
-        CACHE.put(id, model);
+        WingModel model = CACHE.get(id);
+        if (model == null) {
+            model = load(id);
+            if (model != null) {
+                CACHE.put(id, model);
+            }
+        }
         return model;
     }
 
@@ -69,142 +83,192 @@ final class WingModel {
     void render(float seconds, float scale) {
         float phase = seconds * rate * (float) (Math.PI * 2.0);
         float flap = (float) Math.sin(phase) * amplitude;
-        float sweep = (float) Math.sin(phase - 0.65F) * 0.08F;
-        pose(left, flap, sweep);
-        pose(right, -flap, -sweep);
+        float sweep = (float) Math.sin(phase - 0.65F) * amplitude * 0.14F;
 
         NovoCosmetics.beginFlat();
-        draw(left, scale);
-        draw(right, scale);
+        draw(leftList, 1.0F, flap, sweep, scale);
+        draw(rightList, -1.0F, flap, sweep, scale);
         NovoCosmetics.endFlat();
     }
 
-    private static void pose(Part root, float flap, float sweep) {
-        root.rotZ = flap;
-        root.rotY = sweep;
-        if (root.children.isEmpty()) {
+    /**
+     * Both sides are authored with the hinge at the origin, so one rotation at
+     * the shoulder tilts the whole wing. The sides mirror, hence the sign.
+     */
+    private static void draw(int list, float side, float flap, float sweep, float scale) {
+        if (!GL11.glIsList(list)) {
             return;
         }
-        Part mid = root.children.get(0);
-        mid.rotZ = flap * 0.52F;
-        mid.rotY = sweep * 0.5F;
-        if (!mid.children.isEmpty()) {
-            mid.children.get(0).rotZ = flap * 0.25F;
-        }
-    }
-
-    private static void draw(Part part, float scale) {
         GlStateManager.pushMatrix();
-        GlStateManager.translate(part.px * scale, part.py * scale, part.pz * scale);
-        if (part.rotZ != 0.0F) {
-            GlStateManager.rotate(part.rotZ * 57.29578F, 0.0F, 0.0F, 1.0F);
-        }
-        if (part.rotY != 0.0F) {
-            GlStateManager.rotate(part.rotY * 57.29578F, 0.0F, 1.0F, 0.0F);
-        }
-        // Matrices must not change inside glBegin/glEnd, so each hinge draws
-        // its own boxes and then recurses.
-        GL11.glBegin(GL11.GL_QUADS);
-        for (int i = 0; i < part.boxes.size(); i++) {
-            box(part.boxes.get(i), scale);
-        }
-        GL11.glEnd();
-        for (int i = 0; i < part.children.size(); i++) {
-            draw(part.children.get(i), scale);
-        }
+        GlStateManager.scale(scale, scale, scale);
+        GlStateManager.translate(0.0F, BODY_Y, BODY_Z);
+        GlStateManager.rotate(side * flap * RAD_TO_DEG, 0.0F, 0.0F, 1.0F);
+        GlStateManager.rotate(side * (sweep + REST_SWEEP) * RAD_TO_DEG, 0.0F, 1.0F, 0.0F);
+        GL11.glCallList(list);
         GlStateManager.popMatrix();
     }
 
-    /** One cuboid as six shaded quads; the wings are the only thing that uses it. */
-    private static void box(Box b, float s) {
-        float x0 = b.x * s;
-        float y0 = b.y * s;
-        float z0 = b.z * s;
-        float x1 = (b.x + b.w) * s;
-        float y1 = (b.y + b.h) * s;
-        float z1 = (b.z + b.d) * s;
-        // back, front, right, left, bottom, top (local +y points down, +z back)
-        quad(b.color, 1.0F, x0, y0, z1, x1, y0, z1, x1, y1, z1, x0, y1, z1);
-        quad(b.color, 0.82F, x1, y0, z0, x0, y0, z0, x0, y1, z0, x1, y1, z0);
-        quad(b.color, 0.9F, x1, y0, z1, x1, y0, z0, x1, y1, z0, x1, y1, z1);
-        quad(b.color, 0.9F, x0, y0, z0, x0, y0, z1, x0, y1, z1, x0, y1, z0);
-        quad(b.color, 0.7F, x0, y1, z1, x1, y1, z1, x1, y1, z0, x0, y1, z0);
-        quad(b.color, 1.05F, x0, y0, z0, x1, y0, z0, x1, y0, z1, x0, y0, z1);
+    private static WingModel load(String id) {
+        try {
+            Map<String, float[]> materials = materials(id);
+            List<float[]> vertices = new ArrayList<float[]>();
+            List<float[]> left = new ArrayList<float[]>();
+            List<float[]> right = new ArrayList<float[]>();
+            List<float[]> side = left;
+            float[] color = { 0.72F, 0.72F, 0.78F };
+            BufferedReader reader = open("models/wings/" + id + ".obj");
+            try {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    line = line.trim();
+                    if (line.startsWith("v ")) {
+                        String[] p = line.split("\\s+");
+                        if (p.length >= 4) {
+                            vertices.add(new float[] { Float.parseFloat(p[1]), Float.parseFloat(p[2]), Float.parseFloat(p[3]) });
+                        }
+                    } else if (line.startsWith("o ") || line.startsWith("g ")) {
+                        side = line.substring(2).trim().toLowerCase().contains("right") ? right : left;
+                    } else if (line.startsWith("usemtl ")) {
+                        float[] found = materials.get(line.substring(7).trim());
+                        if (found != null) {
+                            color = found;
+                        }
+                    } else if (line.startsWith("f ")) {
+                        String[] p = line.split("\\s+");
+                        int[] face = new int[p.length - 1];
+                        for (int i = 0; i < face.length; i++) {
+                            String token = p[i + 1];
+                            int slash = token.indexOf('/');
+                            int index = Integer.parseInt(slash >= 0 ? token.substring(0, slash) : token);
+                            face[i] = index < 0 ? vertices.size() + index : index - 1;
+                        }
+                        // The meshes are quads; fan-triangulate so any face shape works.
+                        for (int i = 1; i + 1 < face.length; i++) {
+                            triangle(vertices, side, face[0], face[i], face[i + 1], color);
+                        }
+                    }
+                }
+            } finally {
+                reader.close();
+            }
+            if (left.isEmpty() || right.isEmpty()) {
+                return null;
+            }
+            float[] lift = { 0.18F, 0.42F, 0.89F };
+            int leftList = compile(left, lift);
+            int rightList = compile(right, lift);
+            if (leftList == 0 || rightList == 0) {
+                return null;
+            }
+            float[] flap = flap(id);
+            return new WingModel(leftList, rightList, flap[0], flap[1]);
+        } catch (Exception e) {
+            System.err.println("[NovoMC] Could not load wings " + id + ": " + e);
+            return null;
+        }
     }
 
-    private static void quad(float[] color, float shade, float... corners) {
-        // GlStateManager keeps its colour cache in step; raw glColor would leave it stale.
-        GlStateManager.color(color[0] * shade, color[1] * shade, color[2] * shade, 1.0F);
-        for (int i = 0; i < corners.length; i += 3) {
-            GL11.glVertex3f(corners[i], corners[i + 1], corners[i + 2]);
+    /** How fast this pair beats: cycles per second and the swing in radians. */
+    private static float[] flap(String id) {
+        if ("verdant_wings".equals(id)) {
+            return new float[] { 1.6F, 0.66F };
         }
+        if ("monochrome_wings".equals(id)) {
+            return new float[] { 1.3F, 0.54F };
+        }
+        if ("azure_wings".equals(id)) {
+            return new float[] { 1.75F, 0.72F };
+        }
+        return new float[] { 1.45F, 0.6F };
+    }
+
+    private static void triangle(List<float[]> vertices, List<float[]> out, int a, int b, int c, float[] color) {
+        if (a < 0 || b < 0 || c < 0 || a >= vertices.size() || b >= vertices.size() || c >= vertices.size()) {
+            return;
+        }
+        float[] va = vertices.get(a);
+        float[] vb = vertices.get(b);
+        float[] vc = vertices.get(c);
+        out.add(new float[] {
+            va[0], va[1], va[2], vb[0], vb[1], vb[2], vc[0], vc[1], vc[2],
+            color[0], color[1], color[2],
+        });
     }
 
     /**
-     * Left wing authored with positive X; the right one is mirrored. The root
-     * sits at the top of the back, just behind a resting cape (z = 3).
+     * Moves the hinge to the origin, flips the Y-up mesh into the model's
+     * Y-down space and bakes the triangles into a display list with flat
+     * shading from one light behind the player.
      */
-    private static Part wing(float side, float[][] colors) {
-        Part root = new Part(side * 2.0F, 2.0F, 3.0F);
-        add(root, side, 0.0F, -2.0F, 0.0F, 3.0F, 8.0F, 2.0F, colors[0]);
-        add(root, side, 2.0F, -1.0F, 0.0F, 3.0F, 9.0F, 2.0F, colors[0]);
-        add(root, side, 4.0F, 0.5F, 0.0F, 3.0F, 8.0F, 2.0F, colors[1]);
-        add(root, side, 6.0F, 1.5F, 0.0F, 3.0F, 7.0F, 2.0F, colors[1]);
-
-        Part mid = new Part(side * 5.0F, 2.0F, 0.0F);
-        add(mid, side, 0.0F, -1.0F, 0.0F, 4.0F, 8.0F, 1.5F, colors[1]);
-        add(mid, side, 2.0F, 1.0F, 0.0F, 4.0F, 7.0F, 1.5F, colors[2]);
-
-        Part tip = new Part(side * 5.0F, 2.0F, 0.0F);
-        add(tip, side, 0.0F, -1.0F, 0.0F, 4.0F, 6.0F, 1.5F, colors[2]);
-
-        mid.children.add(tip);
-        root.children.add(mid);
-        return root;
-    }
-
-    private static void add(Part part, float side, float x, float y, float z, float w, float h, float d, float[] color) {
-        Box b = new Box();
-        b.x = side > 0.0F ? x : -x - w;
-        b.y = y;
-        b.z = z;
-        b.w = w;
-        b.h = h;
-        b.d = d;
-        b.color = color;
-        part.boxes.add(b);
-    }
-
-    private static final class Part {
-        final float px;
-        final float py;
-        final float pz;
-        final List<Box> boxes = new ArrayList<Box>();
-        final List<Part> children = new ArrayList<Part>();
-        float rotZ;
-        float rotY;
-
-        Part(float px, float py, float pz) {
-            this.px = px;
-            this.py = py;
-            this.pz = pz;
+    private static int compile(List<float[]> triangles, float[] light) {
+        int list = GL11.glGenLists(1);
+        if (list == 0) {
+            return 0;
         }
+        GL11.glNewList(list, GL11.GL_COMPILE);
+        GL11.glBegin(GL11.GL_TRIANGLES);
+        for (int i = 0; i < triangles.size(); i++) {
+            float[] t = triangles.get(i);
+            float ax = (t[0] - HINGE_X) * SCALE;
+            float ay = -(t[1] - HINGE_Y) * SCALE;
+            float az = (t[2] - HINGE_Z) * SCALE;
+            float bx = (t[3] - HINGE_X) * SCALE;
+            float by = -(t[4] - HINGE_Y) * SCALE;
+            float bz = (t[5] - HINGE_Z) * SCALE;
+            float cx = (t[6] - HINGE_X) * SCALE;
+            float cy = -(t[7] - HINGE_Y) * SCALE;
+            float cz = (t[8] - HINGE_Z) * SCALE;
+
+            float edge1x = bx - ax, edge1y = by - ay, edge1z = bz - az;
+            float edge2x = cx - ax, edge2y = cy - ay, edge2z = cz - az;
+            float nx = edge1y * edge2z - edge1z * edge2y;
+            float ny = edge1z * edge2x - edge1x * edge2z;
+            float nz = edge1x * edge2y - edge1y * edge2x;
+            float length = (float) Math.sqrt(nx * nx + ny * ny + nz * nz);
+
+            float shade = 0.62F;
+            if (length > 0.0F) {
+                // Light in OBJ space (y up); the model is two-sided, so use the absolute facing.
+                float facing = Math.abs((nx * light[0] + ny * light[1] + nz * light[2]) / length);
+                shade = 0.62F + 0.38F * facing;
+            }
+            // GlStateManager keeps its colour cache in step; raw glColor would leave it stale.
+            GlStateManager.color(t[9] * shade, t[10] * shade, t[11] * shade, 1.0F);
+            GL11.glVertex3f(ax, ay, az);
+            GL11.glVertex3f(bx, by, bz);
+            GL11.glVertex3f(cx, cy, cz);
+        }
+        GL11.glEnd();
+        GL11.glEndList();
+        return list;
     }
 
-    private static final class Box {
-        float x;
-        float y;
-        float z;
-        float w;
-        float h;
-        float d;
-        float[] color;
+    /** The `Kd` of each material in this wing's MTL. */
+    private static Map<String, float[]> materials(String id) throws IOException {
+        Map<String, float[]> out = new HashMap<String, float[]>();
+        BufferedReader reader = open("models/wings/" + id + ".mtl");
+        try {
+            String name = null;
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.startsWith("newmtl ")) {
+                    name = line.substring(7).trim();
+                } else if (name != null && line.startsWith("Kd ")) {
+                    String[] p = line.split("\\s+");
+                    if (p.length >= 4) {
+                        out.put(name, new float[] { Float.parseFloat(p[1]), Float.parseFloat(p[2]), Float.parseFloat(p[3]) });
+                    }
+                }
+            }
+        } finally {
+            reader.close();
+        }
+        return out;
     }
 
-    /** The pack's suggested colors, in model RGB. */
-    private static final class Palette {
-        static final float[][] ANGEL = { { 0.96F, 0.94F, 0.84F }, { 0.98F, 0.87F, 0.6F }, { 0.96F, 0.75F, 0.22F } };
-        static final float[][] DEMON = { { 0.16F, 0.14F, 0.2F }, { 0.45F, 0.09F, 0.13F }, { 0.78F, 0.1F, 0.18F } };
-        static final float[][] CRYSTAL = { { 0.42F, 0.86F, 1.0F }, { 0.12F, 0.47F, 0.75F }, { 0.67F, 0.8F, 0.9F } };
+    private static BufferedReader open(String path) throws IOException {
+        IResource resource = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("novomc", path));
+        return new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8));
     }
 }

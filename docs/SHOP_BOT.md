@@ -56,10 +56,11 @@ Item fields:
 | `active` | no | yes | `false` hides it from the shop without deleting it (default `true`) |
 | `position` | no | yes | display order, ascending; new items go last by default |
 
-Capes and banners must name a **paid** id from `relay/src/capes.js`, so a typo can't
-put an unwearable item on sale and a free cosmetic can't be sold twice. `wings` and
-`hat` items are accepted but have no in-game rendering yet, so they show the
-"coming soon" artwork.
+Capes, banners, wings and hats must name a **paid** id from `relay/src/capes.js`, so a
+typo can't put an unwearable item on sale and a free cosmetic can't be sold twice.
+Wings and hats only draw in the 1.8.9 client, and each id needs a mesh there
+(`assets/novomc/models/wings/<id>.obj`, `models/hats/<id>.obj`); an id without one
+sells a cosmetic nobody can see.
 
 Errors are `{"error": "..."}` with 400 (bad field or body), 401 (wrong token),
 404 (no such item), 409 (id already used) or 503 (no `SHOP_TOKEN`).
@@ -85,6 +86,42 @@ curl -X PATCH https://<worker>/admin/shop/items/dune \
 
 Changes are live for the next launcher refresh: the store endpoint is not cached,
 so a bot edit shows up as soon as a player opens or refreshes the Marketplace.
+
+## Gift codes
+
+The same token mints coin gift codes, which players redeem in the Marketplace
+(**Redeem a code** under *Buy coins*). Codes are 24 random hex characters shown
+once as `NOVO-xxxx-xxxx-xxxx-xxxx-xxxx-xxxx`; only their SHA-256 is stored in
+`gift_codes`, so a code that is lost cannot be looked up again — mint another.
+
+| Request | What it does |
+| --- | --- |
+| `GET /admin/gift-codes` | the last 50 codes: coin value, uses, expiry — never the code itself |
+| `POST /admin/gift-codes` | mint codes; the display codes are in the response, once |
+
+Both need `Authorization: Bearer <SHOP_TOKEN>`. Minting takes:
+
+| Field | Notes |
+| --- | --- |
+| `coins` | required, 1-1000000 — added to each redeemer's wallet |
+| `uses` | optional, 1-100000, default 1; how many players can redeem each code |
+| `count` | optional, 1-25, default 1; how many codes to mint |
+| `expiresInDays` | optional, 0 (never, the default) to 365 |
+
+```bash
+# 10 codes worth 500 NC, each for one player, valid for a week
+curl -X POST https://<worker>.workers/admin/gift-codes \
+  -H "Authorization: Bearer $SHOP_TOKEN" -H "Content-Type: application/json" \
+  -d '{"coins":500,"count":10,"expiresInDays":7}'
+# -> {"codes":["NOVO-1A2B-...", ...],"coins":500,"uses":1,"count":10,"expiresAt":1793...}
+```
+
+In the bot: `/gift create coins:500 uses:1 count:10 expires_days:7` replies
+ephemerally with the codes, and `/gift list` shows what is outstanding (an `id`
+is the start of the hash — enough to talk about a code, useless for redeeming
+one). A player can redeem any code only once, and a code stops working when its
+uses run out or it expires. Codes can't be revoked: mint with a short expiry
+when that matters.
 
 ## Example bot (discord.js v14)
 

@@ -2,7 +2,7 @@
 // with presence in memory and D1 played by SQLite. Every player who says
 // hello is linked to a test Novo account wearing the given cosmetics.
 //
-//   node relay/test/local-relay.mjs [port=8787] [cape=tidal] [wing=angel_wings] [hat=wizard_hat]
+//   node relay/test/local-relay.mjs [port=8787] [cape=tidal] [wing=violet_wings] [hat=wizard_hat]
 //   NOVOMC_TEST_RELAY=http://127.0.0.1:8787 NOVOMC_TEST_MODE=modcheck ... cargo test launch_real -- --ignored
 import { createServer } from 'node:http';
 import worker from '../src/worker.js';
@@ -11,12 +11,16 @@ import { d1 } from './d1.mjs';
 
 const port = Number(process.argv[2] || 8787);
 const cape = process.argv[3] || 'tidal';
-const wing = process.argv[4] || 'angel_wings';
+const wing = process.argv[4] || 'violet_wings';
 const hat = process.argv[5] || 'wizard_hat';
 const db = d1();
 db.sqlite
   .prepare("INSERT INTO users (id, discord_id, discord_name, avatar, display_name, cape, wing, hat, created_at) VALUES ('tester', '1', 'tester', NULL, 'Tester', ?, ?, ?, 0)")
   .run(cape, wing, hat);
+// The relay only reports a cosmetic the account owns, so grant the three it wears.
+db.sqlite
+  .prepare("INSERT OR IGNORE INTO grants (user_id, cape) VALUES ('tester', ?), ('tester', ?), ('tester', ?)")
+  .run(`wing:${wing}`, `hat:${hat}`, cape);
 const presence = new Presence(null, null);
 const env = {
   NOVO_DB: db,

@@ -36,12 +36,15 @@ export const CAPES = [
   { id: 'developer', name: 'Developer', free: false },
 ];
 
-// Wings: 3D models the 1.8.9 client draws behind the torso. `flap` is the
-// animation the model plays (cycles per second and radians).
+// Wings: 3D models the 1.8.9 client draws behind the torso, from the meshes in
+// assets/novomc/models/wings/<id>.obj. `flap` is the animation the model plays
+// (cycles per second and radians); an id that isn't in the client's mesh table
+// shows nothing, so only real meshes belong here.
 export const WINGS = [
-  { id: 'angel_wings', name: 'Celestial Wings', free: false, flap: { rate: 1.45, amplitude: 0.62 } },
-  { id: 'demon_wings', name: 'Infernal Wings', free: false, flap: { rate: 1.65, amplitude: 0.72 } },
-  { id: 'crystal_wings', name: 'Prism Wings', free: false, flap: { rate: 1.35, amplitude: 0.58 } },
+  { id: 'violet_wings', name: 'Violet Wings', free: false, flap: { rate: 1.45, amplitude: 0.6 } },
+  { id: 'verdant_wings', name: 'Verdant Wings', free: false, flap: { rate: 1.6, amplitude: 0.66 } },
+  { id: 'monochrome_wings', name: 'Monochrome Wings', free: false, flap: { rate: 1.3, amplitude: 0.54 } },
+  { id: 'azure_wings', name: 'Azure Wings', free: false, flap: { rate: 1.75, amplitude: 0.72 } },
 ];
 
 // Hats: OBJ meshes mounted on the head (assets/novomc/models/hats/<id>.obj).
@@ -80,7 +83,7 @@ export async function ownedBanners(db, userId) {
   return BANNERS.filter((b) => b.free || granted.has(b.id)).map((b) => b.id);
 }
 
-/** Ids granted under a `prefix:` key, e.g. `wing:angel_wings`. */
+/** Ids granted under a `prefix:` key, e.g. `wing:violet_wings`. */
 async function grantedIds(db, userId, prefix) {
   const { results } = await db.prepare('SELECT cape FROM grants WHERE user_id = ? AND cape LIKE ?').bind(userId, `${prefix}:%`).all();
   return new Set(results.map((r) => r.cape.slice(prefix.length + 1)));

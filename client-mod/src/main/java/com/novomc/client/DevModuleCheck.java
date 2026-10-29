@@ -181,9 +181,9 @@ public final class DevModuleCheck {
 
     /** `config/novomc/cosmetics.json`, as `novo/cosmetics.rs` writes it before a launch. */
     private void menuFixture() {
-        String json = "{\"version\":1,\"cape\":\"tidal\",\"wing\":\"angel_wings\",\"hat\":\"wizard_hat\",\"items\":{"
+        String json = "{\"version\":1,\"cape\":\"tidal\",\"wing\":\"violet_wings\",\"hat\":\"wizard_hat\",\"items\":{"
                 + "\"capes\":[{\"id\":\"tidal\",\"name\":\"Tidal\",\"owned\":true},{\"id\":\"aurora_flow\",\"name\":\"Aurora Flow\",\"owned\":true}],"
-                + "\"wings\":[{\"id\":\"angel_wings\",\"name\":\"Celestial Wings\",\"owned\":true},{\"id\":\"demon_wings\",\"name\":\"Infernal Wings\",\"owned\":true}],"
+                + "\"wings\":[{\"id\":\"violet_wings\",\"name\":\"Violet Wings\",\"owned\":true},{\"id\":\"azure_wings\",\"name\":\"Azure Wings\",\"owned\":true}],"
                 + "\"hats\":[{\"id\":\"wizard_hat\",\"name\":\"Wizard Hat\",\"owned\":true},{\"id\":\"royal_crown\",\"name\":\"Royal Crown\",\"owned\":true}]}}";
         try {
             File dir = new File(mc.mcDataDir, "config/novomc");

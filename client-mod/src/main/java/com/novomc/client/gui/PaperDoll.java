@@ -56,8 +56,8 @@ final class PaperDoll {
     private static final int ABOVE_NECK = 15;
     private static final int BELOW_NECK = 24;
     private static final int FIGURE_H = ABOVE_NECK + BELOW_NECK;
-    /** Wings reach 22 units out from the shoulder on each side (see `WingModel`). */
-    private static final int WING_HALF = 22;
+    /** The wing meshes reach 27 units across, so 14 from the shoulder each side (see `WingModel`). */
+    private static final int WING_HALF = 26;
 
     private static final ModelPlayer MODEL = new ModelPlayer(0.0F, false);
     private static volatile ResourceLocation skin;

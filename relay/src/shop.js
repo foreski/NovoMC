@@ -263,6 +263,101 @@ export async function handleShopAdmin(request, env, path) {
   return json({ ok: true, item: { ...item, updatedAt: now } });
 }
 
+// ---------------------------------------------------------------------------
+// Coin gift codes for the Discord bot (docs/SHOP_BOT.md). A code is 24 random
+// hex characters, shown once as NOVO-xxxx-xxxx-…; only its SHA-256 is stored,
+// so a lost code can never be looked up again — mint a new one instead. The
+// players spend them in the launcher's Marketplace (redeemGift above).
+//
+//   GET  /admin/gift-codes   -> {codes}  every code, newest first
+//   POST /admin/gift-codes   -> {codes: [display…]}  mint {coins, uses?, count?, expiresInDays?}
+//
+// `id` in the listing is the start of the hash: enough to talk about a code,
+// useless for redeeming one.
+export async function handleGiftAdmin(request, env, path) {
+  if (!env.NOVO_DB) return json({ error: 'Gift codes not configured' }, 500);
+  if (!env.SHOP_TOKEN) return json({ error: 'Gift codes are not configured' }, 503);
+  if (!tokenMatches(request, env.SHOP_TOKEN)) return json({ error: 'Unauthorized' }, 401);
+  const db = env.NOVO_DB;
+  if (path !== '/admin/gift-codes') return json({ error: 'Not found' }, 404);
+
+  if (request.method === 'GET') {
+    const { results } = await db
+      .prepare('SELECT code_hash, coins, max_uses, uses, expires_at, created_at FROM gift_codes ORDER BY created_at DESC, code_hash LIMIT 50')
+      .all();
+    return json({ codes: results.map(giftRow) });
+  }
+  if (request.method !== 'POST') return json({ error: 'Use GET or POST' }, 405);
+
+  const parsed = await readGift(request);
+  if (parsed.error) return json({ error: parsed.error }, 400);
+  const { coins, uses, count, expiresAt } = parsed.gift;
+  const minted = await Promise.all(Array.from({ length: count }, mintCode));
+  const now = Date.now();
+  await db.batch(minted.map(({ hash }) => db
+    .prepare('INSERT INTO gift_codes (code_hash, coins, max_uses, uses, expires_at, created_at) VALUES (?, ?, ?, 0, ?, ?)')
+    .bind(hash, coins, uses, expiresAt, now)));
+  // The display codes leave here exactly once; only their hashes are kept.
+  return json({ codes: minted.map(({ display }) => display), coins, uses, count, expiresAt }, 201);
+}
+
+const GIFT_LIMITS = { coins: 1_000_000, uses: 100_000, count: 25, days: 365 };
+const GIFT_FIELDS = ['coins', 'uses', 'count', 'expiresInDays'];
+
+/** A new code: the 24 uppercase hex characters players type, and their hash. */
+async function mintCode() {
+  const raw = [...crypto.getRandomValues(new Uint8Array(12))]
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('')
+    .toUpperCase();
+  return { display: `NOVO-${raw.match(/.{4}/g).join('-')}`, hash: await sha256(raw) };
+}
+
+/** A stored code as the API reports it (never the code itself). */
+function giftRow(row) {
+  const maxUses = Number(row.max_uses);
+  const uses = Number(row.uses);
+  return {
+    id: String(row.code_hash).slice(0, 8),
+    coins: Number(row.coins),
+    uses,
+    maxUses,
+    expiresAt: row.expires_at === null || row.expires_at === undefined ? null : Number(row.expires_at),
+    createdAt: Number(row.created_at),
+  };
+}
+
+/** The validated body of a POST /admin/gift-codes. */
+async function readGift(request) {
+  const raw = await request.text();
+  if (raw.length > ITEM_BODY_MAX) return { error: 'Too large' };
+  let input;
+  try {
+    input = JSON.parse(raw);
+  } catch {
+    return { error: 'Send JSON' };
+  }
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return { error: 'Send a JSON object' };
+  const unknown = Object.keys(input).find((key) => !GIFT_FIELDS.includes(key));
+  if (unknown) return { error: `Unknown field: ${unknown}` };
+  if (!Number.isInteger(input.coins) || input.coins < 1 || input.coins > GIFT_LIMITS.coins) {
+    return { error: `coins must be a whole number from 1 to ${GIFT_LIMITS.coins}` };
+  }
+  const uses = input.uses ?? 1;
+  if (!Number.isInteger(uses) || uses < 1 || uses > GIFT_LIMITS.uses) {
+    return { error: `uses must be a whole number from 1 to ${GIFT_LIMITS.uses}` };
+  }
+  const count = input.count ?? 1;
+  if (!Number.isInteger(count) || count < 1 || count > GIFT_LIMITS.count) {
+    return { error: `count must be a whole number from 1 to ${GIFT_LIMITS.count}` };
+  }
+  const days = input.expiresInDays ?? 0;
+  if (!Number.isInteger(days) || days < 0 || days > GIFT_LIMITS.days) {
+    return { error: `expiresInDays must be 0 (never expires) to ${GIFT_LIMITS.days}` };
+  }
+  return { gift: { coins: input.coins, uses, count, expiresAt: days === 0 ? null : Date.now() + days * 86400000 } };
+}
+
 /** A stored row as the API reports it. */
 function itemRow(row) {
   return {

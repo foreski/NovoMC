@@ -8,6 +8,7 @@
 //   GET|POST|DELETE /news  launcher news, published by the Discord bot (see news.js)
 //   /account/...  Novo Client accounts, coin wallet, shop, gift codes, and Stripe Checkout
 //   /admin/shop/items  shop catalog management for the Discord bot (SHOP_TOKEN)
+//   /admin/gift-codes  mint and list coin gift codes for the Discord bot (SHOP_TOKEN)
 //   POST /stripe/webhook  verified Stripe Checkout payment fulfillment
 //
 // Environment:
@@ -26,7 +27,7 @@
 import { handleAccount } from './account.js';
 import { handleNews } from './news.js';
 import { handlePresence } from './presence.js';
-import { handleShopAdmin, stripeWebhook } from './shop.js';
+import { handleGiftAdmin, handleShopAdmin, stripeWebhook } from './shop.js';
 
 export { Presence } from './presence.js';
 
@@ -40,6 +41,7 @@ export default {
     const url = new URL(request.url);
     if (url.pathname === '/stripe/webhook') return stripeWebhook(request, env);
     if (url.pathname.startsWith('/admin/shop/')) return handleShopAdmin(request, env, url.pathname);
+    if (url.pathname === '/admin/gift-codes') return handleGiftAdmin(request, env, url.pathname);
     if (url.pathname.startsWith('/account/')) return handleAccount(request, env, url.pathname);
     if (url.pathname.startsWith('/presence/')) return handlePresence(request, env, url.pathname);
     if (url.pathname === '/news' || url.pathname.startsWith('/news/')) return handleNews(request, env, url.pathname);

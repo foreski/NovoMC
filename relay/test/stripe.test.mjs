@@ -37,7 +37,7 @@ let r = await call('GET', '/account/shop');
 assert.equal(r.status, 200);
 assert.equal(r.body.paymentReady, false);
 assert.equal(r.body.balance, 0);
-assert.equal(r.body.items.length, 21);
+assert.equal(r.body.items.length, 22);
 assert.equal((await call('POST', '/account/checkout', { bundleId: 'boost' })).status, 503);
 
 // A developer gift code (as relay/scripts/generate-gift-codes.mjs writes it) credits coins once.
@@ -50,17 +50,17 @@ assert.equal((await call('POST', '/account/shop/redeem', { code })).status, 404)
 assert.equal(balance(), 1200);
 
 // Purchases spend the stored price, grant the cosmetic once, and can be equipped.
-r = await call('POST', '/account/shop/purchase', { id: 'angel_wings' });
+r = await call('POST', '/account/shop/purchase', { id: 'violet_wings' });
 assert.equal(r.status, 200);
 assert.equal(r.body.coins, 300);
-assert.equal(r.body.wings.find((w) => w.id === 'angel_wings').owned, true);
-assert.equal((await call('POST', '/account/shop/purchase', { id: 'angel_wings' })).status, 409);
-assert.equal((await call('POST', '/account/shop/purchase', { id: 'crystal_wings' })).status, 409);
+assert.equal(r.body.wings.find((w) => w.id === 'violet_wings').owned, true);
+assert.equal((await call('POST', '/account/shop/purchase', { id: 'violet_wings' })).status, 409);
+assert.equal((await call('POST', '/account/shop/purchase', { id: 'monochrome_wings' })).status, 409);
 assert.equal((await call('POST', '/account/shop/purchase', { id: 'not_in_shop' })).status, 404);
 assert.equal(balance(), 300);
-r = await call('PATCH', '/account/me', { wing: 'angel_wings' });
-assert.equal(r.body.wing, 'angel_wings');
-assert.equal((await call('PATCH', '/account/me', { wing: 'demon_wings' })).status, 403);
+r = await call('PATCH', '/account/me', { wing: 'violet_wings' });
+assert.equal(r.body.wing, 'violet_wings');
+assert.equal((await call('PATCH', '/account/me', { wing: 'verdant_wings' })).status, 403);
 
 // Stripe: both secrets switch checkout on.
 env.STRIPE_SECRET_KEY = 'sk_test_dummy';

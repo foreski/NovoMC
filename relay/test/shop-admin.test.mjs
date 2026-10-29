@@ -31,7 +31,7 @@ assert.deepEqual(
   [
     'circuit', 'starfield', 'inferno', 'venom', 'lunar_rose', 'blazeborn', 'amethyst_core', 'gilded_crown', 'drake', 'skywing',
     'solar_eclipse', 'aurora_flow', 'ember_flow', 'wizard_hat', 'demon_horns', 'angel_halo', 'royal_crown', 'crystal_antlers',
-    'angel_wings', 'demon_wings', 'crystal_wings',
+    'violet_wings', 'verdant_wings', 'monochrome_wings', 'azure_wings',
   ],
 );
 assert.deepEqual(r.body.items.find((item) => item.id === 'ember_flow'), {
@@ -56,7 +56,7 @@ r = await call('POST', '/admin/shop/items', {
   price: 900,
 });
 assert.equal(r.status, 201);
-assert.equal(r.body.item.position, 22);
+assert.equal(r.body.item.position, 23);
 assert.equal(
   (await call('POST', '/admin/shop/items', { id: 'ember_flow', kind: 'cape', name: 'Ember Flow', description: 'Again', price: 900 })).status,
   409,
@@ -102,18 +102,18 @@ await call('PATCH', '/admin/shop/items/venom', { active: false });
 assert.equal((await purchase(db, user, 'venom')).status, 404);
 
 // Wings are shop items too: the price comes from D1, and ownership gates wearing them.
-await call('PATCH', '/admin/shop/items/angel_wings', { price: 5 });
-assert.equal((await purchase(db, user, 'angel_wings')).status, 200);
+await call('PATCH', '/admin/shop/items/violet_wings', { price: 5 });
+assert.equal((await purchase(db, user, 'violet_wings')).status, 200);
 assert.equal(db.sqlite.prepare('SELECT balance FROM wallets WHERE user_id = ?').get('u1').balance, 1990);
 
 const STEVE = '069a79f4-44e9-4726-a5be-fca90e38aaf5';
 db.sqlite.prepare("INSERT INTO links (uuid, user_id, name, linked_at) VALUES (?, 'u1', 'Tester', 0)").run(STEVE);
-db.sqlite.prepare("UPDATE users SET wing = 'angel_wings' WHERE id = 'u1'").run();
-assert.deepEqual(await wingsOf(db, [STEVE]), { [STEVE]: 'angel_wings' });
+db.sqlite.prepare("UPDATE users SET wing = 'violet_wings' WHERE id = 'u1'").run();
+assert.deepEqual(await wingsOf(db, [STEVE]), { [STEVE]: 'violet_wings' });
 assert.deepEqual(await hatsOf(db, [STEVE]), {});
 
 // Wings nobody bought are not worn in the presence feed.
-db.sqlite.prepare("UPDATE users SET wing = 'demon_wings' WHERE id = 'u1'").run();
+db.sqlite.prepare("UPDATE users SET wing = 'verdant_wings' WHERE id = 'u1'").run();
 assert.deepEqual(await wingsOf(db, [STEVE]), {});
 
 console.log('shop admin tests passed');
