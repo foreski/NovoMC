@@ -1,171 +1,156 @@
-<div align="center">
+<p align="center">
+  <img src="assets/branding/novomc-logo.svg" width="104" alt="Novo Client logo" />
+</p>
 
-<img src="assets/branding/novomc-logo.svg" width="112" alt="Novo Client logo" />
+<h1 align="center">Novo Client</h1>
 
-# Novo Client
+<p align="center">
+  A Minecraft 1.8.9 PvP client and launcher, with Sodium's renderer ported to Forge.<br />
+  Designed and built by <a href="https://github.com/foreski">foreski</a> (foreskin).<br />
+  <a href="https://github.com/foreski/NovoMC/releases/latest">Download</a> ·
+  <a href="#building">Building</a> ·
+  <a href="https://github.com/foreski/NovoMC/issues">Issues</a>
+</p>
 
-**Sodium, re-forged for 1.8.9 — combined with OptiFine's features, custom-made.**
+<p align="center">
+  <img src="docs/images/launcher-home.png" width="820" alt="The launcher home screen" />
+</p>
 
-A 1.8.9 Forge PvP client and launcher: Sodium's renderer ported to Forge, OptiFine-style features rebuilt
-from scratch, 81 built-in mods, practice trainers, thousands of resource packs, one click to play.
+<p align="center">
+  <img src="docs/images/showcase.gif" width="720" alt="A 1.8.9 duel on Minemen" /><br />
+  <sub>A real duel on 1.8.9 · <a href="docs/media/novomc-showcase.mp4">watch the full 50 seconds</a></sub>
+</p>
 
-[![Download](https://img.shields.io/github/v/release/foreski/NovoMC?label=Download&style=for-the-badge&color=5B8CFF)](https://github.com/foreski/NovoMC/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/foreski/NovoMC/total?style=for-the-badge&color=B45BFF)](https://github.com/foreski/NovoMC/releases)
-![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-22D3EE?style=for-the-badge)
+## What this is
 
-### [⬇ Download Novo Client for Windows](https://github.com/foreski/NovoMC/releases/latest)
+Novo Client is a Minecraft Java launcher plus its own in-game client mod, aimed at 1.8.9 PvP.
 
-<img src="docs/images/launcher-home.png" width="860" alt="The Novo Client launcher home screen" />
+The mod part is roughly two things. First, a chunk renderer ported from
+[Sodium](https://github.com/CaffeineMC/sodium) — terrain is baked into shared region buffers and drawn a region
+at a time instead of a draw call per chunk, which is where most of the frame rate comes from. Second, a set of
+modules: HUD elements, PvP visuals, quality-of-life features, and the OptiFine-style options people expect from
+a client (connected textures, custom sky, better grass, fast math). Those are written here from scratch rather
+than borrowed, so they run alongside the renderer without arguing with it.
 
-</div>
+The launcher downloads the game, Forge and Java, keeps instances separate, handles Microsoft sign-in and
+starts everything with sensible JVM flags. It's a Tauri app, so it's a normal Windows desktop program with a
+web UI on top of Rust doing the actual work.
+
+There's also an early-access build for modern Minecraft (26.3 on Fabric) that shares the same settings format
+and HUD layout as the 1.8.9 client.
+
+## Download
+
+Grab `NovoMC_x.y.z_x64-setup.exe` from
+[releases](https://github.com/foreski/NovoMC/releases/latest) and run it.
+
+Windows SmartScreen will probably complain, because the installer isn't code-signed yet — that's a certificate
+costing a few hundred a year, not something suspicious. "More info" → "Run anyway" gets you past it. If that
+makes you uncomfortable, the whole thing builds from source; see [Building](#building).
+
+Windows 10 or 11, 64-bit. Java is downloaded for you.
+
+## Around the game
+
+- One Play button. Instances on Home, each with its own worlds, mods, packs, memory and Java, and a duplicate
+  button when you want one.
+- Every Minecraft version, pulled from Mojang and verified file by file.
+- Microsoft accounts for online servers and Realms. Tokens go in Windows Credential Manager, not into a JSON
+  file in `%APPDATA%`.
+- Quick-join: pin your servers to Home with live player counts and ping, then land straight in them.
+- Discord Rich Presence, a live console with crash reports, accent colours, and the UI in English, German,
+  Spanish, French and Brazilian Portuguese.
+- Signed self-updates, so you don't have to reinstall by hand.
+- A resource pack browser in game: about 2,700 Modrinth packs that work on 1.8.x, searchable and sortable,
+  installed with one click and switched on immediately.
+
+<p align="center">
+  <img src="docs/images/ingame-menu.png" width="49%" alt="The in-game main menu" />
+  <img src="docs/images/ingame-packs.png" width="49%" alt="The in-game resource pack browser" />
+</p>
+
+## In game
+
+About 80 modules, all toggleable, all with settings. Right Shift opens the HUD editor — drag things where you
+want them, scroll to resize, right-click to reset — and the same key gets you the module list. Nothing overlaps
+by default; untouched elements settle into a left and right column.
+
+| Category | What's in it |
+| :-- | :-- |
+| HUD | FPS, CPS, keystrokes, armour status, potion effects, coordinates, direction, ping, clock, memory, combo counter, reach, waypoints |
+| PvP visuals | 1.7 animations, hit colour, hurt cam, block outline, hitboxes, item physics, 2D items, motion blur, menu blur, dynamic lights |
+| Quality of life | freelook, snaplook, zoom, toggle sprint/sneak, nick hider, custom scoreboard and tab list, chat timestamps, pack display, screenshot manager, Hypixel quickplay and requeue |
+| Rendering | Sodium renderer, fast math, smart animations, lazy chunk loading, connected textures, custom sky, better grass and snow, entity and particle culling, uncapped frame rate |
+
+A few things worth calling out, because they're less common in 1.8.9 clients:
+
+**Mode profiles.** Novo reads the scoreboard and your kit to work out whether you're in Sword, Pot PvP, UHC,
+Bed Wars, SkyWars or The Bridge, and keeps a separate setup per mode — HUD layout, enabled modules, their
+settings and your keybinds. Change something mid-game and that mode remembers it. The modern client does the
+same for Crystal, Mace, Spear, Nethpot, UHC, Axe and Sword.
+
+**Trainers.** Four drills in a private flat world, with personal bests: click speed, aim and combo (30 seconds
+against a strafing target), speedbridge (30 blocks over void) and pot refill. The modern client has crystal
+speed, mace dive and spear charge.
+
+**OptiFine options without OptiFine.** Connected textures generate 47 glass border tiles from whatever pack
+you're using, plus `optifine/ctm` and `mcpatcher/ctm` properties if the pack ships them. Custom sky reads
+`optifine/sky`. Fast math is a 4096-entry sine table. All of it is a module, so you can turn any of it off.
+
+<p align="center">
+  <img src="docs/images/ingame-video.png" width="49%" alt="Video settings with the Sodium renderer options" />
+  <img src="docs/images/ingame-mods.png" width="49%" alt="The in-game mod list" />
+</p>
+
+## Performance
+
+The repo has a benchmark that builds a lobby-shaped stress scene — 400 armour stands, ~1,900 block entities,
+constant particles — and measures the same viewpoint three ways: performance modules off, on, and on with the
+HUD hidden.
+
+Last run on the dev machine: **126.5 FPS off, 259.1 FPS on**. The entire HUD costs about 3.5%. Those are one
+machine's numbers on one scene, so treat them as a before-and-after rather than a promise about your PC. Every
+optimisation is a module and can be switched off if you'd rather have vanilla.
+
+## Fair play
+
+Novo is a visual and quality-of-life client, in the same category as the well-known ones. Nothing automates
+input and nothing reveals information the vanilla game hides.
+
+The one thing to know: freelook really detaches the camera, and unlike some clients there's no hook for a
+server to switch it off remotely, because Novo doesn't run a custom protocol on servers. So it's on you to
+check whether the server you're playing allows freelook. Same goes for any HUD element a tournament ruleset
+bans.
+
+## Building
+
+```bash
+npm install
+npm run mod          # builds the 1.8.9 and modern client jars
+npm run tauri dev    # runs the launcher
+```
+
+`npm run tauri build` produces the NSIS installer. Building the mod needs JDK 8 for 1.8.9 and JDK 17+ for
+Gradle; the launcher needs Rust with the MSVC toolchain, and the WebView2 runtime that ships with Windows 11.
+
+## Notes
+
+The Sodium renderer under `client-mod/src/main/java/com/novomc/client/sodium` is ported from Sodium 0.5 by
+JellySquid and the CaffeineMC contributors, and stays under the
+[GNU LGPL v3](client-mod/src/main/resources/com/novomc/client/sodium/LICENSE-SODIUM.txt). The OptiFine-style
+features are inspired by [OptiFine](https://optifine.net) but contain none of its code. Novo Client isn't
+affiliated with either project, or with Mojang or Microsoft.
+
+Everything else here — the launcher, the 1.8.9 client, the modern client, the relay — is designed and written
+by [foreski](https://github.com/foreski) (foreskin).
+
+The wing meshes, their materials and their textures sit in
+`client-mod/src/main/resources/assets/novomc/models/wings`.
 
 ---
 
-## 💡 What is Novo Client?
-
-| | |
-| --- | --- |
-| 🟦 **Sodium, re-forged** | [Sodium](https://github.com/CaffeineMC/sodium)'s chunk renderer, ported to Minecraft 1.8.9 Forge. Terrain draws region by region in a handful of GPU calls instead of one per chunk. |
-| 🟪 **OptiFine features, custom-made** | Connected Textures, Custom Sky, Smart Animations, Fast Math, Lazy Chunk Loading, Better Grass and Better Snow, written by us from scratch (no OptiFine code), so they work right alongside Sodium. |
-| ⚔️ **A full PvP client** | 81 built-in mods (HUD, keystrokes, 1.7 animations, freelook, zoom and more), all toggleable in-game. |
-| 🚀 **Its own launcher** | One-click play: Novo Client installs Minecraft, Forge and Java for you, and keeps itself updated. |
-
-Sodium's speed and OptiFine's features on 1.8.9, in one package built for PvP.
-
-<sub>Novo Client isn't affiliated with CaffeineMC (Sodium) or OptiFine. The Sodium port stays under Sodium's GNU LGPL v3;
-the OptiFine-style features are our own code.</sub>
-
-## 🎬 See it in action
-
 <p align="center">
-  <img src="docs/images/showcase.gif" width="760" alt="Novo Client in a 1.8.9 PvP duel on Minemen at 200+ FPS" />
+  <sub>Novo Client is not an official Minecraft product and is not approved by or associated with Mojang or
+  Microsoft. Minecraft is a trademark of Mojang AB. Resource packs belong to their authors and come from
+  Modrinth.</sub>
 </p>
-
-<p align="center"><sub>A real duel on Novo Client 1.8.9 · <a href="docs/media/novomc-showcase.mp4">▶ Watch the full 50-second clip</a></sub></p>
-
-## ⚡ Double your FPS
-
-Novo Client ships its own performance mods for 1.8.9: no OptiFine, no third-party mod jars.
-
-- **Sodium Renderer**, our port of [Sodium](https://github.com/CaffeineMC/sodium)'s chunk renderer to 1.8.9:
-  compact vertices packed into shared region buffers, drawn with one call per region instead of one per chunk
-  (needs OpenGL 3.3, otherwise vanilla rendering is used).
-- **OptiFine-style options, rebuilt by Novo Client**: Fast Math, Smart Animations, Lazy Chunk Loading, Connected
-  Textures (seamless glass out of the box, plus CTM from resource packs), Custom Sky (pack skyboxes),
-  Better Grass and Better Snow. Inspired by [OptiFine](https://optifine.net); none of its code is used.
-- **No vanilla menus**: Novo Client's own Options and Video Settings screens, and every other menu (servers, worlds,
-  controls, language, dialogs) drawn with Novo Client's buttons, sliders, fields, lists and backdrop.
-- **Smart culling** skips far-away mobs, armor stands, dropped items, chests, signs, skulls and banners.
-- **Particle limiter** caps particle spam in fights and drops particles you can't see anyway.
-- **Uncapped frame rate**, VBO rendering, no entity shadows and no clouds, switched on for you.
-- **Patcher-style fixes**: borderless fullscreen, camera parallax fix, inventory that stays put with potions, frozen texture animations.
-- **Tuned Java flags** for short, smooth garbage-collection pauses instead of lag spikes.
-
-In our lobby stress test (400 armor stands, ~1,900 chests and skulls, constant particles) Novo Client went from
-**126 FPS to 259 FPS: +105%**. Every optimization can be switched off if you prefer vanilla.
-
-<p align="center">
-  <img src="docs/images/ingame-video.png" width="49%" alt="Video Settings with the Sodium renderer and performance options" />
-  <img src="docs/images/ingame-options.png" width="49%" alt="Novo Client's own Options screen" />
-</p>
-
-## 🎮 81 mods, built in
-
-Everything a PvP player wants, ready the moment you join a server. Toggle mods and change their
-settings in-game (Right Shift) or from the launcher, and drag any HUD element exactly where you want it.
-
-| HUD | PvP visuals | Quality of life |
-| --- | --- | --- |
-| FPS, CPS, Keystrokes | 1.7 animations | Freelook & Snaplook |
-| Armor Status, Potion Effects | Hit Color, Hurt Cam | Zoom, Toggle Sprint/Sneak |
-| Coordinates, Direction HUD | Block Outline, Hitboxes | Nick Hider |
-| Ping, Clock, Memory | Item Physics, 2D Items | Custom Scoreboard & Tab list |
-| Combo Counter, Reach Display | Motion Blur, Menu Blur | Chat tweaks, Titles, Boss Bar |
-| Waypoints with beams | Hit Sounds, Low Health Warning | Auto GG, Auto Text hotkeys, Screenshot manager |
-| Mod List, Loading Screens | Dynamic Lights | Hypixel Quickplay, Requeue & Quick Report |
-
-<p align="center">
-  <img src="docs/images/ingame-mods.png" width="49%" alt="The in-game Mod Library" />
-  <img src="docs/images/launcher-mods.png" width="49%" alt="The Mod Library in the launcher" />
-</p>
-
-## 🎯 Your setup for every mode, and drills to sharpen it
-
-- **Auto Mode Profiles.** Novo works out what you're playing (Sword, Pot PvP, UHC, Bed Wars, SkyWars or
-  The Bridge) from the server's scoreboard and your kit, and keeps a separate setup for each mode: HUD layout,
-  which mods are on, their settings and your keybinds. Change something mid-game and it's remembered for
-  that mode.
-- **Trainers.** Practice drills with personal bests, in a private practice world: **Click Speed**, **Aim & Combo**
-  (a strafing target for 30 seconds), **Speedbridge** (30 blocks over the void) and **Pot Refill** (fill your hotbar
-  with splash potions against the clock). Open them from the main menu or the pause menu.
-
-## 🆕 Novo Client for modern Minecraft (26.3, Fabric) — early access
-
-Create a 26.3 instance and pick **Fabric**: Novo installs Fabric and Fabric API and adds its own modern client.
-
-- **52 mods** sharing the same settings and HUD layouts as 1.8.9, plus mods made for modern combat:
-  **Attack Cooldown** (with a crit-ready marker), **Totem Pop Counter**, **Target HUD**, **Armor Durability Alert**,
-  **Mace / Elytra HUD**, and an Item Counter for totems, crystals, wind charges and healing potions.
-- **Novo's menus**: main menu, loading screen, Options and Video Settings, a Mods screen and a drag-and-drop HUD
-  editor (Right Shift).
-- **Modern trainers**: Crystal Speed, Mace Dive and Spear Charge, with personal bests.
-- Auto Mode Profiles for Crystal, Mace, Spear, Nethpot, UHC, Axe and Sword.
-
-## 🎨 Thousands of resource packs, in-game
-
-Browse every Modrinth resource pack that works on 1.8.9 (about 2,700 and counting) without leaving
-Minecraft. Search, sort by popular or newest, filter by PvP, Simplistic, Vanilla-like and more, then hit
-**Install**: the pack downloads, gets checked and turns on immediately.
-
-<p align="center">
-  <img src="docs/images/ingame-packs.png" width="70%" alt="The in-game Resource Packs library" />
-</p>
-
-## 🚀 A launcher that stays out of your way
-
-- **One-click play.** A big Play button with your instances one click away; Novo Client downloads the game, Forge and the right Java for you.
-- **Live news** from the Novo Client team right on Home, with pictures.
-- **Every Minecraft version**, straight from Mojang's servers and checked file by file.
-- **Instances** with their own worlds, mods, packs, memory and Java. Duplicate one in a click.
-- **Microsoft accounts** for online servers and Realms, with your real skin. Sign-ins are stored in
-  Windows Credential Manager, never in plain files.
-- **Quick-join servers**: your favorite servers on Home with live player counts and ping; one click
-  launches straight into the server.
-- **Discord Rich Presence** shows what you're playing and on which server.
-- **Live console** with crash reports, so you can see what went wrong.
-- **Your look, your language**: accent colors, and the launcher in English, Deutsch, Español, Français and Português.
-- **Automatic updates**: Novo Client keeps itself up to date, and every update is cryptographically signed.
-
-<p align="center">
-  <img src="docs/images/ingame-menu.png" width="49%" alt="The Novo Client main menu in Minecraft" />
-  <img src="docs/images/launcher-settings.png" width="49%" alt="Launcher settings" />
-</p>
-
-## 📥 Get started
-
-1. **[Download the installer](https://github.com/foreski/NovoMC/releases/latest)** (`NovoMC_x.y.z_x64-setup.exe`).
-2. Run it. If Windows SmartScreen shows a warning, click **More info → Run anyway** (the installer isn't code-signed yet).
-3. Add your Microsoft account, create a 1.8.9 instance and press **Play**.
-
-Requires Windows 10 or 11 (64-bit). Java is downloaded automatically.
-
-## 🛡 Fair play
-
-Novo Client is a visual and quality-of-life client, like the big-name PvP clients. Nothing automates your input
-or shows information vanilla hides. Freelook can't be disabled by servers the way some clients allow, so
-check a server's rules before using it there.
-
-## 🛠 Build from source
-
-Novo Client is a Tauri 2 (Rust) + React launcher and a Forge 1.8.9 mod. See
-**[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** for setup, build commands and the project layout.
-
-The Sodium Renderer (`client-mod/src/main/java/com/novomc/client/sodium`) is ported from Sodium 0.5 by
-JellySquid and the CaffeineMC contributors and stays under the
-[GNU LGPL v3](client-mod/src/main/resources/com/novomc/client/sodium/LICENSE-SODIUM.txt).
-
----
-
-<sub>Novo Client is not an official Minecraft product and is not approved by or associated with Mojang or
-Microsoft. Minecraft is a trademark of Mojang AB. Resource packs are provided by their authors through
-Modrinth.</sub>
