@@ -30,24 +30,65 @@ Opening `index.html` from disk works too, apart from the video.
 
 1. Push this branch.
 2. On GitHub: Settings → Pages → Source: "Deploy from a branch", branch `website`, folder `/ (root)`.
-3. The site appears at `https://<user>.github.io/<repo>/`.
+3. The site appears at `https://foreski.github.io/NovoMC/`, and once the custom domain below resolves, that
+   URL redirects to `https://novoclient.cc`.
 
-## Custom domain
+## Custom domain: novoclient.cc via Cloudflare
 
-Add a file named `CNAME` at the root of this branch containing just the domain, for example:
+The `CNAME` file at the root of this branch holds `novoclient.cc`, so Pages treats that as the canonical
+address and `foreski.github.io/NovoMC` redirects to it. Everything below is the Cloudflare side.
 
+### 1. Put the domain on Cloudflare
+
+The domain is registered at Namecheap and still uses Namecheap's nameservers, so Cloudflare has to be added
+first: Cloudflare dashboard → Add a site → `novoclient.cc` → Free plan. Cloudflare gives you a pair like
+`ada.ns.cloudflare.com` and `bob.ns.cloudflare.com`. At Namecheap → Domain List → `novoclient.cc` → Nameservers
+→ Custom DNS, replace the two registrar nameservers with that pair. Propagation is usually minutes, up to 24h.
+
+### 2. DNS records in Cloudflare
+
+Add these with the proxy **off** (grey cloud, "DNS only") — GitHub has to reach the record itself to issue the
+TLS certificate, and a proxied record blocks that.
+
+| Type | Name | Content | Proxy |
+| :-- | :-- | :-- | :-- |
+| A | `@` | `185.199.108.153` | DNS only |
+| A | `@` | `185.199.109.153` | DNS only |
+| A | `@` | `185.199.110.153` | DNS only |
+| A | `@` | `185.199.111.153` | DNS only |
+| CNAME | `www` | `foreski.github.io` | DNS only |
+
+Delete the parking records Cloudflare imports (the `A`/`CNAME` pointing at Namecheap's parking page) or they
+will shadow the GitHub ones.
+
+If GitHub asks you to verify the domain, it shows a `TXT` record named
+`_github-pages-challenge-foreski.novoclient.cc` with a token — add that too, DNS only, then press Verify.
+
+### 3. Cloudflare SSL/TLS
+
+SSL/TLS → Overview → **Full**. Not Flexible: Flexible makes Cloudflare talk to GitHub over plain HTTP while
+GitHub redirects to HTTPS, which produces a redirect loop. "Full (strict)" only starts working after GitHub
+has issued its own certificate for the domain.
+
+### 4. Order of operations
+
+DNS first, then the custom domain, or the `github.io` URL redirects to a domain that does not answer yet. In
+Pages settings the flow is: enter `novoclient.cc` → Save → wait for "DNS check successful" → tick
+**Enforce HTTPS** once the certificate is issued.
+
+### 5. Optional: turn the proxy back on
+
+Once GitHub reports the certificate as issued, you can flip the records to proxied (orange cloud) for
+Cloudflare's caching and WAF. Keep SSL/TLS on Full. GitHub may then show the certificate as unmanaged — that is
+expected, visitors get Cloudflare's edge certificate. Most people leave it on DNS only and keep it simple.
+
+### Checking it
+
+```bash
+nslookup novoclient.cc            # expect the four 185.199.10x.153 addresses
+nslookup www.novoclient.cc        # expect foreski.github.io
+curl -sI https://novoclient.cc    # expect 200 and server: GitHub.com
 ```
-novoclient.gg
-```
-
-Then in Settings → Pages → Custom domain, enter the same name and enable HTTPS once the certificate is
-ready. At your DNS provider point the record at GitHub Pages:
-
-- apex domain (`example.com`): four `A` records to `185.199.108.153`, `.109.153`, `.110.153`, `.111.153`
-- `www` (or any subdomain): `CNAME` to `<user>.github.io`
-
-If you later publish to a custom domain, the `github.io/<repo>/` URL keeps working with a redirect. Every asset
-reference in `index.html` is relative to this directory, so both URLs work without changes.
 
 ## The download buttons
 
