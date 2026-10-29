@@ -301,6 +301,124 @@ export interface SkinProfile {
   png: string | null;
 }
 
+/** Modrinth content the survival client installs. */
+export type SurvivalKind = 'mod' | 'pack' | 'shader';
+
+export interface SurvivalEdition {
+  id: string;
+  label: string;
+  blurb: string;
+  /** Java major version the game needs. */
+  java: number;
+  recommended: boolean;
+}
+
+export interface SurvivalItem {
+  slug: string;
+  kind: SurvivalKind;
+  title: string;
+  blurb: string;
+  category: 'core' | 'animation' | 'world' | 'qol' | 'shader';
+  /** The editions the item has a build for. */
+  editions: string[];
+  /** Part of the Vanilla+ bundle. */
+  default: boolean;
+  note: string | null;
+}
+
+export interface SurvivalInstalled {
+  slug: string;
+  kind: SurvivalKind;
+  title: string;
+  file: string;
+  version: string;
+}
+
+export interface SurvivalStatus {
+  instanceId: string;
+  edition: string;
+  installed: SurvivalInstalled[];
+}
+
+export interface SurvivalBundleResult {
+  status: SurvivalStatus;
+  failed: string[];
+}
+
+export interface SurvivalHit {
+  slug: string;
+  title: string;
+  description: string;
+  iconUrl: string | null;
+  downloads: number;
+}
+
+export interface SurvivalProgress {
+  instanceId: string;
+  slug: string | null;
+  done: number;
+  total: number;
+  message: string | null;
+}
+
+export function onSurvivalProgress(cb: (e: SurvivalProgress) => void): Promise<UnlistenFn> {
+  return listen<SurvivalProgress>('survival-progress', (e) => cb(e.payload));
+}
+
+/** A local server the player runs from the launcher. */
+export interface LocalServer {
+  id: string;
+  name: string;
+  version: string;
+  loader: Loader;
+  loaderVersion: string | null;
+  port: number;
+  memoryMb: number;
+  /** The instance whose mods this server mirrors, if any. */
+  instanceId: string | null;
+  createdAt: number;
+  running: boolean;
+}
+
+export type ServerStage = 'starting' | 'running' | 'stopping' | 'stopped' | 'failed';
+
+export interface ServerState {
+  id: string;
+  stage: ServerStage;
+  message: string | null;
+}
+
+export interface ServerLog {
+  id: string;
+  lines: string[];
+}
+
+/** One `key=value` line of a server's `server.properties`. */
+export interface ServerProperty {
+  key: string;
+  value: string;
+}
+
+/** How a server's mods compare to the instance it should mirror. */
+export interface ModMatch {
+  /** In the instance, not in the server. */
+  missing: string[];
+  /** In the server, not in the instance. */
+  extra: string[];
+  /** Same file name, different contents. */
+  differing: string[];
+  instanceMods: number;
+  serverMods: number;
+}
+
+export function onServerState(cb: (e: ServerState) => void): Promise<UnlistenFn> {
+  return listen<ServerState>('server-state', (e) => cb(e.payload));
+}
+
+export function onServerLog(cb: (e: ServerLog) => void): Promise<UnlistenFn> {
+  return listen<ServerLog>('server-log', (e) => cb(e.payload));
+}
+
 export const api = {
   appInfo: () => invoke<AppInfo>('app_info'),
   openDataFolder: () => invoke<void>('open_data_folder'),
@@ -361,6 +479,35 @@ export const api = {
   openInstanceFolder: (id: string) => invoke<void>('open_instance_folder', { id }),
   getClientConfig: (id: string) => invoke<ClientConfig>('get_client_config', { id }),
   saveClientConfig: (id: string, config: ClientConfig) => invoke<void>('save_client_config', { id, config }),
+  survivalEditions: () => invoke<SurvivalEdition[]>('survival_editions'),
+  survivalCatalog: () => invoke<SurvivalItem[]>('survival_catalog'),
+  survivalInstances: () => invoke<SurvivalStatus[]>('survival_instances'),
+  survivalStatus: (instanceId: string) => invoke<SurvivalStatus>('survival_status', { instanceId }),
+  /** Installs the game and Fabric, then creates the survival instance. */
+  survivalCreate: (edition: string) => invoke<Instance>('survival_create', { edition }),
+  /** `kind` is only needed for a search result that isn't in the catalogue. */
+  survivalInstall: (instanceId: string, slug: string, kind?: SurvivalKind) =>
+    invoke<SurvivalStatus>('survival_install', { instanceId, slug, kind: kind ?? null }),
+  survivalRemove: (instanceId: string, slug: string) => invoke<SurvivalStatus>('survival_remove', { instanceId, slug }),
+  survivalBundle: (instanceId: string) => invoke<SurvivalBundleResult>('survival_bundle', { instanceId }),
+  survivalSearch: (instanceId: string, kind: SurvivalKind, query: string) =>
+    invoke<SurvivalHit[]>('survival_search', { instanceId, kind, query }),
+  listLocalServers: () => invoke<LocalServer[]>('list_local_servers'),
+  /** Copies `instanceId`'s version, loader and mods onto a new local server. */
+  createLocalServer: (server: { name: string; instanceId: string; port: number | null; memoryMb: number }) =>
+    invoke<LocalServer>('create_local_server', { server }),
+  deleteLocalServer: (id: string) => invoke<void>('delete_local_server', { id }),
+  startLocalServer: (id: string) => invoke<void>('start_local_server', { id }),
+  stopLocalServer: (id: string) => invoke<void>('stop_local_server', { id }),
+  matchServerMods: (id: string) => invoke<ModMatch>('match_server_mods', { id }),
+  /** Copies the instance's mods onto the server, removing ones it no longer has. */
+  applyServerMods: (id: string) => invoke<ModMatch>('apply_server_mods', { id }),
+  openLocalServerFolder: (id: string) => invoke<void>('open_local_server_folder', { id }),
+  /** The editable settings of a local server's `server.properties`. */
+  readServerProperties: (id: string) => invoke<ServerProperty[]>('read_server_properties', { id }),
+  /** Saves settings and returns the server, whose port may have changed. */
+  saveServerProperties: (id: string, values: ServerProperty[]) =>
+    invoke<LocalServer>('save_server_properties', { id, values }),
   /** Starts an instance; with `server`, the game joins it right away. */
   launchGame: (instanceId: string, server?: string) => invoke<void>('launch_game', { instanceId, server: server ?? null }),
   listServers: () => invoke<Server[]>('list_servers'),

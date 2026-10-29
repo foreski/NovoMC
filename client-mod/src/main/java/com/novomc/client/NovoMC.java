@@ -7,7 +7,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 @Mod(modid = NovoMC.MODID, name = "Novo Client", version = NovoMC.VERSION, acceptedMinecraftVersions = "[1.8.9]")
 public class NovoMC {
     public static final String MODID = "novomc";
-    public static final String VERSION = "0.4.2";
+    public static final String VERSION = "0.4.3";
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {

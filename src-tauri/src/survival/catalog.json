@@ -1,0 +1,339 @@
+{
+  "editions": [
+    {
+      "id": "1.20.1",
+      "label": "1.20.1",
+      "blurb": "Modern Vanilla+ with animated mobs, Iris shaders and overhauled villages.",
+      "java": 17,
+      "recommended": true
+    },
+    {
+      "id": "1.16.5",
+      "label": "1.16.5",
+      "blurb": "The lighter, faster-era survival setup for older machines and servers.",
+      "java": 8,
+      "recommended": false
+    }
+  ],
+  "items": [
+    {
+      "slug": "fabric-api",
+      "kind": "mod",
+      "title": "Fabric API",
+      "blurb": "The hooks every other Fabric mod needs.",
+      "category": "core",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "sodium",
+      "kind": "mod",
+      "title": "Sodium",
+      "blurb": "A rewritten chunk renderer: several times the frame rate of vanilla.",
+      "category": "core",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "iris",
+      "kind": "mod",
+      "title": "Iris Shaders",
+      "blurb": "Loads shader packs without OptiFine, and works with Sodium.",
+      "category": "core",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "indium",
+      "kind": "mod",
+      "title": "Indium",
+      "blurb": "Fabric rendering API on top of Sodium, for mods like Continuity.",
+      "category": "core",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "midnightlib",
+      "kind": "mod",
+      "title": "MidnightLib",
+      "blurb": "The small library Repurposed Structures needs to start; Modrinth doesn't list it as a dependency.",
+      "category": "core",
+      "editions": ["1.20.1"],
+      "default": true
+    },
+    {
+      "slug": "lithium",
+      "kind": "mod",
+      "title": "Lithium",
+      "blurb": "Speeds up the server-side game logic: ticks, AI and physics.",
+      "category": "core",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "ferrite-core",
+      "kind": "mod",
+      "title": "FerriteCore",
+      "blurb": "Cuts the game's memory use, which leaves more room for shaders.",
+      "category": "core",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "krypton",
+      "kind": "mod",
+      "title": "Krypton",
+      "blurb": "Optimises multiplayer networking for lower, steadier ping.",
+      "category": "core",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "modmenu",
+      "kind": "mod",
+      "title": "Mod Menu",
+      "blurb": "Lists installed mods in game and opens their settings.",
+      "category": "core",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "entity-model-features",
+      "kind": "mod",
+      "title": "Entity Model Features",
+      "blurb": "Plays Fresh Animations-style mob models on Fabric, no OptiFine needed.",
+      "category": "animation",
+      "editions": ["1.20.1"],
+      "default": true
+    },
+    {
+      "slug": "entitytexturefeatures",
+      "kind": "mod",
+      "title": "Entity Texture Features",
+      "blurb": "Random and emissive mob textures, and the eyes that glow at night.",
+      "category": "animation",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "not-enough-animations",
+      "kind": "mod",
+      "title": "Not Enough Animations",
+      "blurb": "Third-person player animation: eating, climbing, rowing, map holding.",
+      "category": "animation",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "eating-animation",
+      "kind": "mod",
+      "title": "Eating Animation",
+      "blurb": "Food is actually bitten into while you eat.",
+      "category": "animation",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "first-person-model",
+      "kind": "mod",
+      "title": "First-person Model",
+      "blurb": "Shows your body in first person, so armor and animations read in view.",
+      "category": "animation",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "playeranimator",
+      "kind": "mod",
+      "title": "playerAnimator",
+      "blurb": "Player animation library used by the animation mods above.",
+      "category": "animation",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "hold-my-items",
+      "kind": "mod",
+      "title": "Hold My Items",
+      "blurb": "Animated first-person hands that actually hold the item, with swing and mining motion.",
+      "category": "animation",
+      "editions": ["1.20.1"],
+      "default": false,
+      "note": "Replaces First Person Model: running both draws a second pair of arms, so remove that one first."
+    },
+    {
+      "slug": "continuity",
+      "kind": "mod",
+      "title": "Continuity",
+      "blurb": "Connected glass and blocks, the way OptiFine did it.",
+      "category": "animation",
+      "editions": ["1.20.1"],
+      "default": true
+    },
+    {
+      "slug": "fresh-animations",
+      "kind": "pack",
+      "title": "Fresh Animations",
+      "blurb": "Living mob animation: neutral and hostile mobs that move like creatures.",
+      "category": "animation",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true,
+      "note": "On 1.16.5 this pack needs OptiFine; the 1.20.1 setup plays it through Entity Model Features."
+    },
+    {
+      "slug": "fa-player-extension",
+      "kind": "pack",
+      "title": "Fresh Animations: Player Extension",
+      "blurb": "Fresh Animations' own player pack: walking, idle and item animations on your body.",
+      "category": "animation",
+      "editions": ["1.20.1"],
+      "default": true,
+      "note": "Needs Fresh Animations plus Entity Model and Entity Texture Features, which this edition already installs."
+    },
+    {
+      "slug": "actually-3d-blocks-and-items",
+      "kind": "pack",
+      "title": "Actually 3D Blocks & Items!",
+      "blurb": "Vanilla-style 3D models for tools, food and blocks, including held-item shapes.",
+      "category": "world",
+      "editions": ["1.20.1"],
+      "default": false,
+      "note": "The newer 'Actually 3D Stuff' pack starts at 1.21.9, so 1.20.1 gets this build from the same author."
+    },
+    {
+      "slug": "better-village",
+      "kind": "mod",
+      "title": "Better Villages",
+      "blurb": "Bigger, denser villages with furnished houses and far more loot.",
+      "category": "world",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "eugenes-wealthy-plains-village",
+      "kind": "mod",
+      "title": "Eugene's Wealthy Plains Village",
+      "blurb": "A wealthy plains village variant with a stacked, lootable blacksmith.",
+      "category": "world",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "when-dungeons-arise",
+      "kind": "mod",
+      "title": "When Dungeons Arise",
+      "blurb": "Huge, dangerous structures to find and clear out while exploring.",
+      "category": "world",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "repurposed-structures-fabric",
+      "kind": "mod",
+      "title": "Repurposed Structures",
+      "blurb": "More village and structure variants for every biome.",
+      "category": "world",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "ct-overhaul-village",
+      "kind": "mod",
+      "title": "ChoiceTheorem's Overhauled Village",
+      "blurb": "Hand-built village overhauls that fit each biome's style.",
+      "category": "world",
+      "editions": ["1.20.1"],
+      "default": true
+    },
+    {
+      "slug": "towns-and-towers",
+      "kind": "mod",
+      "title": "Towns and Towers",
+      "blurb": "New villages, towers and outposts that feel built, not generated.",
+      "category": "world",
+      "editions": ["1.20.1"],
+      "default": true
+    },
+    {
+      "slug": "appleskin",
+      "kind": "mod",
+      "title": "AppleSkin",
+      "blurb": "Shows hunger and saturation restored before you eat.",
+      "category": "qol",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "jei",
+      "kind": "mod",
+      "title": "Just Enough Items",
+      "blurb": "Every recipe in the game, searchable in your inventory.",
+      "category": "qol",
+      "editions": ["1.20.1"],
+      "default": true
+    },
+    {
+      "slug": "shulkerboxtooltip",
+      "kind": "mod",
+      "title": "Shulker Box Tooltip",
+      "blurb": "Peek inside a shulker box without placing it.",
+      "category": "qol",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "betterf3",
+      "kind": "mod",
+      "title": "BetterF3",
+      "blurb": "A readable, coloured debug screen.",
+      "category": "qol",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "rightclickharvest",
+      "kind": "mod",
+      "title": "RightClickHarvest",
+      "blurb": "Harvest and replant farms with a right click.",
+      "category": "qol",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": true
+    },
+    {
+      "slug": "complementary-reimagined",
+      "kind": "shader",
+      "title": "Complementary Reimagined",
+      "blurb": "The all-rounder: soft light, water and weather at a fair frame cost.",
+      "category": "shader",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": false
+    },
+    {
+      "slug": "bsl-shaders",
+      "kind": "shader",
+      "title": "BSL Shaders",
+      "blurb": "Painterly, warm lighting with strong clouds and god rays.",
+      "category": "shader",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": false
+    },
+    {
+      "slug": "makeup-ultra-fast-shaders",
+      "kind": "shader",
+      "title": "MakeUp - Ultra Fast",
+      "blurb": "Shader looks on integrated graphics: waves, sun and coloured light.",
+      "category": "shader",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": false
+    },
+    {
+      "slug": "photon-shader",
+      "kind": "shader",
+      "title": "Photon Shader",
+      "blurb": "Ray-traced-feeling shadows and atmosphere for a darker survival mood.",
+      "category": "shader",
+      "editions": ["1.20.1", "1.16.5"],
+      "default": false
+    }
+  ]
+}

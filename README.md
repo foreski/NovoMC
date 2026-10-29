@@ -147,6 +147,12 @@ by [foreski](https://github.com/foreski) (foreskin).
 The wing meshes, their materials and their textures sit in
 `client-mod/src/main/resources/assets/novomc/models/wings`.
 
+## License
+
+MIT — see [LICENSE](LICENSE). The one exception is the Sodium renderer port under
+`client-mod/src/main/java/com/novomc/client/sodium` and its shaders, which stays under the GNU LGPL v3 and
+carries its own license text next to the code.
+
 ---
 
 <p align="center">

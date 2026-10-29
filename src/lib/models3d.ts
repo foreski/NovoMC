@@ -323,10 +323,12 @@ function skinBox(
     box.add(mesh);
   };
   // Front, back, right, left, top, bottom, in the order the layout packs them.
+  // The model's right side is -x (the right arm sits there in ModelPlayer), and
+  // the layout's right-hand strip at (u, v+d) is the one that belongs on it.
   add(skinFace(skin, u + d, v + d, w, h), 0, 0, d / 2);
   add(skinFace(skin, u + d + w + d, v + d, w, h), 0, 0, -d / 2, 0, Math.PI);
-  add(skinFace(skin, u, v + d, d, h), w / 2, 0, 0, 0, Math.PI / 2);
-  add(skinFace(skin, u + d + w, v + d, d, h), -w / 2, 0, 0, 0, -Math.PI / 2);
+  add(skinFace(skin, u, v + d, d, h), -w / 2, 0, 0, 0, -Math.PI / 2);
+  add(skinFace(skin, u + d + w, v + d, d, h), w / 2, 0, 0, 0, Math.PI / 2);
   add(skinFace(skin, u + d, v, w, d), 0, h / 2, 0, -Math.PI / 2, 0);
   add(skinFace(skin, u + d + w, v, w, d), 0, -h / 2, 0, Math.PI / 2, 0);
   box.position.set(centre[0], centre[1], centre[2]);
@@ -344,8 +346,10 @@ export function buildPlayer(skin: THREE.Texture, slim: boolean): THREE.Group {
   const armW = slim ? 3 : 4;
   player.add(skinBox(skin, 0, 0, 8, 8, 8, [0, 28, 0]));
   player.add(skinBox(skin, 16, 16, 8, 12, 4, [0, 18, 0]));
-  player.add(skinBox(skin, slim ? 44 : 40, 16, armW, 12, 4, [-(4 + armW / 2) + 1, 18, 0]));
-  player.add(skinBox(skin, slim ? 36 : 32, 48, armW, 12, 4, [4 + armW / 2 - 1, 18, 0]));
+  // Both arm strips start where the 64x64 layout puts them; the slim model only
+  // narrows them, which shifts the faces packed along the strip, not the strip.
+  player.add(skinBox(skin, 40, 16, armW, 12, 4, [-(4 + armW / 2) + 1, 18, 0]));
+  player.add(skinBox(skin, 32, 48, armW, 12, 4, [4 + armW / 2 - 1, 18, 0]));
   player.add(skinBox(skin, 0, 16, 4, 12, 4, [-2, 6, 0]));
   player.add(skinBox(skin, 16, 48, 4, 12, 4, [2, 6, 0]));
   player.scale.setScalar(0.05);

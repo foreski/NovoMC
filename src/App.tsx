@@ -18,6 +18,8 @@ import { InstallsProvider } from './lib/installs';
 import { InstancesProvider } from './lib/instances';
 import { HomePage } from './pages/Home';
 import { InstancesPage } from './pages/Instances';
+import { SurvivalPage } from './pages/Survival';
+import { ServersPage } from './pages/Servers';
 import { SettingsPage } from './pages/Settings';
 import { MarketplacePage } from './pages/Marketplace';
 import { SkinsPage } from './pages/Skins';
@@ -36,6 +38,10 @@ function Page({
       return <HomePage onNavigate={onNavigate} />;
     case 'instances':
       return <InstancesPage onNavigate={onNavigate} />;
+    case 'survival':
+      return <SurvivalPage onNavigate={onNavigate} />;
+    case 'servers':
+      return <ServersPage />;
     case 'marketplace':
       return <MarketplacePage />;
     case 'skins':

@@ -10,12 +10,14 @@ pub mod error;
 pub mod instances;
 pub mod java;
 pub mod launch;
+pub mod local_server;
 pub mod news;
 pub mod novo;
 pub mod paths;
 pub mod report;
 pub mod servers;
 pub mod settings;
+pub mod survival;
 pub mod updater;
 
 use serde::Serialize;
@@ -54,6 +56,7 @@ pub fn run() {
     tauri::Builder::default()
         .manage(download::Installs::default())
         .manage(launch::Games::default())
+        .manage(local_server::Servers::default())
         .manage(updater::PendingUpdate::default())
         .plugin(
             tauri_plugin_updater::Builder::new()
@@ -126,6 +129,25 @@ pub fn run() {
             instances::open_instance_folder,
             instances::client::get_client_config,
             instances::client::save_client_config,
+            survival::survival_editions,
+            survival::survival_catalog,
+            survival::survival_status,
+            survival::survival_instances,
+            survival::survival_create,
+            survival::survival_install,
+            survival::survival_remove,
+            survival::survival_bundle,
+            survival::survival_search,
+            local_server::list_local_servers,
+            local_server::create_local_server,
+            local_server::delete_local_server,
+            local_server::start_local_server,
+            local_server::stop_local_server,
+            local_server::match_server_mods,
+            local_server::apply_server_mods,
+            local_server::open_local_server_folder,
+            local_server::read_server_properties,
+            local_server::save_server_properties,
             java::list_java,
             launch::launch_game,
             launch::stop_game,

@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
-import { Check, ChevronDown, Loader2, Plus, Boxes, Home, Shirt, Store, UserCircle } from 'lucide-react';
+import { Check, ChevronDown, Loader2, Plus, Boxes, Home, Server, Shirt, Store, Trees, UserCircle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useAccounts } from '../lib/accounts';
 import { useNovo } from '../lib/novo';
@@ -9,11 +9,13 @@ import { RingAvatar } from './Avatar';
 
 const BANNER_URLS = import.meta.glob('../../client-mod/src/main/resources/assets/novomc/textures/banners/*.png', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 
-export type PageId = 'home' | 'instances' | 'marketplace' | 'skins' | 'settings';
+export type PageId = 'home' | 'instances' | 'survival' | 'servers' | 'marketplace' | 'skins' | 'settings';
 
 const items: { id: PageId; label: Key; icon: LucideIcon }[] = [
   { id: 'home', label: 'nav.home', icon: Home },
   { id: 'instances', label: 'nav.instances', icon: Boxes },
+  { id: 'survival', label: 'nav.survival', icon: Trees },
+  { id: 'servers', label: 'nav.servers', icon: Server },
   { id: 'marketplace', label: 'nav.marketplace', icon: Store },
   { id: 'skins', label: 'nav.skins', icon: Shirt },
 ];

@@ -1,6 +1,6 @@
 [package]
 name = "novomc"
-version = "0.4.2"
+version = "0.4.3"
 description = "NovoMC - a Minecraft Java Edition launcher"
 authors = ["NovoMC"]
 edition = "2021"
@@ -21,6 +21,7 @@ thiserror = "2"
 dirs = "6"
 md-5 = "0.10"
 sha1 = "0.10"
+sha2 = "0.10"
 regex = "1"
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "http2", "json"] }
 tokio = { version = "1", features = ["fs", "io-util", "macros", "net", "process", "rt-multi-thread", "sync", "time"] }
