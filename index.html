@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Novo Client — a 1.8.9 PvP client and launcher</title>
+<meta name="description" content="Novo Client is a Minecraft 1.8.9 PvP launcher and in-game mod: Sodium's renderer ported to Forge, about 80 modules, mode profiles, trainers and OptiFine-style options." />
+<meta name="theme-color" content="#0b0e14" />
+<meta property="og:title" content="Novo Client" />
+<meta property="og:description" content="A Minecraft 1.8.9 PvP client and launcher, with Sodium's renderer ported to Forge." />
+<meta property="og:type" content="website" />
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-head" id="siteHead">
+  <div class="wrap head-inner">
+    <a class="brand" href="#top">
+      <img src="assets/logo.svg" width="30" height="30" alt="" />
+      <span>Novo Client</span>
+    </a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#features">Features</a>
+      <a href="#game">In game</a>
+      <a href="#performance">Performance</a>
+      <a href="#fair-play">Fair play</a>
+    </nav>
+    <div class="head-actions">
+      <a class="btn btn-ghost" href="https://github.com/foreski/NovoMC" rel="noopener">GitHub</a>
+      <a class="btn btn-primary" href="https://github.com/foreski/NovoMC/releases/latest" rel="noopener">Download</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" id="top">
+    <div class="glow glow-a" aria-hidden="true"></div>
+    <div class="glow glow-b" aria-hidden="true"></div>
+    <div class="wrap hero-inner">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="dot" aria-hidden="true"></span> Version 0.4.1 · Windows 10 and 11</p>
+        <h1>A 1.8.9 PvP client<br /><span class="grad">and a launcher that gets out of the way.</span></h1>
+        <p class="lede">
+          Sodium's chunk renderer ported to Forge, about eighty modules on one key, and a launcher that
+          handles Java, Forge and your instances for you. Built by <a href="https://github.com/foreski" rel="noopener">foreski</a>.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary btn-lg" href="https://github.com/foreski/NovoMC/releases/latest" rel="noopener">
+            Download for Windows
+          </a>
+          <a class="btn btn-ghost btn-lg" href="#features">See what's in it</a>
+        </div>
+        <p class="fineprint">
+          The installer isn't code-signed yet, so SmartScreen will complain. More info → Run anyway.
+        </p>
+      </div>
+      <figure class="hero-shot">
+        <div class="frame">
+          <div class="frame-bar" aria-hidden="true"><i></i><i></i><i></i></div>
+          <img src="assets/launcher-home.png" alt="The Novo Client launcher home screen, with one Play button and a list of instances" fetchpriority="high" />
+        </div>
+      </figure>
+    </div>
+  </section>
+
+  <section class="stats" aria-label="At a glance">
+    <div class="wrap stat-grid">
+      <div class="stat reveal">
+        <span class="stat-num">2×</span>
+        <span class="stat-label">frame rate with performance modules on</span>
+      </div>
+      <div class="stat reveal">
+        <span class="stat-num">~80</span>
+        <span class="stat-label">modules, every one toggleable</span>
+      </div>
+      <div class="stat reveal">
+        <span class="stat-num">2,700</span>
+        <span class="stat-label">1.8.x resource packs, one click away</span>
+      </div>
+      <div class="stat reveal">
+        <span class="stat-num">5</span>
+        <span class="stat-label">languages in the launcher</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <div class="wrap">
+      <p class="eyebrow">The launcher</p>
+      <h2>Instances, accounts and versions without the ceremony</h2>
+      <p class="section-lede">
+        A Tauri app: a Windows desktop program with a web UI on top of Rust doing the actual work.
+        One Play button, and everything around it is optional.
+      </p>
+
+      <ul class="cards">
+        <li class="card reveal">
+          <h3>Instances on one screen</h3>
+          <p>Each instance keeps its own worlds, mods, resource packs, memory and Java. Duplicate one when you want a copy.</p>
+        </li>
+        <li class="card reveal">
+          <h3>Every Minecraft version</h3>
+          <p>Pulled from Mojang, verified file by file. Forge and a matching Java get downloaded for you.</p>
+        </li>
+        <li class="card reveal">
+          <h3>Microsoft sign-in</h3>
+          <p>Online servers and Realms. Tokens go in Windows Credential Manager, not a JSON file in <code>%APPDATA%</code>.</p>
+        </li>
+        <li class="card reveal">
+          <h3>Quick-join</h3>
+          <p>Pin servers to Home with live player counts and ping, then land straight in them from the launcher.</p>
+        </li>
+        <li class="card reveal">
+          <h3>Resource pack browser</h3>
+          <p>Roughly 2,700 Modrinth packs that work on 1.8.x, searchable and sortable, installed in one click.</p>
+        </li>
+        <li class="card reveal">
+          <h3>The small things</h3>
+          <p>Discord Rich Presence, a live console with crash reports, accent colours, signed self-updates, five languages.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="game">
+    <div class="wrap">
+      <p class="eyebrow">In game</p>
+      <h2>One key for the HUD editor and the module list</h2>
+      <p class="section-lede">
+        Right Shift opens both. Drag elements where you want them, scroll to resize, right-click to reset.
+        Nothing overlaps by default — untouched elements settle into a left and a right column.
+      </p>
+
+      <div class="modules">
+        <article class="module-group reveal">
+          <h3>HUD</h3>
+          <p>FPS, CPS, keystrokes, armour status, potion effects, coordinates, direction, ping, clock, memory, combo counter, reach, waypoints.</p>
+        </article>
+        <article class="module-group reveal">
+          <h3>PvP visuals</h3>
+          <p>1.7 animations, hit colour, hurt cam, block outline, hitboxes, item physics, 2D items, motion blur, menu blur, dynamic lights.</p>
+        </article>
+        <article class="module-group reveal">
+          <h3>Quality of life</h3>
+          <p>Freelook, snaplook, zoom, toggle sprint and sneak, nick hider, custom scoreboard and tab list, chat timestamps, pack display, screenshot manager, Hypixel quickplay and requeue.</p>
+        </article>
+        <article class="module-group reveal">
+          <h3>Rendering</h3>
+          <p>Sodium renderer, fast math, smart animations, lazy chunk loading, connected textures, custom sky, better grass and snow, entity and particle culling, uncapped frame rate.</p>
+        </article>
+      </div>
+
+      <div class="deep-dives">
+        <article class="dive reveal">
+          <h3>Mode profiles</h3>
+          <p>
+            Novo reads the scoreboard and your kit to work out whether you're in Sword, Pot PvP, UHC, Bed Wars,
+            SkyWars or The Bridge, and keeps a separate setup for each: HUD layout, enabled modules, their
+            settings and your keybinds. Change something mid-game and that mode remembers it.
+          </p>
+        </article>
+        <article class="dive reveal">
+          <h3>Trainers</h3>
+          <p>
+            Four drills in a private flat world, with personal bests: click speed, aim and combo (30 seconds
+            against a strafing target), speedbridge (30 blocks over void) and pot refill.
+          </p>
+        </article>
+        <article class="dive reveal">
+          <h3>OptiFine options, without OptiFine</h3>
+          <p>
+            Connected textures generate 47 glass border tiles from whatever pack you're using, plus
+            <code>optifine/ctm</code> and <code>mcpatcher/ctm</code> properties if the pack ships them. Custom sky reads
+            <code>optifine/sky</code>. Fast math is a 4096-entry sine table. All of it is a module, so any of it turns off.
+          </p>
+        </article>
+        <article class="dive reveal">
+          <h3>Modern Minecraft too</h3>
+          <p>
+            An early-access build for 26.3 on Fabric shares the settings format and HUD layout, with mode
+            profiles for Crystal, Mace, Spear, Nethpot, UHC, Axe and Sword, and drills for crystal speed, mace
+            dive and spear charge.
+          </p>
+        </article>
+      </div>
+
+      <div class="gallery">
+        <figure class="shot reveal">
+          <img src="assets/ingame-menu.png" alt="The in-game main menu with the Novo Client panel" loading="lazy" />
+          <figcaption>The in-game menu</figcaption>
+        </figure>
+        <figure class="shot reveal">
+          <img src="assets/ingame-mods.png" alt="The in-game module list with per-module settings" loading="lazy" />
+          <figcaption>The module list</figcaption>
+        </figure>
+        <figure class="shot reveal">
+          <img src="assets/ingame-video.png" alt="Video settings showing the Sodium renderer options" loading="lazy" />
+          <figcaption>Renderer options</figcaption>
+        </figure>
+        <figure class="shot reveal">
+          <img src="assets/ingame-packs.png" alt="The in-game resource pack browser" loading="lazy" />
+          <figcaption>Packs, in game</figcaption>
+        </figure>
+      </div>
+
+      <figure class="showcase reveal">
+        <video controls preload="metadata" playsinline width="1280" height="720">
+          <source src="assets/showcase.mp4" type="video/mp4" />
+          Your browser can't play this video. <a href="https://github.com/foreski/NovoMC/blob/main/docs/media/novomc-showcase.mp4">Download it instead</a>.
+        </video>
+        <figcaption>Fifty seconds of a real 1.8.9 duel on Minemen.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section" id="performance">
+    <div class="wrap">
+      <p class="eyebrow">Performance</p>
+      <h2>What the renderer actually buys you</h2>
+      <p class="section-lede">
+        Terrain is baked into shared region buffers and drawn a region at a time instead of a draw call per
+        chunk. The repo ships a benchmark that builds a lobby-shaped stress scene — 400 armour stands, about
+        1,900 block entities, constant particles — and measures the same viewpoint three ways.
+      </p>
+
+      <div class="perf-grid">
+        <div class="perf-card reveal">
+          <span class="perf-tag">Modules off</span>
+          <span class="perf-num">126.5<small>fps</small></span>
+          <div class="bar"><i style="width:49%"></i></div>
+        </div>
+        <div class="perf-card perf-card-hi reveal">
+          <span class="perf-tag">Modules on</span>
+          <span class="perf-num grad">259.1<small>fps</small></span>
+          <div class="bar"><i style="width:100%"></i></div>
+        </div>
+      </div>
+
+      <p class="perf-note">
+        The entire HUD costs about 3.5%. Those numbers come from one machine on one scene, so read them as a
+        before-and-after rather than a promise about your PC. Every optimisation is a module and can be
+        switched off if you'd rather have vanilla.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="fair-play">
+    <div class="wrap narrow">
+      <p class="eyebrow">Fair play</p>
+      <h2>A visual and quality-of-life client</h2>
+      <p class="section-lede">
+        In the same category as the well-known ones. Nothing automates input and nothing reveals information
+        the vanilla game hides.
+      </p>
+      <p>
+        The one thing worth knowing: freelook really detaches the camera, and unlike some clients there's no
+        hook for a server to switch it off remotely, because Novo doesn't run a custom protocol on servers. So
+        it's on you to check whether the server you're playing allows freelook — and the same goes for any HUD
+        element a tournament ruleset bans.
+      </p>
+    </div>
+  </section>
+
+  <section class="section download" id="download">
+    <div class="wrap download-inner">
+      <div>
+        <h2>Get it</h2>
+        <p>
+          Grab the latest <code>NovoMC_x.y.z_x64-setup.exe</code> from releases. Windows 10 or 11, 64-bit.
+          Java is downloaded for you. If you'd rather build from source, the README covers it.
+        </p>
+      </div>
+      <div class="download-actions">
+        <a class="btn btn-primary btn-lg" href="https://github.com/foreski/NovoMC/releases/latest" rel="noopener">Download</a>
+        <a class="btn btn-ghost btn-lg" href="https://github.com/foreski/NovoMC" rel="noopener">Source on GitHub</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap foot-inner">
+    <div class="foot-brand">
+      <img src="assets/logo.svg" width="24" height="24" alt="" />
+      <span>Novo Client</span>
+    </div>
+    <p class="foot-credit">
+      Designed and built by <a href="https://github.com/foreski" rel="noopener">foreski</a> (foreskin).
+      The Sodium renderer is ported from Sodium 0.5 by JellySquid and the CaffeineMC contributors and stays
+      under the GNU LGPL v3. OptiFine-style features are inspired by OptiFine but contain none of its code.
+    </p>
+    <p class="foot-legal">
+      Novo Client is not an official Minecraft product and is not approved by or associated with Mojang or
+      Microsoft. Minecraft is a trademark of Mojang AB. Resource packs belong to their authors and come from
+      Modrinth. <span id="year"></span>
+    </p>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox" hidden>
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close image">×</button>
+  <img id="lightboxImg" alt="" />
+</div>
+
+<script src="main.js"></script>
+</body>
+</html>
