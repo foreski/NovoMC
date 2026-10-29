@@ -76,11 +76,33 @@ DNS first, then the custom domain, or the `github.io` URL redirects to a domain 
 Pages settings the flow is: enter `novoclient.cc` → Save → wait for "DNS check successful" → tick
 **Enforce HTTPS** once the certificate is issued.
 
-### 5. Optional: turn the proxy back on
+### 5. The `www` certificate
 
-Once GitHub reports the certificate as issued, you can flip the records to proxied (orange cloud) for
-Cloudflare's caching and WAF. Keep SSL/TLS on Full. GitHub may then show the certificate as unmanaged — that is
-expected, visitors get Cloudflare's edge certificate. Most people leave it on DNS only and keep it simple.
+GitHub issues a single certificate per custom domain, and it only includes `www.novoclient.cc` if the `www`
+CNAME already resolved to Pages when the order was placed. Ours was proxied to Cloudflare at that moment, so the
+certificate covers `novoclient.cc` alone:
+
+```
+novoclient.cc      -> CN=novoclient.cc          (valid)
+www.novoclient.cc  -> CN=*.github.io            (name mismatch)
+```
+
+GitHub reuses that certificate until it expires (2027-01-27) rather than re-ordering it, so removing and
+re-entering the custom domain does not help. Until then `https://www.novoclient.cc` warns, while
+`http://www.novoclient.cc` correctly 301s to the apex. Two ways to close the gap:
+
+- Let GitHub renew, or open a Pages support ticket to force a re-issue now.
+- Handle `www` at Cloudflare instead: set the `www` CNAME to proxied (orange cloud), add a Redirect Rule
+  sending `www.novoclient.cc` 301 to `https://novoclient.cc`, and keep SSL/TLS on Full. Visitors then get
+  Cloudflare's edge certificate. GitHub will flag `www` as improperly configured again — cosmetic, since the
+  redirect answers before GitHub is reached.
+
+### 6. Optional: turn the apex proxy on
+
+Once GitHub reports the certificate as issued, you can flip the apex records to proxied (orange cloud) for
+Cloudflare's caching and WAF. Keep SSL/TLS on Full (strict) — GitHub's certificate is valid for the name, so
+strict works. GitHub may then show the certificate as unmanaged; visitors get Cloudflare's edge certificate.
+Most people leave the apex on DNS only and keep it simple.
 
 ### Checking it
 
