@@ -5,7 +5,7 @@
 <h1 align="center">Novo Client</h1>
 
 <p align="center">
-  A Minecraft 1.8.9 PvP client and launcher, with Sodium's renderer ported to Forge.<br />
+  A Minecraft PvP client and launcher for 1.8.9 and modern versions, with Sodium's renderer ported to Forge.<br />
   Designed and built by <a href="https://github.com/foreski">foreski</a> (foreskin).<br />
   <a href="https://github.com/foreski/NovoMC/releases/latest">Download</a> ·
   <a href="#building">Building</a> ·
@@ -23,7 +23,8 @@
 
 ## What this is
 
-Novo Client is a Minecraft Java launcher plus its own in-game client mod, aimed at 1.8.9 PvP.
+Novo Client is a Minecraft Java launcher plus its own in-game client mod, built for PvP on 1.8.9 and on
+modern versions.
 
 The mod part is roughly two things. First, a chunk renderer ported from
 [Sodium](https://github.com/CaffeineMC/sodium) — terrain is baked into shared region buffers and drawn a region
