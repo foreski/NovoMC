@@ -7,8 +7,8 @@ Pages can serve this branch as-is.
 
 ```
 index.html      the whole page
-styles.css      all styling; palette comes from assets/branding/BRANDING.md
-main.js         sticky header, scroll reveals, screenshot lightbox, footer year, live release version
+styles.css      all styling; palette comes from assets/branding/BRANDING.mdmain.js         sticky header, scroll reveals, screenshot lightbox, footer year, live release version,
+                release history, small-screen menu
 assets/         logo, launcher and in-game screenshots, the showcase video
 .nojekyll       tells Pages to serve the files untouched
 ```
@@ -129,6 +129,36 @@ Why the API and not `releases/latest/download/latest.json`: release assets are s
 `Access-Control-Allow-Origin`, so a browser `fetch` of that file is blocked. `api.github.com` allows any origin.
 If the script finds no `_x64-setup.exe` asset on the latest release, it leaves the markup alone rather than
 linking to something that does not exist.
+
+## The changelog
+
+The Releases section lists the newest six releases with their notes, dates and a `latest` badge. It asks
+the same API as the download button (`/releases?per_page=6`), paints from the `novo.releases` cache
+immediately, and refreshes behind it on the same three-hour interval.
+
+Notes arrive as Markdown. `main.js` honours only what these releases actually use — blank lines, `-`/`*`
+bullets, headings, and inline `**bold**`, `` `code` `` and links — and every string goes in as a `textContent`
+node, so a release body can never inject markup. Bodies are cut at 1,200 characters before caching so the
+localStorage copy stays small.
+
+If the request fails and there is no cached copy, the section says so instead of showing an empty list. With
+JavaScript off, the `<noscript>` note explains itself.
+
+The `<ol>` is sized with `grid-template-columns: minmax(0, 1fr)`. Without that, one long line of notes sizes
+the implicit track to max-content and the whole page scrolls sideways on a phone.
+
+## The FAQ
+
+Plain `<details>`/`<summary>` elements, no JavaScript: no scripting, works from a file, and the browser
+handles keyboard and screen-reader behaviour. The first one is `open` so the section does not read as six
+bare headings. Answers reflect what the launcher actually does — SmartScreen on an unsigned installer,
+Java downloaded per version, `%APPDATA%\NovoMC`, self-updates, Windows-only, and the API host line in
+Settings. Update them here when that behaviour changes.
+
+## The small-screen menu
+
+Below 980px the inline nav has no room, so it is swapped for a `<details>` menu in the header. It closes
+on link click, outside click and Escape — otherwise it stays open over the section it just jumped to.
 
 ## Keeping the screenshots current
 

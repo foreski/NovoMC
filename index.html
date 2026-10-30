@@ -26,7 +26,20 @@
       <a href="#game">In game</a>
       <a href="#performance">Performance</a>
       <a href="#fair-play">Fair play</a>
+      <a href="#changelog">Changelog</a>
+      <a href="#faq">FAQ</a>
     </nav>
+    <details class="menu">
+      <summary>Menu</summary>
+      <nav class="menu-panel" aria-label="Sections">
+        <a href="#features">Features</a>
+        <a href="#game">In game</a>
+        <a href="#performance">Performance</a>
+        <a href="#fair-play">Fair play</a>
+        <a href="#changelog">Changelog</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+    </details>
     <div class="head-actions">
       <!-- data-download: main.js points these at the newest release's installer. The href is the
            fallback if that request fails; update it with the version in the hero eyebrow when releasing. -->
@@ -261,6 +274,79 @@
         it's on you to check whether the server you're playing allows freelook — and the same goes for any HUD
         element a tournament ruleset bans.
       </p>
+    </div>
+  </section>
+
+  <section class="section" id="changelog">
+    <div class="wrap">
+      <p class="eyebrow">Releases</p>
+      <h2>What changed, version by version</h2>
+      <p class="section-lede">
+        Read from the newest releases when the page loads, so this list can't quietly fall behind. Updates
+        install themselves once you're running Novo, so this is where to look when something moves.
+      </p>
+
+      <noscript>
+        <p class="releases-note">The release list needs JavaScript. The launcher's update check still finds
+        new versions on its own.</p>
+      </noscript>
+      <ol class="releases" id="releases"></ol>
+      <p class="releases-note" id="releasesStatus" hidden></p>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="faq">
+    <div class="wrap narrow">
+      <p class="eyebrow">FAQ</p>
+      <h2>The things people ask first</h2>
+
+      <div class="faq">
+        <details class="qa" open>
+          <summary>Windows says the app is unsafe. Is it?</summary>
+          <p>
+            That's SmartScreen reacting to an installer nobody has paid Microsoft to sign yet, not a virus
+            finding. Choose <em>More info</em>, then <em>Run anyway</em>. Once it's installed, every update
+            is checked against Novo's own signing key before it's allowed to run.
+          </p>
+        </details>
+        <details class="qa">
+          <summary>Do I need to install Java?</summary>
+          <p>
+            No. Novo downloads a Java runtime that matches the version you're launching, and keeps it in its
+            own folder, so it won't touch whatever Java you already have.
+          </p>
+        </details>
+        <details class="qa">
+          <summary>Where does it keep everything?</summary>
+          <p>
+            In <code>%APPDATA%\NovoMC</code>: instances, libraries, assets, runtimes and logs. One folder
+            for all instances, with worlds and mods per instance inside it. Settings → Data folder opens it.
+          </p>
+        </details>
+        <details class="qa">
+          <summary>How do updates work?</summary>
+          <p>
+            Novo checks when it starts and offers the new build in Settings → Updates. Your instances, mods
+            and settings stay where they are — it replaces the launcher, not your game.
+          </p>
+        </details>
+        <details class="qa">
+          <summary>What does it run on?</summary>
+          <p>
+            Windows 10 or 11, 64-bit. There's no macOS or Linux build. Memory is per instance and you pick
+            it in the launcher; 2 GB is enough for a vanilla instance, more if you're piling on mods.
+          </p>
+        </details>
+        <details class="qa">
+          <summary>Something isn't loading. Where do I start?</summary>
+          <p>
+            Settings → Data folder shows which API host this build resolved and the config file behind it.
+            If that isn't <code>https://novo-api.foreskin.dev</code>, a stale <code>novomc.config.json</code>
+            is the likely cause. If it is, the bug report dialog sends the details and your logs straight to
+            the Novo Discord.
+          </p>
+        </details>
+      </div>
     </div>
   </section>
 
