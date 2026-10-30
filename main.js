@@ -158,8 +158,12 @@
 
   // Release history. Same API and the same per-IP budget as the version above,
   // so it uses the same shape: paint from the cached copy, refresh behind it.
-  const RELEASES_API = 'https://api.github.com/repos/foreski/NovoMC/releases?per_page=6';
+  // A hundred is the API's page size, and it has to be that wide: the download
+  // total below only adds up if every release is in the answer. The changelog
+  // then shows the newest few of them.
+  const RELEASES_API = 'https://api.github.com/repos/foreski/NovoMC/releases?per_page=100';
   const RELEASES_CACHE = 'novo.releases';
+  const CHANGELOG_ITEMS = 6;
 
   const list = document.getElementById('releases');
   const status = document.getElementById('releasesStatus');
@@ -205,9 +209,31 @@
     }
   };
 
+  // Every release re-downloads the whole installer, so this counts downloads
+  // rather than people. It is what GitHub counts and what everyone quotes.
+  const installerDownloads = (releases) =>
+    releases.reduce(
+      (sum, release) =>
+        sum +
+        (release.assets || []).reduce(
+          (count, asset) => count + (/_x64-setup\.exe$/i.test(asset.name || '') ? Number(asset.download_count) || 0 : 0),
+          0
+        ),
+      0
+    );
+
+  const applyDownloads = (total) => {
+    if (!Number.isFinite(total) || total <= 0) return;
+    document.querySelectorAll('[data-downloads]').forEach((el) => {
+      el.textContent = total.toLocaleString();
+    });
+  };
+
   const renderReleases = (releases) => {
     if (!list || !Array.isArray(releases)) return false;
-    const shown = releases.filter((release) => release && release.tag_name && !release.draft && !release.prerelease);
+    const shown = releases
+      .filter((release) => release && release.tag_name && !release.draft && !release.prerelease)
+      .slice(0, CHANGELOG_ITEMS);
     if (!shown.length) return false;
     list.textContent = '';
     shown.forEach((release, index) => {
@@ -254,25 +280,31 @@
   const syncReleases = () => {
     const cached = cachedReleases();
     if (cached && renderReleases(cached.items)) setStatus('');
+    if (cached) applyDownloads(cached.total);
     // Same staleness test as the download link: if the page is showing a newer
     // version than the cached list knows about, the list has to be re-read.
     const newestCached = cached && cached.items[0] ? String(cached.items[0].tag_name || '').replace(/^v/, '') : '';
     const behind = newestCached && isNewer(pageVersion, newestCached);
-    if (cached && !behind && Date.now() - cached.at < RELEASE_TTL) return;
+    // Caches written before the total existed have no `total`, so they are
+    // stale for that too.
+    if (cached && !behind && cached.total != null && Date.now() - cached.at < RELEASE_TTL) return;
     fetch(RELEASES_API, { headers: { Accept: 'application/vnd.github+json' } })
       .then((response) => (response.ok ? response.json() : Promise.reject(new Error(String(response.status)))))
       .then((releases) => {
-        const items = (Array.isArray(releases) ? releases : []).map((release) => ({
+        const all = (Array.isArray(releases) ? releases : []).filter(
+          (release) => release && release.tag_name && !release.draft && !release.prerelease
+        );
+        const items = all.slice(0, CHANGELOG_ITEMS).map((release) => ({
           tag_name: release.tag_name,
           published_at: release.published_at,
           body: String(release.body || '').slice(0, 1200),
-          draft: release.draft,
-          prerelease: release.prerelease,
         }));
+        const total = installerDownloads(all);
         if (!renderReleases(items)) return;
+        applyDownloads(total);
         setStatus('');
         try {
-          localStorage.setItem(RELEASES_CACHE, JSON.stringify({ items, at: Date.now() }));
+          localStorage.setItem(RELEASES_CACHE, JSON.stringify({ items, total, at: Date.now() }));
         } catch (error) {
           /* private mode: the list just reloads next visit */
         }

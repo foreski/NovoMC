@@ -130,6 +130,14 @@ Why the API and not `releases/latest/download/latest.json`: release assets are s
 If the script finds no `_x64-setup.exe` asset on the latest release, it leaves the markup alone rather than
 linking to something that does not exist.
 
+## The download total
+
+The "downloads across all releases" stat is the sum of `download_count` on every installer asset, read from the
+same releases call that fills the changelog — which is why that call asks for `per_page=100` rather than the six
+it displays. It counts downloads, not people: every release is a fresh installer, so somebody who has updated
+through five versions is in there five times. The number in the markup is only a fallback for a failed request
+or for JavaScript off.
+
 ## The changelog
 
 The Releases section lists the newest six releases with their notes, dates and a `latest` badge. It asks

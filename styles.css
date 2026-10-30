@@ -199,7 +199,7 @@ h3 { margin: 0 0 8px; font-size: 1.04rem; letter-spacing: -0.01em; font-weight: 
 
 .stats { border-block: 1px solid var(--border); background: var(--bg-2); }
 .stat-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr);
+  display: grid; grid-template-columns: repeat(5, 1fr);
   gap: 0;
 }
 .stat { padding: 26px 22px; border-left: 1px solid var(--border); }
@@ -442,13 +442,22 @@ h3 { margin: 0 0 8px; font-size: 1.04rem; letter-spacing: -0.01em; font-weight: 
 
 /* ---------- responsive ---------- */
 
+/* Five stats are tight just above the two-column layout, so they tighten up
+   rather than wrapping a label onto four lines. */
+@media (min-width: 981px) and (max-width: 1180px) {
+  .stat { padding: 22px 14px; }
+  .stat-num { font-size: 1.5rem; }
+}
+
 @media (max-width: 980px) {
   .hero-inner { grid-template-columns: 1fr; gap: 38px; }
   .hero { padding-top: 52px; }
   .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
-  .stat:nth-child(3) { border-left: 0; }
+  .stat:nth-child(odd) { border-left: 0; }
   .stat:nth-child(n + 3) { border-top: 1px solid var(--border); }
+  /* An odd number of stats leaves a hole in the last row; it fills it instead. */
+  .stat:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .nav { display: none; }
   .menu { display: block; }
 }
