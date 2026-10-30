@@ -104,6 +104,8 @@ export function SettingsPage({ onNavigate }: { onNavigate: (page: PageId) => voi
   const [totalMb, setTotalMb] = useState(16384);
   const [dataDir, setDataDir] = useState('');
   const [version, setVersion] = useState('');
+  const [apiBase, setApiBase] = useState<string | null>(null);
+  const [configFile, setConfigFile] = useState<string | null>(null);
   const [reporting, setReporting] = useState(false);
   const [javas, setJavas] = useState<JavaInstall[] | null>(null);
   const [saved, setSaved] = useState(false);
@@ -123,6 +125,8 @@ export function SettingsPage({ onNavigate }: { onNavigate: (page: PageId) => voi
         setTotalMb(i.totalMemoryMb);
         setDataDir(i.dataDir);
         setVersion(i.version);
+        setApiBase(i.apiBase);
+        setConfigFile(i.configFile);
       },
       () => {},
     );
@@ -327,6 +331,17 @@ export function SettingsPage({ onNavigate }: { onNavigate: (page: PageId) => voi
             >
               <FolderOpen size={15} /> {t('set.open')}
             </button>
+          </div>
+          {/* Which relay this build talks to, and the file that chose it, so a
+              stale config is visible instead of only showing up as a failed sign-in. */}
+          <div className="mt-3 flex items-center gap-2 text-xs text-novo-muted">
+            <span className="shrink-0 font-bold tracking-[0.2em] uppercase">API</span>
+            <code
+              className="min-w-0 flex-1 truncate font-mono select-text"
+              title={configFile ?? 'No novomc.config.json was found; using defaults'}
+            >
+              {apiBase ?? 'not configured'}
+            </code>
           </div>
         </Card>
 

@@ -21,6 +21,7 @@ pub mod survival;
 pub mod updater;
 
 use serde::Serialize;
+use tauri::AppHandle;
 
 use crate::error::AppResult;
 
@@ -33,10 +34,14 @@ pub struct AppInfo {
     data_dir: String,
     /// Physical memory, for the RAM slider.
     total_memory_mb: u64,
+    /// The relay this build talks to, and the config file it came from, so a
+    /// report can show which endpoint and which file chose it.
+    api_base: Option<String>,
+    config_file: Option<String>,
 }
 
 #[tauri::command]
-fn app_info() -> AppResult<AppInfo> {
+fn app_info(app: AppHandle) -> AppResult<AppInfo> {
     let mut sys = sysinfo::System::new();
     sys.refresh_memory();
     Ok(AppInfo {
@@ -44,6 +49,8 @@ fn app_info() -> AppResult<AppInfo> {
         version: env!("CARGO_PKG_VERSION").split('+').next().unwrap_or(env!("CARGO_PKG_VERSION")),
         data_dir: paths::data_dir()?.display().to_string(),
         total_memory_mb: sys.total_memory() / (1024 * 1024),
+        api_base: config::relay_base(&app),
+        config_file: config::source(&app).map(|path| path.display().to_string()),
     })
 }
 

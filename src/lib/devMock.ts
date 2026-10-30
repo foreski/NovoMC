@@ -82,7 +82,14 @@ function mockSkin(): string {
   return mockSkinPng;
 }
 
-const info: AppInfo = { name: 'NovoMC', version: '0.1.8', dataDir: 'C:\\NovoMC (mock)', totalMemoryMb: 16384 };
+const info: AppInfo = {
+  name: 'NovoMC',
+  version: '0.1.8',
+  dataDir: 'C:\\NovoMC (mock)',
+  totalMemoryMb: 16384,
+  apiBase: 'https://novo-api.foreskin.dev',
+  configFile: 'C:\\NovoMC (mock)\\novomc.config.json',
+};
 
 const replies: Record<string, (args: Record<string, unknown>) => unknown> = {
   app_info: () => info,

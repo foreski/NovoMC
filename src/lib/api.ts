@@ -7,6 +7,10 @@ export interface AppInfo {
   version: string;
   dataDir: string;
   totalMemoryMb: number;
+  /** The relay this build talks to, null when no config sets one. */
+  apiBase: string | null;
+  /** The config file that supplied it. */
+  configFile: string | null;
 }
 
 export type AccountKind = 'offline' | 'microsoft';

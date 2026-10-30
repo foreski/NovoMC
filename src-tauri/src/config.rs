@@ -29,6 +29,8 @@ pub struct AppConfig {
 }
 
 static CONFIG: OnceLock<AppConfig> = OnceLock::new();
+/// The file `get` read, so the UI can show where the API host came from.
+static SOURCE: OnceLock<Option<PathBuf>> = OnceLock::new();
 
 /// Reads the config once; later calls return the same values.
 pub fn get(app: &AppHandle) -> &'static AppConfig {
@@ -36,13 +38,24 @@ pub fn get(app: &AppHandle) -> &'static AppConfig {
         for path in candidates(app) {
             if let Ok(bytes) = std::fs::read(&path) {
                 match serde_json::from_slice(&bytes) {
-                    Ok(config) => return config,
+                    Ok(config) => {
+                        let _ = SOURCE.set(Some(path));
+                        return config;
+                    }
                     Err(e) => eprintln!("[NovoMC] Ignoring {}: {e}", path.display()),
                 }
             }
         }
+        let _ = SOURCE.set(None);
         AppConfig::default()
     })
+}
+
+/// The file the config was read from, or None when no file was usable and the
+/// built-in defaults are in effect.
+pub fn source(app: &AppHandle) -> Option<&'static PathBuf> {
+    get(app);
+    SOURCE.get().and_then(|path| path.as_ref())
 }
 
 fn candidates(app: &AppHandle) -> Vec<PathBuf> {
