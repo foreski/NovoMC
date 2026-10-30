@@ -22,7 +22,7 @@ pub struct AppConfig {
     pub msa_client_id: Option<String>,
     /// Your own Azure app's client ID (Microsoft identity platform flow).
     pub azure_client_id: Option<String>,
-    /// The bug-report relay (relay/ in the repo), e.g. https://novomc-bug-relay.example.workers.dev/report.
+    /// The bug-report relay (relay/ in the repo), e.g. https://novo-api.foreskin.dev/report.
     pub bug_report_url: Option<String>,
     /// Discord application ID for Rich Presence (an app with a "novomc" art asset).
     pub discord_app_id: Option<String>,

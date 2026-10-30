@@ -6,6 +6,14 @@ name = "shrill-block-91e1"
 main = "src/worker.js"
 compatibility_date = "2024-09-23"
 
+# The public API host. Keep it here or the next deploy unbinds the custom domain
+# added in the Cloudflare dashboard (novo-api.foreskin.dev -> this Worker).
+# The account name is still shrill-block-91e1, so the old
+# shrill-block-91e1.disguisedfox94.workers.dev URL keeps answering as well.
+[[routes]]
+pattern = "novo-api.foreskin.dev"
+custom_domain = true
+
 [vars]
 GITHUB_REPO = "foreski/NovoMC"
 DISCORD_CLIENT_ID = "1564439345874739270"
@@ -39,11 +47,11 @@ id = "aa4d09f390fa4f338294021dee086bb8"
 #   npx wrangler secret put STRIPE_WEBHOOK_SECRET
 #   npx wrangler secret put SHOP_TOKEN      (lets the Discord bot edit shop items)
 # Apply relay/migrations/0002-marketplace.sql and 0003-shop-items.sql before deploying.
-# Stripe webhook endpoint: https://<this worker>/stripe/webhook
+# Stripe webhook endpoint: https://novo-api.foreskin.dev/stripe/webhook
 # Subscribe to checkout.session.completed. Checkout stays disabled until both
 # Stripe secrets are configured.
 # The Discord application also needs the redirect
-#   https://<this worker>/account/discord/callback
+#   https://novo-api.foreskin.dev/account/discord/callback
 [[d1_databases]]
 binding = "NOVO_DB"
 database_name = "novo-accounts"
