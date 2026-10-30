@@ -121,11 +121,9 @@ caches it in `localStorage` for three hours so the unauthenticated rate limit (6
 not a concern.
 
 The `href` and version written into `index.html` are the fallback for a failed request or for JavaScript off.
-They only need touching if you want the no-JavaScript page to name the newest build:
-
-```
-releases/download/v0.4.3/NovoMC_0.4.3_x64-setup.exe
-```
+They are not maintained by hand: `npm run release` rewrites them from the version it is building, and
+`npm run release -- --publish` commits the change to this branch and pushes it. A release built without
+`--publish` leaves the edit uncommitted for you to review.
 
 Why the API and not `releases/latest/download/latest.json`: release assets are served without
 `Access-Control-Allow-Origin`, so a browser `fetch` of that file is blocked. `api.github.com` allows any origin.
