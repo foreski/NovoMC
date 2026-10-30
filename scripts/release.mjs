@@ -10,11 +10,15 @@
 // Signing uses the updater key in %USERPROFILE%\.tauri\novomc-updater.key (or
 // TAURI_SIGNING_PRIVATE_KEY). Keep that file secret and backed up: without it
 // you can't publish updates that existing installs will accept.
+//
+// The site's fallback version is refreshed too: with `--publish` the `website`
+// worktree in .website is committed and pushed, otherwise it is only edited.
 import { execFileSync } from 'node:child_process';
 import { copyFileSync, existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { siteDir, syncFallbackVersion } from './lib/website.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const REPO = 'foreski/NovoMC';
@@ -62,6 +66,11 @@ function gh() {
   return existsSync(installed) ? `"${installed}"` : 'gh';
 }
 
+/** Git in the site worktree, without a shell so paths need no quoting. */
+function gitIn(dir, gitArgs) {
+  execFileSync('git', ['-C', dir, ...gitArgs], { cwd: root, stdio: 'inherit' });
+}
+
 const confVersion = JSON.parse(readFileSync(join(root, 'src-tauri', 'tauri.conf.json'), 'utf8')).version;
 if (flag('--bugfix')) {
   const base = option('--version') ?? confVersion.split('+')[0];
@@ -73,6 +82,12 @@ if (flag('--bugfix')) {
 }
 const version = JSON.parse(readFileSync(join(root, 'src-tauri', 'tauri.conf.json'), 'utf8')).version;
 const publicVersion = version.split('+')[0];
+
+const site = siteDir(root);
+const siteUpdated = site ? syncFallbackVersion(site, publicVersion) : null;
+if (siteUpdated !== null) {
+  console.log(siteUpdated ? `Website fallback set to ${publicVersion}` : `Website fallback already on ${publicVersion}`);
+}
 
 const keyFile = join(homedir(), '.tauri', 'novomc-updater.key');
 const signing = process.env.TAURI_SIGNING_PRIVATE_KEY
@@ -135,6 +150,12 @@ if (flag('--publish')) {
     console.log(`\nPublished ${tag}.`);
   }
   console.log(`Published signed build ${version} on public release ${tag}; installed launchers will detect it automatically.`);
+  if (siteUpdated) {
+    gitIn(site, ['add', 'index.html']);
+    gitIn(site, ['commit', '-m', `Point the site's fallback at v${publicVersion}`]);
+    gitIn(site, ['push', 'origin', 'website']);
+    console.log(`Pushed the site fallback for v${publicVersion}.`);
+  }
 } else {
   console.log('\nNot published. Re-run with --publish to create the GitHub release.');
 }
