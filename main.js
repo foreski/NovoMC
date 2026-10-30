@@ -82,6 +82,13 @@
   // the markup is the fallback for a failed request, or for no JavaScript at
   // all. Release assets send no CORS headers, so this reads the API instead;
   // that is rate limited per IP, hence the cached copy and the long interval.
+  // Captured before anything rewrites it: the version the markup itself ships
+  // with, which is what the release script keeps current.
+  const pageVersion = (() => {
+    const mark = document.querySelector('[data-version]');
+    return mark ? mark.textContent.trim() : '';
+  })();
+
   const RELEASE_API = 'https://api.github.com/repos/foreski/NovoMC/releases/latest';
   const RELEASE_CACHE = 'novo.release';
   const RELEASE_TTL = 3 * 60 * 60 * 1000;
@@ -112,8 +119,24 @@
     }
   };
 
+  // A cached answer can be older than the page carrying it: the release script
+  // rewrites the markup's version on every release, so markup newer than the
+  // cache means the cache is simply out of date and must not win. Without this,
+  // someone who visited shortly before a release keeps the old download link
+  // for the rest of the TTL.
+  const isNewer = (left, right) => {
+    const a = String(left).split('.').map(Number);
+    const b = String(right).split('.').map(Number);
+    for (let i = 0; i < Math.max(a.length, b.length); i += 1) {
+      const diff = (a[i] || 0) - (b[i] || 0);
+      if (diff) return diff > 0;
+    }
+    return false;
+  };
+
   const syncRelease = () => {
-    const cached = cachedRelease();
+    let cached = cachedRelease();
+    if (cached && isNewer(pageVersion, cached.version)) cached = null;
     if (cached) applyRelease(cached);
     if (cached && Date.now() - cached.at < RELEASE_TTL) return;
     fetch(RELEASE_API, { headers: { Accept: 'application/vnd.github+json' } })
@@ -231,7 +254,11 @@
   const syncReleases = () => {
     const cached = cachedReleases();
     if (cached && renderReleases(cached.items)) setStatus('');
-    if (cached && Date.now() - cached.at < RELEASE_TTL) return;
+    // Same staleness test as the download link: if the page is showing a newer
+    // version than the cached list knows about, the list has to be re-read.
+    const newestCached = cached && cached.items[0] ? String(cached.items[0].tag_name || '').replace(/^v/, '') : '';
+    const behind = newestCached && isNewer(pageVersion, newestCached);
+    if (cached && !behind && Date.now() - cached.at < RELEASE_TTL) return;
     fetch(RELEASES_API, { headers: { Accept: 'application/vnd.github+json' } })
       .then((response) => (response.ok ? response.json() : Promise.reject(new Error(String(response.status)))))
       .then((releases) => {
