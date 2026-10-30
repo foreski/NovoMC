@@ -152,8 +152,9 @@ the implicit track to max-content and the whole page scrolls sideways on a phone
 Plain `<details>`/`<summary>` elements, no JavaScript: no scripting, works from a file, and the browser
 handles keyboard and screen-reader behaviour. The first one is `open` so the section does not read as six
 bare headings. Answers reflect what the launcher actually does — SmartScreen on an unsigned installer,
-Java downloaded per version, `%APPDATA%\NovoMC`, self-updates, Windows-only, and the API host line in
-Settings. Update them here when that behaviour changes.
+Java downloaded per version, `%APPDATA%\NovoMC`, self-updates, Windows-only, and how to file a report. The
+FAQ deliberately says nothing about hosts or config files: a visitor cannot act on that, and reporting a bug
+is the step they can take. Update the answers here when that behaviour changes.
 
 ## The small-screen menu
 
