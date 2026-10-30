@@ -8,7 +8,7 @@ Pages can serve this branch as-is.
 ```
 index.html      the whole page
 styles.css      all styling; palette comes from assets/branding/BRANDING.md
-main.js         sticky header, scroll reveals, screenshot lightbox, footer year
+main.js         sticky header, scroll reveals, screenshot lightbox, footer year, live release version
 assets/         logo, launcher and in-game screenshots, the showcase video
 .nojekyll       tells Pages to serve the files untouched
 ```
@@ -115,13 +115,22 @@ curl -sI https://novoclient.cc    # expect 200 and server: GitHub.com
 ## The download buttons
 
 The three Download buttons point straight at the installer asset rather than at the releases page, so a click
-starts the download. The asset name contains the version, so bump it with each release:
+starts the download. They do not carry a version of their own: `main.js` asks the GitHub API for the newest
+release and rewrites every `[data-download]` link and the hero's `[data-version]` text from the answer, then
+caches it in `localStorage` for three hours so the unauthenticated rate limit (60 requests an hour per IP) is
+not a concern.
+
+The `href` and version written into `index.html` are the fallback for a failed request or for JavaScript off.
+They only need touching if you want the no-JavaScript page to name the newest build:
 
 ```
-releases/download/v0.4.1/NovoMC_0.4.1_x64-setup.exe
+releases/download/v0.4.3/NovoMC_0.4.3_x64-setup.exe
 ```
 
-Grep `index.html` for `x64-setup.exe` to find all three.
+Why the API and not `releases/latest/download/latest.json`: release assets are served without
+`Access-Control-Allow-Origin`, so a browser `fetch` of that file is blocked. `api.github.com` allows any origin.
+If the script finds no `_x64-setup.exe` asset on the latest release, it leaves the markup alone rather than
+linking to something that does not exist.
 
 ## Keeping the screenshots current
 

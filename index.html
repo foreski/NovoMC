@@ -28,8 +28,9 @@
       <a href="#fair-play">Fair play</a>
     </nav>
     <div class="head-actions">
-      <!-- Direct installer link: bump the version here with each release. -->
-      <a class="btn btn-primary" href="https://github.com/foreski/NovoMC/releases/download/v0.4.1/NovoMC_0.4.1_x64-setup.exe">Download</a>
+      <!-- data-download: main.js points these at the newest release's installer. The href is the
+           fallback if that request fails; update it with the version in the hero eyebrow when releasing. -->
+      <a class="btn btn-primary" data-download href="https://github.com/foreski/NovoMC/releases/download/v0.4.4/NovoMC_0.4.4_x64-setup.exe">Download</a>
     </div>
   </div>
 </header>
@@ -40,14 +41,14 @@
     <div class="glow glow-b" aria-hidden="true"></div>
     <div class="wrap hero-inner">
       <div class="hero-copy">
-        <p class="eyebrow"><span class="dot" aria-hidden="true"></span> Version 0.4.1 · Windows 10 and 11</p>
+        <p class="eyebrow"><span class="dot" aria-hidden="true"></span> Version <span data-version>0.4.4</span> · Windows 10 and 11</p>
         <h1>A 1.8.9 PvP client<br /><span class="grad">and a launcher that gets out of the way.</span></h1>
         <p class="lede">
           Sodium's chunk renderer ported to Forge, about eighty modules on one key, and a launcher that
           handles Java, Forge and your instances for you. Built by foreski.
         </p>
         <div class="hero-actions">
-          <a class="btn btn-primary btn-lg" href="https://github.com/foreski/NovoMC/releases/download/v0.4.1/NovoMC_0.4.1_x64-setup.exe">
+          <a class="btn btn-primary btn-lg" data-download href="https://github.com/foreski/NovoMC/releases/download/v0.4.4/NovoMC_0.4.4_x64-setup.exe">
             Download for Windows
           </a>
           <a class="btn btn-ghost btn-lg" href="#features">See what's in it</a>
@@ -272,7 +273,7 @@
         </p>
       </div>
       <div class="download-actions">
-        <a class="btn btn-primary btn-lg" href="https://github.com/foreski/NovoMC/releases/download/v0.4.1/NovoMC_0.4.1_x64-setup.exe">Download</a>
+        <a class="btn btn-primary btn-lg" data-download href="https://github.com/foreski/NovoMC/releases/download/v0.4.4/NovoMC_0.4.4_x64-setup.exe">Download</a>
       </div>
     </div>
   </section>
