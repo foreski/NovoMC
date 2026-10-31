@@ -1,0 +1,11 @@
+[package]
+name = "novo-proto"
+description = "Packet framing and the server-list ping for Minecraft: Java Edition"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+novo-core = { path = "../novo-core" }
+serde_json.workspace = true

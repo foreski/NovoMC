@@ -1,0 +1,24 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/novo-core",
+    "crates/novo-nbt",
+    "crates/novo-anvil",
+    "crates/novo-proto",
+    "crates/novo-mc",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+repository = "https://github.com/foreski/NovoMC"
+
+[workspace.dependencies]
+flate2 = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

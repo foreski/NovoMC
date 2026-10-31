@@ -1,0 +1,11 @@
+[package]
+name = "novo-anvil"
+description = "Read Minecraft: Java Edition saves: level.dat, region files and chunk sections"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+flate2.workspace = true
+novo-nbt = { path = "../novo-nbt" }

@@ -1,0 +1,17 @@
+[package]
+name = "novo-mc"
+description = "Command line for the NovoMC Rust rewrite: server pings and save inspection"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "novo-mc"
+path = "src/main.rs"
+
+[dependencies]
+novo-anvil = { path = "../novo-anvil" }
+novo-nbt = { path = "../novo-nbt" }
+novo-proto = { path = "../novo-proto" }
+serde_json.workspace = true

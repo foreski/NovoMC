@@ -1,0 +1,10 @@
+[package]
+name = "novo-nbt"
+description = "Named Binary Tag reader and writer (disk, gzip and network forms)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+flate2.workspace = true
